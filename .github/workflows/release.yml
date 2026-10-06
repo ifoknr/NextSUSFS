@@ -1,0 +1,55 @@
+name: Release
+
+# INFO: Push a tag named after the version in module/module.prop (for example
+#         git tag v0.0.4 && git push origin v0.0.4) to publish a GitHub Release.
+#         The notes come from that version's section of CHANGELOG.md.
+on:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check version
+        run: |
+          prop=$(sed -n 's/^version=//p' module/module.prop)
+          if [ "$prop" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match module.prop version $prop" >&2
+            exit 1
+          fi
+
+      - name: Package
+        run: |
+          mkdir -p out
+          (cd module && zip -qr9 ../out/NextSUSFS.zip . -x '.*')
+          cp out/NextSUSFS.zip "out/NextSUSFS-$GITHUB_REF_NAME.zip"
+
+      - name: Write release notes
+        run: |
+          {
+            echo '> [!WARNING]'
+            echo '> **Personal project, use at your own risk.** Keep a way to boot without modules (safe mode) before installing.'
+            echo
+            echo '## Changes'
+            echo
+            awk -v v="## $GITHUB_REF_NAME" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md
+            echo
+            echo '## Install'
+            echo
+            echo 'Install `NextSUSFS.zip` from KernelSU (or a fork) → Modules → Install from storage, then reboot. Needs a SuSFS-patched kernel.'
+          } > notes.md
+          cat notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/NextSUSFS.zip "out/NextSUSFS-$GITHUB_REF_NAME.zip" \
+            --title "NextSUSFS $GITHUB_REF_NAME" --notes-file notes.md

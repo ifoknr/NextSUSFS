@@ -1,12 +1,26 @@
 # NextSUSFS changelog
 
 ## v0.0.4
+First public release.
+
+**Highlights**
+- Kernel-level root hiding with SuSFS v2 for KernelSU and its forks, on arm64, arm, x86 and x86_64.
+- Hides the NEXT stack (NextWheel, NextZygisk, NextSUSFS) plus AlwaysStrong, Play Integrity Fix
+  and HMA-OSS automatically at every boot.
+- WebUI with over 40 settings on 7 pages, your own path lists, kernel features, logs, backup
+  and reset, in English and Arabic, for phones and tablets.
+- Tools page with the NEXT stack, root hiding, Play Integrity and detection apps (Native
+  Detector, TrustAttestor, KKND Detector).
+- Status shown in NextWheel and NextZygisk; module banner in the root manager.
+
+**Fixes in this version**
 - Fixed: on some managers the module installed with only a few files, so the WebUI hung on
   opening and the status stayed on "Waiting for reboot". The installer no longer copies
   itself into /data/adb/modules during install; the manager moves it in at the next boot.
 - Action button now prints a NextSUSFS status report (SuSFS, kernel features, NEXT stack,
   your lists) instead of a placeholder.
 - Module card text shows only NextSUSFS; credits stay in the WebUI's About and the README.
+- Module banner and a "personal project, use at your own risk" note in About.
 
 ## v0.0.3
 - Hiding: AlwaysStrong (tricky_store), Play Integrity Fix and HMA-OSS folders and Zygisk

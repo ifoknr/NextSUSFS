@@ -5,3 +5,4 @@ versionCode=4
 author=ifoknr
 description=Kernel-level root hiding with SuSFS for the NEXT stack (NextWheel + NextZygisk). Open the WebUI for status and settings.
 updateJson=https://raw.githubusercontent.com/ifoknr/NextSUSFS/main/update.json
+banner=/data/adb/modules/nextsusfs/banner.png
