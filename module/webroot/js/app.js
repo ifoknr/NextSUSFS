@@ -13,7 +13,10 @@ const STR = {
     'nav.home': 'Home', 'nav.hiding': 'Hiding', 'nav.tools': 'Tools', 'nav.settings': 'Settings',
     'home.overview': 'Overview', 'home.device': 'Device',
     'hub.hiding': 'Hiding', 'hub.manage': 'Manage',
-    'tools.stack': 'NextWheel stack', 'tools.integrity': 'Play Integrity', 'tools.conflict': 'Conflicting modules',
+    'tools.stack': 'NEXT stack', 'tools.hiding': 'Root hiding', 'tools.integrity': 'Play Integrity', 'tools.detectors': 'Detection apps', 'tools.conflict': 'Conflicting modules',
+    'tools.native': 'Native checks for root, Zygisk and hooks', 'tools.trust': 'Key attestation, system integrity and runtime checks',
+    'tools.kknd': '139 checks: mounts, SELinux, props, Zygisk and LSPosed', 'tools.detectorsnote': 'After changing a setting, reboot and run these to see what is still visible.',
+    'tools.open': 'Open',
     'tools.nextwheel': 'Hides the Zygisk and root environment inside apps',
     'tools.nextzygisk': 'Standalone Zygisk that loads NextWheel',
     'tools.hma': 'Hides installed app names from other apps',
@@ -53,7 +56,7 @@ const STR = {
     'backup.export': 'Back up settings', 'backup.exportd': 'Copies your settings and lists to Download/NextSUSFS.',
     'backup.import': 'Restore backup', 'backup.importd': 'Loads settings and lists from Download/NextSUSFS.',
     'backup.reset': 'Reset to defaults', 'backup.resetd': 'Puts every switch back to its default. Your lists are kept.',
-    'backup.warn': 'Apps with storage access can see the backup folder. Delete it after restoring.',
+    'backup.warn': 'The backup folder is hidden from apps from the next boot (Paths & files → Hide the backup folder). Delete it when you no longer need it.',
     'backup.none': 'No backup found', 'backup.last': 'Last backup: %s',
     'backup.done': 'Backed up', 'backup.restored': 'Restored. Reboot to apply.', 'backup.resetdone': 'Defaults restored. Reboot to apply.',
     'backup.confirmreset': 'Reset all switches?', 'backup.confirmresetd': 'Every hiding switch goes back to its default.',
@@ -64,7 +67,10 @@ const STR = {
     'nav.home': 'الرئيسية', 'nav.hiding': 'الإخفاء', 'nav.tools': 'الأدوات', 'nav.settings': 'الإعدادات',
     'home.overview': 'نظرة عامة', 'home.device': 'الجهاز',
     'hub.hiding': 'الإخفاء', 'hub.manage': 'الإدارة',
-    'tools.stack': 'منظومة NextWheel', 'tools.integrity': 'نزاهة Play', 'tools.conflict': 'وحدات متعارضة',
+    'tools.stack': 'منظومة NEXT', 'tools.hiding': 'إخفاء الروت', 'tools.integrity': 'نزاهة Play', 'tools.detectors': 'تطبيقات الفحص', 'tools.conflict': 'وحدات متعارضة',
+    'tools.native': 'فحوصات أصلية (Native) للروت و Zygisk والهوكات', 'tools.trust': 'إثبات المفاتيح وسلامة النظام وبيئة التشغيل',
+    'tools.kknd': '139 فحص: التركيبات و SELinux والخصائص و Zygisk و LSPosed', 'tools.detectorsnote': 'بعد ما تغيّر إعداد، أعد التشغيل وشغّل هذي التطبيقات تشوف وش باقي ظاهر.',
+    'tools.open': 'فتح',
     'tools.nextwheel': 'يخفي بيئة Zygisk والروت داخل التطبيقات',
     'tools.nextzygisk': 'Zygisk مستقل يحمّل NextWheel',
     'tools.hma': 'يخفي أسماء التطبيقات المثبّتة عن التطبيقات الأخرى',
@@ -104,7 +110,7 @@ const STR = {
     'backup.export': 'نسخ الإعدادات', 'backup.exportd': 'ينسخ إعداداتك وقوائمك إلى Download/NextSUSFS.',
     'backup.import': 'استعادة النسخة', 'backup.importd': 'يرجّع الإعدادات والقوائم من Download/NextSUSFS.',
     'backup.reset': 'إرجاع الافتراضي', 'backup.resetd': 'يرجّع كل المفاتيح لوضعها الافتراضي. قوائمك تبقى.',
-    'backup.warn': 'التطبيقات اللي عندها صلاحية الذاكرة تقدر تشوف مجلد النسخة. احذفه بعد الاستعادة.',
+    'backup.warn': 'مجلد النسخة ينخفي عن التطبيقات من الإقلاع الجاي (المسارات والملفات ← إخفاء مجلد النسخة الاحتياطية). احذفه إذا ما عاد تحتاجه.',
     'backup.none': 'ما فيه نسخة', 'backup.last': 'آخر نسخة: %s',
     'backup.done': 'تم النسخ', 'backup.restored': 'تمت الاستعادة. أعد التشغيل للتطبيق.', 'backup.resetdone': 'رجع الافتراضي. أعد التشغيل للتطبيق.',
     'backup.confirmreset': 'ترجّع كل المفاتيح؟', 'backup.confirmresetd': 'كل مفاتيح الإخفاء ترجع لوضعها الافتراضي.',
@@ -392,7 +398,16 @@ async function renderBackupPage() {
 
 /* ---------- tools ---------- */
 async function renderTools() {
-  const rows = document.querySelectorAll('#tools-stack .row, #tools-integrity .row, #tools-conflict .row')
+  const apps = document.querySelectorAll('#tools-detectors .row[data-app]')
+  await Promise.all([...apps].map(async (row) => {
+    const pkg = row.getAttribute('data-app')
+    const st = row.querySelector('.status')
+    const installed = (await exec(`pm path ${pkg}`)).errno === 0
+    st.innerHTML = installed
+      ? `<div class="btn small ghost" data-open="${pkg}">${t('tools.open')}</div>`
+      : `<span class="dot neutral"></span>${esc(t('tools.notinstalled'))}`
+  }))
+  const rows = document.querySelectorAll('#tools-stack .row, #tools-hiding .row, #tools-integrity .row, #tools-conflict .row')
   await Promise.all([...rows].map(async (row) => {
     const id = row.getAttribute('data-module')
     const st = row.querySelector('.status')
@@ -431,6 +446,15 @@ async function renderSettings() {
   $('about-version').textContent =
     (await out(`cat ${MODULE}/module.prop`)).split('\n').find((l) => l.startsWith('version='))?.split('=')[1] || '—'
 }
+
+/* ---------- open an installed detection app ---------- */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-open]')
+  if (!b) return
+  const pkg = b.getAttribute('data-open')
+  if (!/^[a-z0-9_.]+$/i.test(pkg)) return
+  exec(`am start -n "$(cmd package resolve-activity --brief ${pkg} | tail -n 1)"`)
+})
 
 /* ---------- links ---------- */
 // The WebUI is a WebView: following a link would replace the app with the page. Hand

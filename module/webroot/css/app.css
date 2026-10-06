@@ -39,7 +39,7 @@ body {
 
 a { color: var(--blue); text-decoration: none; }
 
-#app { padding: 20px 16px 120px; max-width: 900px; margin: 0 auto; }
+#app { padding: 20px 16px 120px; }
 
 .hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
 .brand { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; }
@@ -202,7 +202,7 @@ html[dir="rtl"] .pending { padding: 10px 16px 10px 10px; }
 
 /* ---------- tiles (hub + overview) ---------- */
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (min-width: 700px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tile {
   display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 16px; color: var(--font);
   background: var(--card); border: 1px solid var(--card-line); min-height: 112px;

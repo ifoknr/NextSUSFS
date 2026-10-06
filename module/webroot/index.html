@@ -69,7 +69,7 @@
 
       <!-- TOOLS -->
       <section class="panel" data-panel="tools">
-        <div class="sec" data-i18n="tools.stack">NextWheel stack</div>
+        <div class="sec" data-i18n="tools.stack">NEXT stack</div>
         <div class="card" id="tools-stack">
           <div class="row" data-module="treat_wheel">
             <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
@@ -81,6 +81,10 @@
               <div class="row_sub" data-i18n="tools.nextzygisk">Standalone Zygisk that loads NextWheel</div></div>
             <div class="row_val status">…</div>
           </div>
+        </div>
+
+        <div class="sec" data-i18n="tools.hiding">Root hiding</div>
+        <div class="card" id="tools-hiding">
           <div class="row" data-module="hma_oss_zygisk">
             <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/frknkrc44/HMA-OSS">HMA-OSS</a></div>
               <div class="row_sub" data-i18n="tools.hma">Hides installed app names from other apps</div></div>
@@ -97,6 +101,26 @@
           </div>
         </div>
         <div class="note" data-i18n="tools.alwaysstrongnote">AlwaysStrong replaces Play Integrity Fix, TrickyStore and Tricky Addon. Don't install them alongside it.</div>
+
+        <div class="sec" data-i18n="tools.detectors">Detection apps</div>
+        <div class="card" id="tools-detectors">
+          <div class="row" data-app="com.reveny.nativecheck">
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/reveny/Android-Native-Root-Detector">Native Detector</a></div>
+              <div class="row_sub" data-i18n="tools.native">Native checks for root, Zygisk and hooks</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-app="com.lingqing.trustattestor">
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/LingQingBigKing/TrustAttestor">TrustAttestor</a></div>
+              <div class="row_sub" data-i18n="tools.trust">Key attestation, system integrity and runtime checks</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-app="com.juanma0511.rootdetector">
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/juanma0511/kknd_Root_Detector">KKND Detector</a></div>
+              <div class="row_sub" data-i18n="tools.kknd">139 checks: mounts, SELinux, props, Zygisk and LSPosed</div></div>
+            <div class="row_val status">…</div>
+          </div>
+        </div>
+        <div class="note" data-i18n="tools.detectorsnote">After changing a setting, reboot and run these to see what is still visible.</div>
 
         <div class="sec" data-i18n="tools.conflict">Conflicting modules</div>
         <div class="card" id="tools-conflict">

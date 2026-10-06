@@ -8,8 +8,7 @@ Not started. Each one needs testing on a real device before it ships.
    paths, mounts, maps or properties it can still see.
 2. **Find root traces.** Scan internal storage and /data/local/tmp for known root-tool folders
    (MT Manager, Termux, backups, ROM zips) and offer to add them to a list with one tap.
-3. **Hide the backup folder.** Add Download/NextSUSFS to the hidden paths automatically, so
-   the backup cannot give the device away.
+3. ~~Hide the backup folder.~~ Done in v0.0.3.
 4. **Stock kernel names per device.** A small table of real stock `uname` values by model, so
    "Use my own kernel name" can be filled in for the user.
 

@@ -1,6 +1,16 @@
-/* INFO: Sora for English text, Roboto (Latin, Cyrillic, Vietnamese) and Noto Kufi Arabic (Arabic),
-           all variable weight. From Fontsource 5.3.0, licensed under the SIL Open Font License 1.1
-           (see OFL.txt). */
+/* INFO: The NEXT design fonts, shared by NextWheel, NextZygisk and NextSUSFS:
+           Sora for Latin text, Noto Kufi Arabic for Arabic, and Roboto for Cyrillic and
+           Vietnamese, which Sora does not cover. All variable weight, from Fontsource 5.3.0,
+           licensed under the SIL Open Font License 1.1 (see OFL.txt). */
+
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url("./sora-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
 
 @font-face {
   font-family: "Sora";

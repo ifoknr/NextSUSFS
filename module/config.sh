@@ -8,6 +8,8 @@ config_selinux=1
 config_su_compat=1
 config_spoof_uname=1
 config_spoof_hosts=1
+config_hide_all_zygisk_libs=1
+config_hide_backup_folder=1
 config_selinux_hide=1
 config_kernel_umount=1
 config_hide_custom_recovery=1
@@ -39,6 +41,7 @@ config_spoof_libstagefright=0
 config_hide_custom_rom_paths=0
 config_hide_custom_rom_paths_2=0
 config_hide_framework_res_apk=0
+config_hide_data_adb=0
 config_spoof_cmdline_or_bootconfig=0
 config_disable_child_process_restrictions=0
 

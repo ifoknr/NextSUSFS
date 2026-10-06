@@ -335,6 +335,36 @@ for dir in ${NEXT_DATA_DIRS}; do
 	[[ -e "${dir}" ]] && brene_sus_path "${dir}"
 done
 
+# Integrity and app-hiding modules the stack recommends (AlwaysStrong ships as
+#   tricky_store). Hide their folders and libraries only: no kernel umount here,
+#   because Play services may rely on what these modules set up.
+for mod in tricky_store playintegrityfix hma_oss_zygisk; do
+	mod_dir="/data/adb/modules/${mod}"
+	[[ -d "${mod_dir}" ]] || continue
+	brene_sus_path "${mod_dir}"
+	for so in "${mod_dir}"/zygisk/*.so; do
+		[[ -e "${so}" ]] && brene_sus_map "${so}"
+	done
+done
+[[ -e /data/adb/tricky_store ]] && brene_sus_path /data/adb/tricky_store
+
+# Hide the Zygisk library of every other installed module from memory maps.
+if [[ "${config_hide_all_zygisk_libs}" == "1" ]]; then
+	for so in /data/adb/modules/*/zygisk/*.so; do
+		[[ -e "${so}" ]] && brene_sus_map "${so}"
+	done
+fi
+
+# Hide the whole /data/adb folder from apps (stock Android has no /data/adb).
+if [[ "${config_hide_data_adb}" == "1" ]]; then
+	brene_sus_path /data/adb
+fi
+
+# Hide the WebUI backup folder, so a backup cannot give the device away.
+if [[ "${config_hide_backup_folder}" == "1" ]] && [[ -e /storage/emulated/0/Download/NextSUSFS ]]; then
+	brene_sus_path_loop /storage/emulated/0/Download/NextSUSFS
+fi
+
 # Hide the susfs userspace tool and its aliases we dropped in the ksu bin dir.
 for b in susfs sus ksu_susfs; do
 	[[ -e "/data/adb/ksu/bin/${b}" ]] && brene_sus_path "/data/adb/ksu/bin/${b}"
