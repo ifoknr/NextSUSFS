@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="stylesheet" type="text/css" href="https://mui.kernelsu.org/internal/insets.css" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <title>NextSUSFS</title>
+  </head>
+  <body id="main_body">
+    <div id="loading"><div class="spin"></div></div>
+
+    <div id="app">
+      <div class="hdr">
+        <div>
+          <div class="brand">NextSUSFS</div>
+          <div class="updated" id="updated"></div>
+        </div>
+        <div class="refresh" id="refresh" role="button" aria-label="Refresh">
+          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
+        </div>
+      </div>
+
+      <!-- HOME -->
+      <section class="panel active" data-panel="home">
+        <div class="hero warn" id="hero">
+          <div class="hero_ring" id="hero_ring"><div class="hero_ic" id="hero_ic"></div></div>
+          <div class="hero_body">
+            <div class="hero_title" id="hero_title">…</div>
+            <div class="hero_sub" id="hero_sub"></div>
+            <div class="chips" id="hero_chips"></div>
+          </div>
+        </div>
+
+        <div class="alert" id="banner">
+          <div class="alert_ic" id="banner_ic"></div>
+          <div><div class="alert_t" id="banner_t"></div><div class="alert_d" id="banner_d"></div></div>
+        </div>
+
+        <div class="sec" data-i18n="home.features">Kernel hiding features</div>
+        <div class="card" id="features"></div>
+
+        <div class="sec" data-i18n="home.device">Device</div>
+        <div class="card device" id="device"></div>
+      </section>
+
+      <!-- TOOLS -->
+      <section class="panel" data-panel="tools">
+        <div class="sec" data-i18n="tools.stack">NextWheel stack</div>
+        <div class="card" id="tools-stack">
+          <div class="row" data-module="treat_wheel">
+            <div class="row_body"><div class="row_title"><a href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
+              <div class="row_sub" data-i18n="tools.nextwheel">Hides the Zygisk and root environment inside apps</div></div>
+            <div class="row_val status" data-i18n="tools.checking">…</div>
+          </div>
+          <div class="row" data-module="rezygisk">
+            <div class="row_body"><div class="row_title"><a href="https://github.com/ifoknr/NexTZygisk">NextZygisk</a></div>
+              <div class="row_sub" data-i18n="tools.nextzygisk">Standalone Zygisk that loads NextWheel</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-module="hma_oss_zygisk">
+            <div class="row_body"><div class="row_title"><a href="https://github.com/frknkrc44/HMA-OSS">HMA-OSS</a></div>
+              <div class="row_sub" data-i18n="tools.hma">Hides installed app names from other apps</div></div>
+            <div class="row_val status">…</div>
+          </div>
+        </div>
+
+        <div class="sec" data-i18n="tools.integrity">Play Integrity</div>
+        <div class="card" id="tools-integrity">
+          <div class="row" data-module="playintegrityfix">
+            <div class="row_body"><div class="row_title"><a href="https://github.com/KOWX712/PlayIntegrityFix">Play Integrity Fix</a></div>
+              <div class="row_sub" data-i18n="tools.pif">Passes basic and device integrity</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-module="tricky_store">
+            <div class="row_body"><div class="row_title"><a href="https://github.com/5ec1cff/TrickyStore">TrickyStore — Always Strong</a></div>
+              <div class="row_sub" data-i18n="tools.trickystore">Spoofs a valid keybox for strong (hardware) integrity</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-module="tricky_addon">
+            <div class="row_body"><div class="row_title"><a href="https://github.com/KOWX712/Tricky-Addon-Update-Target-List">Tricky Addon</a></div>
+              <div class="row_sub" data-i18n="tools.trickyaddon">Manages TrickyStore's target app list</div></div>
+            <div class="row_val status">…</div>
+          </div>
+        </div>
+
+        <div class="sec" data-i18n="tools.conflict">Conflicting modules</div>
+        <div class="card" id="tools-conflict">
+          <div class="row" data-module="brene">
+            <div class="row_body"><div class="row_title">BRENE</div>
+              <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-module="susfs4ksu">
+            <div class="row_body"><div class="row_title">susfs4ksu-module</div>
+              <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
+            <div class="row_val status">…</div>
+          </div>
+          <div class="row" data-module="susfs_manager">
+            <div class="row_body"><div class="row_title">SuSFS Manager</div>
+              <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
+            <div class="row_val status">…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="panel" data-panel="settings">
+        <div class="sec" data-i18n="settings.hiding">Hiding &amp; spoofing</div>
+        <div class="card" id="settings-toggles"></div>
+
+        <div class="sec" data-i18n="settings.about">About</div>
+        <div class="card">
+          <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.version">Version</div></div><div class="row_val" id="about-version">—</div></div>
+          <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.credits">Based on</div>
+            <div class="row_sub">BRENE (<a href="https://github.com/rrr333nnn333/BRENE">rrr333nnn333</a>), susfs4ksu (<a href="https://gitlab.com/simonpunk/susfs4ksu">simonpunk</a>), <a href="https://github.com/KOWX712">KOWX712</a></div></div></div>
+          <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.license">License</div></div><div class="row_val">AGPLv3</div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- floating navbar -->
+    <div id="navbar_support">
+      <div id="navbar">
+        <div class="nav_btn active" data-tab="home"><div class="nav_cap"><div class="nav_ic" id="ic_home"></div></div><div class="nav_lb" data-i18n="nav.home">Home</div></div>
+        <div class="nav_btn" data-tab="tools"><div class="nav_cap"><div class="nav_ic" id="ic_tools"></div></div><div class="nav_lb" data-i18n="nav.tools">Tools</div></div>
+        <div class="nav_btn" data-tab="settings"><div class="nav_cap"><div class="nav_ic" id="ic_settings"></div></div><div class="nav_lb" data-i18n="nav.settings">Settings</div></div>
+      </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
