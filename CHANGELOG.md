@@ -1,5 +1,13 @@
 # NextSUSFS changelog
 
+## v0.0.4
+- Fixed: on some managers the module installed with only a few files, so the WebUI hung on
+  opening and the status stayed on "Waiting for reboot". The installer no longer copies
+  itself into /data/adb/modules during install; the manager moves it in at the next boot.
+- Action button now prints a NextSUSFS status report (SuSFS, kernel features, NEXT stack,
+  your lists) instead of a placeholder.
+- Module card text shows only NextSUSFS; credits stay in the WebUI's About and the README.
+
 ## v0.0.3
 - Hiding: AlwaysStrong (tricky_store), Play Integrity Fix and HMA-OSS folders and Zygisk
   libraries are hidden automatically, without kernel umount so Play services keep working.

@@ -20,14 +20,14 @@ susfs_total_features=9
 susfs_version=$(${SUSFS_BIN} show version)
 susfs_features_number=$(${SUSFS_BIN} show enabled_features | wc -l)
 kernel_version=$(cat /proc/version | awk '{print $3}' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
-description="A SuSFS/KernelSU module for SuSFS patched kernels"
 if [[ "${susfs_version}" == "v2"* ]]; then
 	status="Active ✅"
-	${KSU_BIN} module config set override.description "[Status: ${status} | Kernel Version: ${kernel_version} | SuSFS: ${susfs_version} | SuSFS Kernel Features: ${susfs_features_number}/${susfs_total_features} enabled] ${description}"
+elif [[ "${susfs_version}" == "v1"* ]]; then
+	status="Old SuSFS ⚠️"
 else
-	status="Not Working ❌"
-	${KSU_BIN} module config set override.description "[Status: ${status} | Kernel Version: ${kernel_version} | SuSFS: ${susfs_version} | SuSFS Kernel Features: ${susfs_features_number}/${susfs_total_features} enabled] ${description}"
+	status="No SuSFS in kernel ❌"
 fi
+${KSU_BIN} module config set override.description "[Status: ${status} | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none} | Features: ${susfs_features_number}/${susfs_total_features}] NextSUSFS"
 
 # SU Compat
 if [[ "${config_su_compat}" == "1" ]]; then
