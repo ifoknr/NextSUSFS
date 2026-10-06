@@ -310,6 +310,36 @@ if [[ "${config_paths_hiding__data_local_tmp}" == "1" ]]; then
 	done
 fi
 
+# ──────────────────────────────────────────────────────────────────────────────
+# NextSUSFS: hide the NextWheel / NextZygisk stack from the kernel automatically,
+#   so the user does not have to add these paths by hand. Runs every boot and
+#   skips anything that is not installed.
+# ──────────────────────────────────────────────────────────────────────────────
+NEXT_MODULES="treat_wheel rezygisk nextsusfs"
+NEXT_DATA_DIRS="/data/adb/treat_wheel /data/adb/rezygisk /data/adb/nextzygisk /data/adb/nextsusfs"
+
+for mod in ${NEXT_MODULES}; do
+	mod_dir="/data/adb/modules/${mod}"
+	[[ -d "${mod_dir}" ]] || continue
+	brene_sus_path "${mod_dir}"
+	brene_kernel_umount "${mod_dir}"
+	# Hide the loaded zygisk libraries from process memory maps.
+	if [[ -d "${mod_dir}/zygisk" ]]; then
+		for so in "${mod_dir}"/zygisk/*.so; do
+			[[ -e "${so}" ]] && brene_sus_map "${so}"
+		done
+	fi
+done
+
+for dir in ${NEXT_DATA_DIRS}; do
+	[[ -e "${dir}" ]] && brene_sus_path "${dir}"
+done
+
+# Hide the susfs userspace tool and its aliases we dropped in the ksu bin dir.
+for b in susfs sus ksu_susfs; do
+	[[ -e "/data/adb/ksu/bin/${b}" ]] && brene_sus_path "/data/adb/ksu/bin/${b}"
+done
+
 # Load custom_sus_map.txt
 if [[ -e "${PERSISTENT_DIR}/custom_sus_map.txt" ]]; then
 	while IFS= read -r i; do
@@ -409,6 +439,17 @@ if [[ "${config_fix_data_local_tmp_inconsistencies}" == "1" ]]; then
 fi
 
 resetprop -c --force
+
+# INFO: Publish a simple status NextWheel and NextZygisk can read, so they can show
+#         NextSUSFS by name and whether it is actually working in this kernel.
+susfs_ver=$(${SUSFS_BIN} show version 2>/dev/null)
+if [[ "${susfs_ver}" == "v2"* ]]; then
+	echo "working" > "${PERSISTENT_DIR}/status"
+elif [[ "${susfs_ver}" == "v1"* ]]; then
+	echo "old" > "${PERSISTENT_DIR}/status"
+else
+	echo "no_kernel" > "${PERSISTENT_DIR}/status"
+fi
 
 if [[ "${config_brene_logs}" == "1" ]]; then
 	echo "boot-completed.sh ✅" >> "${PERSISTENT_DIR}/log.txt"
