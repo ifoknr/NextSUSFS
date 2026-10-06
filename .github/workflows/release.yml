@@ -27,6 +27,7 @@ jobs:
             exit 1
           fi
           echo "TAG=$prop" >> "$GITHUB_ENV"
+          echo "CODE=$(sed -n 's/^versionCode=//p' module/module.prop)" >> "$GITHUB_ENV"
 
       - name: Package
         run: |
@@ -56,3 +57,22 @@ jobs:
         run: |
           gh release create "$TAG" out/NextSUSFS.zip "out/NextSUSFS-$TAG.zip" \
             --target "$GITHUB_SHA" --title "NextSUSFS $TAG" --notes-file notes.md
+
+      # INFO: Point update.json (module.prop: updateJson) at this release, so root managers
+      #         offer it as an update.
+      - name: Update update.json
+        run: |
+          git fetch origin main
+          git checkout -B update-json origin/main
+          cat > update.json <<EOF
+          {
+            "version": "${TAG}",
+            "versionCode": ${CODE},
+            "zipUrl": "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/NextSUSFS.zip",
+            "changelog": "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/CHANGELOG.md"
+          }
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add update.json
+          git commit -m "chore: update.json for ${TAG}" && git push origin HEAD:main || echo "update.json unchanged"
