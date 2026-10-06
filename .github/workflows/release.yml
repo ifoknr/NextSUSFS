@@ -1,9 +1,11 @@
 name: Release
 
-# INFO: Push a tag named after the version in module/module.prop (for example
-#         git tag v0.0.4 && git push origin v0.0.4) to publish a GitHub Release.
-#         The notes come from that version's section of CHANGELOG.md.
+# INFO: Publishes a GitHub Release for the version in module/module.prop, with that
+#         version's section of CHANGELOG.md as notes. Either:
+#         - Actions > Release > Run workflow (on main): creates the tag itself, or
+#         - push a tag that matches the version (git tag v0.0.4 && git push origin v0.0.4).
 on:
+  workflow_dispatch:
   push:
     tags: [ "v*" ]
 
@@ -20,16 +22,17 @@ jobs:
       - name: Check version
         run: |
           prop=$(sed -n 's/^version=//p' module/module.prop)
-          if [ "$prop" != "$GITHUB_REF_NAME" ]; then
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$prop" != "$GITHUB_REF_NAME" ]; then
             echo "Tag $GITHUB_REF_NAME does not match module.prop version $prop" >&2
             exit 1
           fi
+          echo "TAG=$prop" >> "$GITHUB_ENV"
 
       - name: Package
         run: |
           mkdir -p out
           (cd module && zip -qr9 ../out/NextSUSFS.zip . -x '.*')
-          cp out/NextSUSFS.zip "out/NextSUSFS-$GITHUB_REF_NAME.zip"
+          cp out/NextSUSFS.zip "out/NextSUSFS-$TAG.zip"
 
       - name: Write release notes
         run: |
@@ -39,7 +42,7 @@ jobs:
             echo
             echo '## Changes'
             echo
-            awk -v v="## $GITHUB_REF_NAME" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md
+            awk -v v="## $TAG" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md
             echo
             echo '## Install'
             echo
@@ -51,5 +54,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" out/NextSUSFS.zip "out/NextSUSFS-$GITHUB_REF_NAME.zip" \
-            --title "NextSUSFS $GITHUB_REF_NAME" --notes-file notes.md
+          gh release create "$TAG" out/NextSUSFS.zip "out/NextSUSFS-$TAG.zip" \
+            --target "$GITHUB_SHA" --title "NextSUSFS $TAG" --notes-file notes.md
