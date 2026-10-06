@@ -13,17 +13,26 @@
 
     <div id="app">
       <div class="hdr">
-        <div>
-          <div class="brand">NextSUSFS</div>
-          <div class="updated" id="updated"></div>
+        <div class="hdr_main">
+          <div class="back" id="back" role="button" aria-label="Back"></div>
+          <div>
+            <div class="brand" id="brand">NextSUSFS</div>
+            <div class="updated" id="updated"></div>
+          </div>
         </div>
         <div class="refresh" id="refresh" role="button" aria-label="Refresh">
           <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
         </div>
       </div>
 
+      <!-- shown after any change until the user reboots -->
+      <div class="pending" id="pending">
+        <div class="pending_t" data-i18n="pending.title">Saved. Reboot to apply.</div>
+        <div class="btn small" id="pending_reboot" data-i18n="pending.reboot">Reboot</div>
+      </div>
+
       <!-- HOME -->
-      <section class="panel active" data-panel="home">
+      <section class="panel" data-panel="home">
         <div class="hero warn" id="hero">
           <div class="hero_ring" id="hero_ring"><div class="hero_ic" id="hero_ic"></div></div>
           <div class="hero_body">
@@ -38,11 +47,24 @@
           <div><div class="alert_t" id="banner_t"></div><div class="alert_d" id="banner_d"></div></div>
         </div>
 
-        <div class="sec" data-i18n="home.features">Kernel hiding features</div>
-        <div class="card" id="features"></div>
+        <div class="sec" data-i18n="home.overview">Overview</div>
+        <div class="grid" id="overview"></div>
 
         <div class="sec" data-i18n="home.device">Device</div>
         <div class="card device" id="device"></div>
+      </section>
+
+      <!-- HIDING hub -->
+      <section class="panel" data-panel="hiding">
+        <div class="sec" data-i18n="hub.hiding">Hiding</div>
+        <div class="grid" id="hub_hiding"></div>
+        <div class="sec" data-i18n="hub.manage">Manage</div>
+        <div class="grid" id="hub_manage"></div>
+      </section>
+
+      <!-- a single hiding page, filled by the router -->
+      <section class="panel" data-panel="page">
+        <div id="page_body"></div>
       </section>
 
       <!-- TOOLS -->
@@ -52,7 +74,7 @@
           <div class="row" data-module="treat_wheel">
             <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
               <div class="row_sub" data-i18n="tools.nextwheel">Hides the Zygisk and root environment inside apps</div></div>
-            <div class="row_val status" data-i18n="tools.checking">…</div>
+            <div class="row_val status">…</div>
           </div>
           <div class="row" data-module="rezygisk">
             <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NexTZygisk">NextZygisk</a></div>
@@ -98,12 +120,21 @@
 
       <!-- SETTINGS -->
       <section class="panel" data-panel="settings">
-        <div class="sec" data-i18n="settings.hiding">Hiding &amp; spoofing</div>
-        <div class="card" id="settings-toggles"></div>
+        <div class="sec" data-i18n="settings.language">Language</div>
+        <div class="seg" id="lang_seg">
+          <div class="seg_btn" data-lang="system" data-i18n="settings.system">System</div>
+          <div class="seg_btn" data-lang="en">English</div>
+          <div class="seg_btn" data-lang="ar">العربية</div>
+        </div>
+
+        <div class="sec" data-i18n="settings.general">General</div>
+        <div class="card" id="settings_general"></div>
 
         <div class="sec" data-i18n="settings.about">About</div>
         <div class="card">
           <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.version">Version</div></div><div class="row_val" id="about-version">—</div></div>
+          <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.developer">Developer</div></div>
+            <div class="row_val"><a class="ext plain" href="https://github.com/ifoknr">ifoknr</a></div></div>
           <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.credits">Based on</div>
             <div class="row_sub">BRENE (<a href="https://github.com/rrr333nnn333/BRENE">rrr333nnn333</a>), susfs4ksu (<a href="https://gitlab.com/simonpunk/susfs4ksu">simonpunk</a>), <a href="https://github.com/KOWX712">KOWX712</a></div></div></div>
           <div class="row"><div class="row_body"><div class="row_title" data-i18n="settings.license">License</div></div><div class="row_val">AGPLv3</div></div>
@@ -114,9 +145,22 @@
     <!-- floating navbar -->
     <div id="navbar_support">
       <div id="navbar">
-        <div class="nav_btn active" data-tab="home"><div class="nav_cap"><div class="nav_ic" id="ic_home"></div></div><div class="nav_lb" data-i18n="nav.home">Home</div></div>
-        <div class="nav_btn" data-tab="tools"><div class="nav_cap"><div class="nav_ic" id="ic_tools"></div></div><div class="nav_lb" data-i18n="nav.tools">Tools</div></div>
-        <div class="nav_btn" data-tab="settings"><div class="nav_cap"><div class="nav_ic" id="ic_settings"></div></div><div class="nav_lb" data-i18n="nav.settings">Settings</div></div>
+        <div class="nav_btn" data-tab="home"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.home">Home</div></div>
+        <div class="nav_btn" data-tab="hiding"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.hiding">Hiding</div></div>
+        <div class="nav_btn" data-tab="tools"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.tools">Tools</div></div>
+        <div class="nav_btn" data-tab="settings"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.settings">Settings</div></div>
+      </div>
+    </div>
+
+    <!-- confirm dialog -->
+    <div class="dlg" id="dlg">
+      <div class="dlg_box">
+        <div class="dlg_t" id="dlg_t"></div>
+        <div class="dlg_d" id="dlg_d"></div>
+        <div class="dlg_btns">
+          <div class="btn ghost" id="dlg_no" data-i18n="dlg.cancel">Cancel</div>
+          <div class="btn" id="dlg_yes" data-i18n="dlg.ok">OK</div>
+        </div>
       </div>
     </div>
 
