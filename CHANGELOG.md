@@ -1,5 +1,9 @@
 # NextSUSFS changelog
 
+## v0.0.5
+- Fixed: the module banner did not show in the root manager. module.prop now points to it
+  relative to the module folder (banner=banner.png), which is the form managers load.
+
 ## v0.0.4
 First public release.
 
