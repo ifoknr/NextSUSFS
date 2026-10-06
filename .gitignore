@@ -1,3 +1,7 @@
 /.git
 /build/
 *.md.bak
+
+# Local development notes — kept privately, never committed
+CLAUDE.md
+IDEAS.md
