@@ -1,14 +1,13 @@
-/* INFO: Orbitron for English text, Roboto (Latin, Cyrillic, Vietnamese) and Noto Kufi Arabic (Arabic),
+/* INFO: Sora for English text, Roboto (Latin, Cyrillic, Vietnamese) and Noto Kufi Arabic (Arabic),
            all variable weight. From Fontsource 5.3.0, licensed under the SIL Open Font License 1.1
-           (see OFL.txt). Orbitron lacks some Polish, Turkish and Vietnamese letters, so those
-           languages use Roboto instead (see data-font in css/index.css). */
+           (see OFL.txt). */
 
 @font-face {
-  font-family: "Orbitron";
+  font-family: "Sora";
   font-style: normal;
-  font-weight: 400 900;
+  font-weight: 100 800;
   font-display: swap;
-  src: url("./orbitron-latin.woff2") format("woff2");
+  src: url("./sora-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 

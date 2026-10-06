@@ -12,9 +12,9 @@ const STR = {
     'tools.nextwheel': 'Hides the Zygisk and root environment inside apps',
     'tools.nextzygisk': 'Standalone Zygisk that loads NextWheel',
     'tools.hma': 'Hides installed app names from other apps',
-    'tools.pif': 'Passes basic and device integrity',
-    'tools.trickystore': 'Spoofs a valid keybox for strong (hardware) integrity',
-    'tools.trickyaddon': "Manages TrickyStore's target app list",
+    'tools.alwaysstrong': 'Strong Play Integrity in one module (includes Play Integrity Fork)',
+    'tools.alwaysstrongnote': "AlwaysStrong replaces Play Integrity Fix, TrickyStore and Tricky Addon. Don't install them alongside it.",
+    'tools.other': 'Another module uses this ID',
     'tools.conflictsub': 'Another SuSFS driver — only one may run',
     'tools.checking': '…', 'tools.installed': 'Installed', 'tools.notinstalled': 'Not installed', 'tools.disabled': 'Disabled',
     'settings.hiding': 'Hiding & spoofing', 'settings.about': 'About', 'settings.version': 'Version', 'settings.credits': 'Based on', 'settings.license': 'License',
@@ -33,9 +33,9 @@ const STR = {
     'tools.nextwheel': 'يخفي بيئة Zygisk والروت داخل التطبيقات',
     'tools.nextzygisk': 'Zygisk مستقل يحمّل NextWheel',
     'tools.hma': 'يخفي أسماء التطبيقات المثبّتة عن التطبيقات الأخرى',
-    'tools.pif': 'يجتاز النزاهة الأساسية ونزاهة الجهاز',
-    'tools.trickystore': 'يزيّف keybox صالح للنزاهة القوية (العتاد)',
-    'tools.trickyaddon': 'يدير قائمة تطبيقات TrickyStore',
+    'tools.alwaysstrong': 'نزاهة Play القوية في وحدة واحدة، وتشمل Play Integrity Fork',
+    'tools.alwaysstrongnote': 'لا تثبّت معه Play Integrity Fix أو TrickyStore أو Tricky Addon، فهو يغني عنها.',
+    'tools.other': 'وحدة أخرى تستخدم نفس المعرّف',
     'tools.conflictsub': 'مشغّل SuSFS آخر — واحد فقط يعمل',
     'tools.checking': '…', 'tools.installed': 'مثبّت', 'tools.notinstalled': 'غير مثبّت', 'tools.disabled': 'معطّل',
     'settings.hiding': 'الإخفاء والتزييف', 'settings.about': 'حول', 'settings.version': 'الإصدار', 'settings.credits': 'مبني على', 'settings.license': 'الرخصة',
@@ -158,8 +158,14 @@ async function renderTools() {
     const installed = await exists(`/data/adb/modules/${id}`)
     const disabled = installed && await exists(`/data/adb/modules/${id}/disable`)
     const conflict = row.closest('#tools-conflict')
+    // some modules share an id (AlwaysStrong uses tricky_store), so check the name too
+    const wantName = row.getAttribute('data-name')
+    const name = installed && wantName
+      ? ((await out(`cat /data/adb/modules/${id}/module.prop`)).split('\n').find((l) => l.startsWith('name='))?.slice(5).trim() || '')
+      : ''
     let text, dot
     if (!installed) { text = t('tools.notinstalled'); dot = 'neutral' }
+    else if (wantName && !name.toLowerCase().includes(wantName.toLowerCase())) { text = t('tools.other'); dot = 'off' }
     else if (disabled) { text = t('tools.disabled'); dot = 'neutral' }
     else { text = t('tools.installed'); dot = conflict ? 'off' : 'on' }
     st.innerHTML = `<span class="dot ${dot}"></span>${esc(text)}`
@@ -197,6 +203,18 @@ async function renderSettings() {
   document.getElementById('about-version').textContent =
     (await out(`cat /data/adb/modules/nextsusfs/module.prop`)).split('\n').find((l) => l.startsWith('version='))?.split('=')[1] || '—'
 }
+
+/* ---------- links ---------- */
+// The WebUI is a WebView: following a link would replace the app with the page. Hand
+// developer links to the system browser instead.
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href^="https://"]')
+  if (!a) return
+  e.preventDefault()
+  const url = a.href.replace(/'/g, '')
+  if (typeof ksu === 'undefined') { window.open(url, '_blank'); return }
+  exec(`am start -a android.intent.action.VIEW -d '${url}'`)
+})
 
 /* ---------- boot ---------- */
 async function refresh() {

@@ -1,4 +1,4 @@
-Orbitron: Copyright 2018 The Orbitron Project Authors (https://github.com/theleagueof/orbitron)
+Sora: Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font)
 Roboto: Copyright 2011 The Roboto Project Authors (https://github.com/googlefonts/roboto-classic)
 Noto Kufi Arabic: Copyright 2019-2022 Google LLC. All Rights Reserved.
 

@@ -50,17 +50,17 @@
         <div class="sec" data-i18n="tools.stack">NextWheel stack</div>
         <div class="card" id="tools-stack">
           <div class="row" data-module="treat_wheel">
-            <div class="row_body"><div class="row_title"><a href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
               <div class="row_sub" data-i18n="tools.nextwheel">Hides the Zygisk and root environment inside apps</div></div>
             <div class="row_val status" data-i18n="tools.checking">…</div>
           </div>
           <div class="row" data-module="rezygisk">
-            <div class="row_body"><div class="row_title"><a href="https://github.com/ifoknr/NexTZygisk">NextZygisk</a></div>
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NexTZygisk">NextZygisk</a></div>
               <div class="row_sub" data-i18n="tools.nextzygisk">Standalone Zygisk that loads NextWheel</div></div>
             <div class="row_val status">…</div>
           </div>
           <div class="row" data-module="hma_oss_zygisk">
-            <div class="row_body"><div class="row_title"><a href="https://github.com/frknkrc44/HMA-OSS">HMA-OSS</a></div>
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/frknkrc44/HMA-OSS">HMA-OSS</a></div>
               <div class="row_sub" data-i18n="tools.hma">Hides installed app names from other apps</div></div>
             <div class="row_val status">…</div>
           </div>
@@ -68,22 +68,13 @@
 
         <div class="sec" data-i18n="tools.integrity">Play Integrity</div>
         <div class="card" id="tools-integrity">
-          <div class="row" data-module="playintegrityfix">
-            <div class="row_body"><div class="row_title"><a href="https://github.com/KOWX712/PlayIntegrityFix">Play Integrity Fix</a></div>
-              <div class="row_sub" data-i18n="tools.pif">Passes basic and device integrity</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="tricky_store">
-            <div class="row_body"><div class="row_title"><a href="https://github.com/5ec1cff/TrickyStore">TrickyStore — Always Strong</a></div>
-              <div class="row_sub" data-i18n="tools.trickystore">Spoofs a valid keybox for strong (hardware) integrity</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="tricky_addon">
-            <div class="row_body"><div class="row_title"><a href="https://github.com/KOWX712/Tricky-Addon-Update-Target-List">Tricky Addon</a></div>
-              <div class="row_sub" data-i18n="tools.trickyaddon">Manages TrickyStore's target app list</div></div>
+          <div class="row" data-module="tricky_store" data-name="AlwaysStrong">
+            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/evoker0/AlwaysStrong">AlwaysStrong</a></div>
+              <div class="row_sub" data-i18n="tools.alwaysstrong">Strong Play Integrity in one module (includes Play Integrity Fork)</div></div>
             <div class="row_val status">…</div>
           </div>
         </div>
+        <div class="note" data-i18n="tools.alwaysstrongnote">AlwaysStrong replaces Play Integrity Fix, TrickyStore and Tricky Addon. Don't install them alongside it.</div>
 
         <div class="sec" data-i18n="tools.conflict">Conflicting modules</div>
         <div class="card" id="tools-conflict">
