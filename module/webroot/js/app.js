@@ -418,14 +418,9 @@ async function renderBackupPage() {
 async function renderTools() {
   const apps = document.querySelectorAll('#tools-detectors .row[data-app]')
   await Promise.all([...apps].map(async (row) => {
-    // data-find: the package name is not fixed, so look for it among installed packages
-    const find = row.getAttribute('data-find')
-    if (find && /^[a-z0-9_.|]+$/i.test(find)) {
-      row.setAttribute('data-app', await out(`pm list packages 2>/dev/null | grep -iE '${find}' | head -n 1 | cut -d: -f2`))
-    }
     const pkg = row.getAttribute('data-app')
     const st = row.querySelector('.status')
-    const installed = pkg !== '' && (await exec(`pm path ${pkg}`)).errno === 0
+    const installed = (await exec(`pm path ${pkg}`)).errno === 0
     st.innerHTML = installed
       ? `<div class="btn small ghost" data-open="${pkg}">${t('tools.open')}</div>`
       : `<span class="dot neutral"></span>${esc(t('tools.notinstalled'))}`
