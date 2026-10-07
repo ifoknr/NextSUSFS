@@ -1,0 +1,35 @@
+name: Clean test releases
+
+# Deletes every test release (title ends with "(test)") and its tag.
+# Real releases are never touched.
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Extra tags to delete, separated by spaces (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete test releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXTRA_TAGS: ${{ inputs.tags }}
+        run: |
+          gh release list -R "$GITHUB_REPOSITORY" --limit 200 --json tagName,name \
+            --jq '.[] | select(.name | endswith("(test)")) | .tagName' > tags.txt
+          for tag in $EXTRA_TAGS; do echo "$tag" >> tags.txt; done
+          if [ ! -s tags.txt ]; then
+            echo "No test releases."
+            exit 0
+          fi
+          while read -r tag; do
+            gh release delete "$tag" -R "$GITHUB_REPOSITORY" --cleanup-tag --yes
+            echo "Deleted $tag"
+          done < tags.txt
