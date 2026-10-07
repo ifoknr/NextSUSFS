@@ -30,6 +30,11 @@ jobs:
             exit 0
           fi
           while read -r tag; do
-            gh release delete "$tag" -R "$GITHUB_REPOSITORY" --cleanup-tag --yes
-            echo "Deleted $tag"
+            gh release delete "$tag" -R "$GITHUB_REPOSITORY" --yes || echo "No release for $tag"
+            # A tag ruleset can refuse the delete; keep going and report it.
+            if gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/tags/$tag" > /dev/null; then
+              echo "Deleted $tag"
+            else
+              echo "::warning::Release $tag deleted, but a repository rule kept its tag."
+            fi
           done < tags.txt
