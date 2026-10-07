@@ -47,7 +47,7 @@ Kernel-level root hiding with [SuSFS](https://gitlab.com/simonpunk/susfs4ksu) fo
 
 ## Credits
 
-- Developed by [**ifoknr**](https://github.com/ifoknr).
+- Developed by [**IFOKNR**](https://github.com/ifoknr).
 - [**susfs4ksu**](https://gitlab.com/simonpunk/susfs4ksu) by **simonpunk**: SuSFS itself and the `ksu_susfs` tool (built from source, GPLv3).
 - [**BRENE**](https://github.com/rrr333nnn333/BRENE) by rrr333nnn333 and [**KOWX712**](https://github.com/KOWX712): parts of the boot scripts are based on their work.
 
