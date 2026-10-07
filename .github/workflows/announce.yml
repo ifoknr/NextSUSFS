@@ -1,0 +1,32 @@
+name: Announce
+
+# INFO: Posts the NEXT intro posts (.github/announce) to a Telegram topic.
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Topic id (the number in the topic link, t.me/<group>/<id>)"
+        required: true
+        default: "33"
+      post:
+        description: "Which post"
+        type: choice
+        options: [ all, next, wheel, zygisk, susfs ]
+        default: all
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Post to Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          TELEGRAM_TOPIC: ${{ inputs.topic }}
+        run: bash .github/scripts/announce.sh "${{ inputs.post }}"
