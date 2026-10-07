@@ -21,7 +21,16 @@ const STR = {
     'tools.nextzygisk': 'Standalone Zygisk that loads NextWheel',
     'tools.hma': 'Hides installed app names from other apps',
     'tools.alwaysstrong': 'Strong Play Integrity in one module (includes Play Integrity Fork)',
-    'tools.alwaysstrongnote': "AlwaysStrong replaces Play Integrity Fix, TrickyStore and Tricky Addon. Don't install them alongside it.",
+    'tools.alwaysstrongnote': "Use AlwaysStrong alone, or Play Integrity Fork with TEESimulator and Tricky Addon. Don't mix the two.",
+    'tools.pif': 'Fixes Play Integrity verdicts, Google Wallet and RCS',
+    'tools.tee': 'Simulates hardware-backed keys and key attestation',
+    'tools.ta': 'WebUI to manage the TrickyStore target list',
+    'tools.keyatt': 'Generates and verifies Android key and ID attestation',
+    'tools.vdgoogle': 'Shows RCS, Google Wallet and Play Integrity attestations, on the device',
+    'tools.community': 'Community',
+    'tools.group': 'Telegram group: updates and support for every NEXT tool',
+    'tools.dev': 'Developer on GitHub',
+    'tools.help': 'Need help, or have an idea or a fix? Write in the group or contact me on GitHub.',
     'tools.other': 'Another module uses this ID',
     'tools.conflictsub': 'Another SuSFS driver — only one may run',
     'tools.checking': '…', 'tools.installed': 'Installed', 'tools.notinstalled': 'Not installed', 'tools.disabled': 'Disabled',
@@ -75,7 +84,16 @@ const STR = {
     'tools.nextzygisk': 'Zygisk مستقل يحمّل NextWheel',
     'tools.hma': 'يخفي أسماء التطبيقات المثبّتة عن التطبيقات الأخرى',
     'tools.alwaysstrong': 'نزاهة Play القوية في وحدة واحدة، وتشمل Play Integrity Fork',
-    'tools.alwaysstrongnote': 'لا تثبّت معه Play Integrity Fix أو TrickyStore أو Tricky Addon، فهو يغني عنها.',
+    'tools.alwaysstrongnote': 'استخدم AlwaysStrong لحاله، أو Play Integrity Fork مع TEESimulator و Tricky Addon. لا تجمع بين الطريقتين.',
+    'tools.pif': 'يصلح نتائج Play Integrity و Google Wallet و RCS',
+    'tools.tee': 'يحاكي مفاتيح العتاد وإثبات المفاتيح',
+    'tools.ta': 'واجهة لإدارة قائمة التطبيقات في TrickyStore',
+    'tools.keyatt': 'ينشئ ويتحقق من إثبات المفاتيح والهوية في أندرويد',
+    'tools.vdgoogle': 'يعرض حالة RCS و Google Wallet وطلبات Play Integrity من الجهاز نفسه',
+    'tools.community': 'المجتمع',
+    'tools.group': 'قروب تليقرام: تحديثات ودعم لكل أدوات NEXT',
+    'tools.dev': 'المطوّر على GitHub',
+    'tools.help': 'تحتاج مساعدة، أو عندك فكرة أو تعديل؟ اكتب في القروب أو تواصل معي على GitHub.',
     'tools.other': 'وحدة أخرى تستخدم نفس المعرّف',
     'tools.conflictsub': 'مشغّل SuSFS آخر — واحد فقط يعمل',
     'tools.checking': '…', 'tools.installed': 'مثبّت', 'tools.notinstalled': 'غير مثبّت', 'tools.disabled': 'معطّل',
@@ -400,9 +418,14 @@ async function renderBackupPage() {
 async function renderTools() {
   const apps = document.querySelectorAll('#tools-detectors .row[data-app]')
   await Promise.all([...apps].map(async (row) => {
+    // data-find: the package name is not fixed, so look for it among installed packages
+    const find = row.getAttribute('data-find')
+    if (find && /^[a-z0-9_.|]+$/i.test(find)) {
+      row.setAttribute('data-app', await out(`pm list packages 2>/dev/null | grep -iE '${find}' | head -n 1 | cut -d: -f2`))
+    }
     const pkg = row.getAttribute('data-app')
     const st = row.querySelector('.status')
-    const installed = (await exec(`pm path ${pkg}`)).errno === 0
+    const installed = pkg !== '' && (await exec(`pm path ${pkg}`)).errno === 0
     st.innerHTML = installed
       ? `<div class="btn small ghost" data-open="${pkg}">${t('tools.open')}</div>`
       : `<span class="dot neutral"></span>${esc(t('tools.notinstalled'))}`

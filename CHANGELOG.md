@@ -1,5 +1,13 @@
 # NextSUSFS changelog
 
+## v0.0.6
+- Tools page, Play Integrity: Play Integrity Fork, TEESimulator and Tricky Addon next to
+  AlwaysStrong, with their install status. Use AlwaysStrong alone, or the three together.
+- Tools page, detection apps: Key Attestation (VisionR1) and VD Google.
+- Tools page, Community: the BeNeXTBrO Telegram group and the developer's GitHub, with a
+  note on where to ask for help or send ideas.
+- Tricky Addon's module folder is hidden at boot, like the other integrity modules.
+
 ## v0.0.5
 - Fixed: the module banner did not show in the root manager. module.prop now points to it
   relative to the module folder (banner=banner.png), which is the form managers load.

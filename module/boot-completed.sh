@@ -335,10 +335,10 @@ for dir in ${NEXT_DATA_DIRS}; do
 	[[ -e "${dir}" ]] && brene_sus_path "${dir}"
 done
 
-# Integrity and app-hiding modules the stack recommends (AlwaysStrong ships as
-#   tricky_store). Hide their folders and libraries only: no kernel umount here,
-#   because Play services may rely on what these modules set up.
-for mod in tricky_store playintegrityfix hma_oss_zygisk; do
+# Integrity and app-hiding modules the stack recommends (AlwaysStrong and
+#   TEESimulator both ship as tricky_store). Hide their folders and libraries only:
+#   no kernel umount here, because Play services may rely on what they set up.
+for mod in tricky_store playintegrityfix TA_utl hma_oss_zygisk; do
 	mod_dir="/data/adb/modules/${mod}"
 	[[ -d "${mod_dir}" ]] || continue
 	brene_sus_path "${mod_dir}"
