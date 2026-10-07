@@ -16,7 +16,9 @@ fi
 api="https://api.telegram.org/bot$TELEGRAM_TOKEN"
 repo_url="https://github.com/$GITHUB_REPOSITORY"
 release_url="$repo_url/releases/tag/$TAG"
-download_url="$repo_url/releases/download/$TAG/$(basename "$FILE")"
+# INFO: Without a file, Download opens the release page.
+download_url="$release_url"
+[ -n "${FILE:-}" ] && download_url="$repo_url/releases/download/$TAG/$(basename "$FILE")"
 
 esc() { sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
 
@@ -30,7 +32,7 @@ notes=$(awk -v v="## $VERSION" '
   /^[ \t]+[^ \t]/ && item != "" { sub(/^[ \t]+/, ""); item = item " " $0; next }
   /^[ \t]*$/ { next }
   { if (item != "") print item; item = ""; gsub(/\*\*/, ""); print }
-  END { if (item != "") print item }' CHANGELOG.md | esc)
+  END { if (item != "") print item }' CHANGELOG.md 2> /dev/null | esc || true)
 
 # INFO: A caption holds 1024 characters, so long notes are cut at a line end.
 max=560
@@ -63,14 +65,15 @@ fi
   fi
 } > caption.html
 
+profile="https://github.com/${GITHUB_REPOSITORY%%/*}"
 if [ "$PRE" = true ]; then
-  jq -n --arg dl "$download_url" --arg rel "$release_url" \
-    '{inline_keyboard: [[{text: "⬇️ تحميل", url: $dl}, {text: "📋 التفاصيل", url: $rel}]]}' > markup.json
+  details="$release_url"
 else
-  jq -n --arg dl "$download_url" --arg log "$repo_url/blob/HEAD/CHANGELOG.md" --arg repo "$repo_url" \
-    '{inline_keyboard: [[{text: "⬇️ تحميل", url: $dl}, {text: "📋 كل التغييرات", url: $log}],
-                        [{text: "⭐ GitHub", url: $repo}]]}' > markup.json
+  details="$repo_url/blob/HEAD/CHANGELOG.md"
 fi
+jq -n --arg dl "$download_url" --arg det "$details" --arg repo "$repo_url" --arg me "$profile" \
+  '{inline_keyboard: [[{text: "⬇️ Download", url: $dl}, {text: "📋 Details", url: $det}],
+                      [{text: "⭐ Repository", url: $repo}, {text: "👤 GitHub", url: $me}]]}' > markup.json
 
 # INFO: --form-string sends values as they are; with -F a chat id like @group
 #         would be read as a file to upload.
@@ -79,8 +82,8 @@ args=(--form-string "chat_id=$TELEGRAM_TO" --form-string parse_mode=HTML -F "rep
 # INFO: Test builds arrive silently.
 [ "$PRE" = true ] && args+=(--form-string disable_notification=true)
 
-# INFO: Bots can upload up to 50 MB; a bigger file goes as a text message with the buttons.
-if [ "$(stat -c %s "$FILE")" -lt 50000000 ]; then
+# INFO: Bots can upload up to 50 MB; a bigger or missing file goes as a text message.
+if [ -n "${FILE:-}" ] && [ -f "$FILE" ] && [ "$(stat -c %s "$FILE")" -lt 50000000 ]; then
   resp=$(curl -sS --fail-with-body "${args[@]}" -F "caption=<caption.html" -F "document=@$FILE" "$api/sendDocument")
 else
   resp=$(curl -sS --fail-with-body "${args[@]}" -F "text=<caption.html" "$api/sendMessage")
