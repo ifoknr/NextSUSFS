@@ -334,18 +334,23 @@ async function renderListsPage() {
     `<div class="page_head"><div class="page_ic">${icon('lists')}</div><div class="page_d">${esc(t('page.listsd'))}</div></div>` +
     `<div class="note top">${esc(t('page.listsnote'))}</div>` +
     LISTS.map((l, i) => {
-      const [title, desc] = L(l)
+      const [title, desc, hint] = L(l)
       const n = contents[i].split('\n').filter((s) => s.trim() && !s.trim().startsWith('#')).length
-      return `<div class="card pad"><div class="list_head"><div><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div></div>` +
+      return `<div class="card pad"><div class="list_head"><div><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div>` +
+        `${hint ? `<div class="row_sub" style="white-space:pre-line;margin-top:6px">${esc(hint)}</div>` : ''}</div>` +
         `<span class="chip" data-count="${i}">${t('list.count').replace('%s', n)}</span></div>` +
-        `<textarea class="area" dir="ltr" spellcheck="false" data-list="${i}" placeholder="/data/adb/example">${esc(contents[i])}</textarea>` +
+        `<textarea class="area" dir="ltr" spellcheck="false" data-list="${i}" placeholder="${esc(l.placeholder || '/data/adb/example')}">${esc(contents[i])}</textarea>` +
         `<div class="btn_row"><span class="mono faint">${l.file}</span><div class="btn small" data-savelist="${i}">${t('list.save')}</div></div></div>`
     }).join('')
   body.querySelectorAll('[data-savelist]').forEach((btn) => btn.addEventListener('click', async () => {
     const i = Number(btn.getAttribute('data-savelist'))
     const area = body.querySelector(`[data-list="${i}"]`)
     const lines = area.value.replace(/\r/g, '').split('\n')
-    const bad = lines.findIndex((s) => s.trim() && !s.trim().startsWith('#') && !s.trim().startsWith('/'))
+    // a redirect line is "<path> <new path> <scope 0-4>"; other lists take one path per line
+    const ok = LISTS[i].kind === 'redirect'
+      ? (s) => /^\/\S+\s+\/\S+\s+[0-4]$/.test(s.trim())
+      : (s) => s.trim().startsWith('/')
+    const bad = lines.findIndex((s) => s.trim() && !s.trim().startsWith('#') && !ok(s))
     if (bad >= 0) { area.classList.add('bad'); toast(t('list.bad').replace('%s', bad + 1)); return }
     area.classList.remove('bad')
     const text = lines.map((s) => s.trim()).join('\n').replace(/\n+$/, '') + '\n'

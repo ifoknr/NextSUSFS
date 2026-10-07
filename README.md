@@ -19,7 +19,7 @@ Kernel-level root hiding with [SuSFS](https://gitlab.com/simonpunk/susfs4ksu) fo
 
 - **Hides the NEXT stack automatically.** NextWheel, NextZygisk and NextSUSFS folders and Zygisk libraries are hidden at every boot, along with AlwaysStrong, Play Integrity Fix and HMA-OSS.
 - **Every option in one WebUI.** Over 40 settings across 7 pages: paths and files, custom ROM traces, kernel identity, system properties, KernelSU, developer options and display.
-- **Your own lists.** Add paths to hide, re-hide, remove from memory maps, or unmount for apps, without editing files by hand.
+- **Your own lists.** Add paths to hide, re-hide, remove from memory maps, unmount for apps, or redirect to another file, without editing files by hand.
 - **Clear status.** The WebUI shows whether SuSFS is working, which kernel features your kernel has, and the state of the NEXT stack. NextWheel and NextZygisk show NextSUSFS in their own dashboards.
 - **Detection apps built in.** Open Native Detector, TrustAttestor or KKND Detector straight from the Tools page to check the result.
 - **Logs, backup and reset.** Read what was hidden at boot, back up your settings, or go back to defaults.

@@ -1,7 +1,7 @@
 id=nextsusfs
 name=NextSUSFS
-version=v0.0.6
-versionCode=6
+version=v0.0.7
+versionCode=7
 author=ifoknr
 description=Kernel-level root hiding with SuSFS for the NEXT stack (NextWheel + NextZygisk). Open the WebUI for status and settings.
 updateJson=https://raw.githubusercontent.com/ifoknr/NextSUSFS/main/update.json

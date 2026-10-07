@@ -1,5 +1,11 @@
 # NextSUSFS changelog
 
+## v0.0.7
+- New list: Open redirect (from BRENE v0.0.70). Each line is "<path> <new path> <scope>":
+  opening the path opens the new path instead, for the processes in the scope (0 to 4,
+  3 is apps without root). The WebUI explains the scopes and checks each line before
+  saving; the boot script applies the list with SuSFS open_redirect.
+
 ## v0.0.6
 - Tools page, Play Integrity: Play Integrity Fork, TEESimulator and Tricky Addon next to
   AlwaysStrong, with their install status. Use AlwaysStrong alone, or the three together.

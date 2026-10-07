@@ -187,7 +187,7 @@ export const PAGES = [
   },
 ]
 
-/* The four list files the boot script reads line by line (# starts a comment). */
+/* The list files the boot script reads line by line (# starts a comment). */
 export const LISTS = [
   { file: 'custom_sus_path.txt',
     en: ['Hidden paths', 'Paths hidden once at boot. Use for files that do not change.'],
@@ -201,4 +201,11 @@ export const LISTS = [
   { file: 'custom_kernel_umount.txt',
     en: ['Unmounted for apps', 'Mount points KernelSU unmounts for apps without root.'],
     ar: ['فك تركيب للتطبيقات', 'نقاط تركيب يفكها KernelSU عن التطبيقات اللي ما عندها روت.'] },
+  // One "<path> <new path> <uid scheme>" per line: opening <path> opens <new path> instead.
+  { file: 'custom_open_redirect.txt', kind: 'redirect',
+    placeholder: '/system/etc/hosts /data/adb/nextsusfs/hosts 3',
+    en: ['Open redirect', 'Opening a path opens another file instead. One line each: path, new path, scope.',
+      'Scope:\n0  non-app processes\n1  root processes without su\n2  every process without su\n3  apps without root (recommended)\n4  every unmounted process\nBoth files must exist; set their SELinux context yourself.'],
+    ar: ['إعادة توجيه الفتح', 'فتح مسار يفتح ملف ثاني بداله. سطر لكل وحدة: المسار، المسار البديل، النطاق.',
+      'النطاق:\n0  العمليات غير التطبيقات\n1  عمليات الروت بدون su\n2  كل العمليات بدون su\n3  التطبيقات بدون روت (المقترح)\n4  كل العمليات المفكوك عنها التركيب\nلازم الملفين يكونون موجودين، وسياق SELinux عليك.'] },
 ]
