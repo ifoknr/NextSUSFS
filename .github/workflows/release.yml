@@ -6,6 +6,11 @@ name: Release
 #         - push a tag that matches the version (git tag v0.0.4 && git push origin v0.0.4).
 on:
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: "Test build: tag it <version>-test.<run>, mark it as a pre-release and leave update.json alone"
+        type: boolean
+        default: false
   push:
     tags: [ "v*" ]
 
@@ -26,7 +31,15 @@ jobs:
             echo "Tag $GITHUB_REF_NAME does not match module.prop version $prop" >&2
             exit 1
           fi
-          echo "TAG=$prop" >> "$GITHUB_ENV"
+          # INFO: A test build gets its own tag, so it never clashes with the real release.
+          if [ "${{ inputs.prerelease }}" = "true" ]; then
+            echo "TAG=$prop-test.$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+            echo "PRE=true" >> "$GITHUB_ENV"
+          else
+            echo "TAG=$prop" >> "$GITHUB_ENV"
+            echo "PRE=false" >> "$GITHUB_ENV"
+          fi
+          echo "VERSION=$prop" >> "$GITHUB_ENV"
           echo "CODE=$(sed -n 's/^versionCode=//p' module/module.prop)" >> "$GITHUB_ENV"
 
       - name: Package
@@ -43,7 +56,7 @@ jobs:
             echo
             echo '## Changes'
             echo
-            awk -v v="## $TAG" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md
+            awk -v v="## $VERSION" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md
             echo
             echo '## Install'
             echo
@@ -56,11 +69,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$TAG" out/NextSUSFS.zip "out/NextSUSFS-$TAG.zip" \
-            --target "$GITHUB_SHA" --title "NextSUSFS $TAG" --notes-file notes.md
+            --target "$GITHUB_SHA" --title "NextSUSFS $TAG$([ "$PRE" = true ] && echo ' (test)')" --notes-file notes.md \
+            $([ "$PRE" = true ] && echo --prerelease)
 
       # INFO: Point update.json (module.prop: updateJson) at this release, so root managers
       #         offer it as an update.
       - name: Update update.json
+        if: env.PRE != 'true'
         run: |
           git fetch origin main
           git checkout -B update-json origin/main
@@ -76,3 +91,36 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add update.json
           git commit -m "chore: update.json for ${TAG}" && git push origin HEAD:main || echo "update.json unchanged"
+
+      # INFO: Releases created with GITHUB_TOKEN do not trigger other workflows, so
+      #         telegram-notify.yml never sees them. Post to the channel from here.
+      - name: Notify Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+        run: |
+          if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$TELEGRAM_TO" ]; then
+            echo "Telegram secrets are not set, skipping."
+            exit 0
+          fi
+          {
+            if [ "$PRE" = true ]; then
+              echo "🧪 إصدار تجريبي (للاختبار فقط)"
+            else
+              echo "🚀 تحديث جديد تم إطلاقه!"
+            fi
+            echo
+            echo "📦 الأداة/الموديول: ${GITHUB_REPOSITORY#*/}"
+            echo "🏷️ الإصدار: $TAG"
+            echo
+            echo "📝 ما الجديد؟"
+            awk -v v="## $VERSION" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md | head -n 40
+            echo
+            echo "🔗 رابط التحميل المباشر:"
+            echo "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
+          } > telegram.txt
+          curl -sS --fail-with-body -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$TELEGRAM_TO" \
+            --data-urlencode "text@telegram.txt" \
+            -d disable_web_page_preview=true > /dev/null
+          echo "Sent to Telegram."
