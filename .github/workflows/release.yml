@@ -100,30 +100,13 @@ jobs:
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
           # Optional: the topic (message_thread_id) inside a group with topics.
           TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
-        run: |
-          if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$TELEGRAM_TO" ]; then
-            echo "Telegram secrets are not set, skipping."
-            exit 0
-          fi
-          {
-            if [ "$PRE" = true ]; then
-              echo "🧪 إصدار تجريبي (للاختبار فقط)"
-            else
-              echo "🚀 تحديث جديد تم إطلاقه!"
-            fi
-            echo
-            echo "📦 الأداة/الموديول: ${GITHUB_REPOSITORY#*/}"
-            echo "🏷️ الإصدار: $TAG"
-            echo
-            echo "📝 ما الجديد؟"
-            awk -v v="## $VERSION" '$0 == v {f = 1; next} /^## / {f = 0} f' CHANGELOG.md | head -n 40
-            echo
-            echo "🔗 رابط التحميل المباشر:"
-            echo "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
-          } > telegram.txt
-          curl -sS --fail-with-body -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" \
-            --data-urlencode "chat_id=$TELEGRAM_TO" \
-            ${TELEGRAM_TOPIC:+-d message_thread_id=$TELEGRAM_TOPIC} \
-            --data-urlencode "text@telegram.txt" \
-            -d disable_web_page_preview=true > /dev/null
-          echo "Sent to Telegram."
+          TOOL: NextSUSFS
+          ICON: "🛡️"
+          LAYER: "طبقة الكيرنل · منظومة NEXT"
+          REQUIRES: "KernelSU + كيرنل SuSFS v2"
+          AUTO_UPDATE: "true"
+          TAG: ${{ env.TAG }}
+          VERSION: ${{ env.VERSION }}
+          PRE: ${{ env.PRE }}
+          FILE: out/NextSUSFS-${{ env.TAG }}.zip
+        run: bash .github/scripts/telegram-release.sh
