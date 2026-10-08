@@ -502,6 +502,100 @@ const SPECIAL = {
   backup: { title: () => t('page.backup'), render: renderBackupPage },
 }
 
+/* ---------- floating navbar ---------- */
+// A pill slides behind the active icon; dragging across the bar moves it with the finger
+// and lifting the finger opens the nearest tab. The bar hides while scrolling down.
+let navTab = null
+let navDragged = false
+
+function navButtons() { return [...document.querySelectorAll('.nav_btn')] }
+
+function navPillTo(btn, instant) {
+  const pill = $('nav_pill'), bar = $('navbar')
+  if (!pill || !btn) return
+  const cap = btn.querySelector('.nav_cap').getBoundingClientRect(), box = bar.getBoundingClientRect()
+  pill.classList.toggle('instant', !!instant)
+  pill.style.width = `${cap.width}px`
+  pill.style.height = `${cap.height}px`
+  pill.dataset.y = cap.top - box.top
+  pill.style.transform = `translate(${cap.left - box.left}px, ${pill.dataset.y}px)`
+  if (instant) requestAnimationFrame(() => pill.classList.remove('instant'))
+}
+
+function navSelect(tab) {
+  const btn = navButtons().find((b) => b.getAttribute('data-tab') === tab)
+  navPillTo(btn, navTab === null)
+  if (navTab !== null && navTab !== tab && btn) {
+    btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop')
+  }
+  navTab = tab
+  $('navbar_support').classList.remove('hide')
+}
+
+function navNearest(x) {
+  let best = null, dist = Infinity
+  for (const b of navButtons()) {
+    const r = b.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - x)
+    if (d < dist) { dist = d; best = b }
+  }
+  return best
+}
+
+function initNavbar() {
+  const bar = $('navbar'), pill = document.createElement('div')
+  pill.id = 'nav_pill'
+  bar.prepend(pill)
+
+  navButtons().forEach((b) => b.addEventListener('click', () => {
+    if (navDragged) return
+    location.hash = b.getAttribute('data-tab')
+  }))
+
+  let startX = 0, active = false
+  bar.addEventListener('pointerdown', (e) => { startX = e.clientX; active = true; navDragged = false })
+  bar.addEventListener('pointermove', (e) => {
+    if (!active) return
+    if (!navDragged && Math.abs(e.clientX - startX) < 8) return
+    if (!navDragged) { navDragged = true; bar.classList.add('dragging'); bar.setPointerCapture(e.pointerId) }
+    const box = bar.getBoundingClientRect(), w = pill.offsetWidth
+    const x = Math.min(Math.max(e.clientX - box.left - w / 2, 6), box.width - w - 6)
+    pill.style.transform = `translate(${x}px, ${pill.dataset.y || 0}px)`
+    const near = navNearest(e.clientX)
+    navButtons().forEach((b) => b.classList.toggle('near', b === near))
+  })
+  const end = (e) => {
+    if (!active) return
+    active = false
+    if (!navDragged) return
+    bar.classList.remove('dragging')
+    navButtons().forEach((b) => b.classList.remove('near'))
+    const near = navNearest(e.clientX)
+    const tab = near?.getAttribute('data-tab')
+    if (tab && tab !== navTab) location.hash = tab
+    else navSelect(navTab)
+    setTimeout(() => { navDragged = false }, 0)
+  }
+  bar.addEventListener('pointerup', end)
+  bar.addEventListener('pointercancel', end)
+
+  let lastY = window.scrollY, ticking = false
+  window.addEventListener('scroll', () => {
+    if (ticking) return
+    ticking = true
+    requestAnimationFrame(() => {
+      const y = window.scrollY, dy = y - lastY
+      if (y < 40 || dy < -6) $('navbar_support').classList.remove('hide')
+      else if (dy > 6) $('navbar_support').classList.add('hide')
+      lastY = y
+      ticking = false
+    })
+  }, { passive: true })
+
+  const replace = () => navPillTo(navButtons().find((b) => b.getAttribute('data-tab') === navTab), true)
+  window.addEventListener('resize', replace)
+  document.fonts?.ready.then(replace)
+}
+
 async function route() {
   const [tab0, sub] = location.hash.replace(/^#/, '').split('/')
   const tab = TABS.includes(tab0) ? tab0 : 'home'
@@ -514,6 +608,7 @@ async function route() {
     b.classList.toggle('active', on)
     b.querySelector('.nav_ic').style.backgroundImage = `url(./assets/${b.getAttribute('data-tab')}/${on ? 'filled' : 'outlined'}.svg)`
   })
+  navSelect(tab)
   const panel = inPage ? 'page' : tab
   document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('active', p.getAttribute('data-panel') === panel))
   $('back').classList.toggle('show', !!inPage)
@@ -536,7 +631,7 @@ async function refresh() {
 applyI18n()
 restorePending()
 $('back').innerHTML = icon('back')
-document.querySelectorAll('.nav_btn').forEach((b) => b.addEventListener('click', () => { location.hash = b.getAttribute('data-tab') }))
+initNavbar()
 $('back').addEventListener('click', () => { if (history.length > 1) history.back(); else location.hash = 'hiding' })
 $('refresh').addEventListener('click', refresh)
 $('pending_reboot').addEventListener('click', reboot)

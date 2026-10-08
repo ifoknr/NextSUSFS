@@ -147,18 +147,45 @@ input:disabled + .slider { opacity: .5; }
   pointer-events: none;
 }
 #navbar {
-  pointer-events: auto; width: min(100%, 360px);
-  display: flex; align-items: center; justify-content: space-around; gap: 2px;
-  padding: 6px; border-radius: 999px;
+  position: relative; pointer-events: auto; width: min(100%, 360px);
+  display: flex; align-items: center; padding: 6px; border-radius: 999px;
   background: var(--dim); border: 1px solid var(--card-line);
   box-shadow: 0 6px 22px rgba(0,0,0,.28);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  touch-action: pan-y; user-select: none; -webkit-user-select: none;
 }
-.nav_btn { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 14px; cursor: pointer; border-radius: 999px; }
-.nav_cap { width: 52px; height: 28px; border-radius: 999px; display: grid; place-items: center; transition: background .15s; }
-.nav_btn.active .nav_cap { background: rgba(127,127,127,.26); }
+/* Equal widths: with labels of different lengths (Arabic most of all), auto widths
+   spread the icons unevenly. */
+.nav_btn {
+  flex: 1 1 0; min-width: 0; position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 2px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.nav_cap { width: 52px; height: 28px; border-radius: 999px; display: grid; place-items: center; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.nav_btn:active .nav_cap { transform: scale(.88); }
 .nav_ic { width: 21px; height: 21px; background-size: contain; background-repeat: no-repeat; background-position: center; filter: invert(1); }
-.nav_lb { font-size: 10.5px; color: var(--desc); }
-.nav_btn.active .nav_lb { color: var(--font); font-weight: 600; }
+.nav_lb { max-width: 100%; font-size: 10.5px; color: var(--desc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .25s; }
+.nav_btn.active .nav_lb, .nav_btn.near .nav_lb { color: var(--font); font-weight: 600; }
+.nav_btn.pop .nav_ic { animation: navpop .45s cubic-bezier(.34,1.56,.64,1); }
+@keyframes navpop { 0% { transform: scale(.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+/* The pill behind the active icon slides between tabs and follows the finger. */
+#nav_pill {
+  position: absolute; left: 0; top: 0; width: 52px; height: 28px; border-radius: 999px;
+  background: rgba(127,127,127,.26); pointer-events: none; will-change: transform;
+  transition: transform .5s cubic-bezier(.34,1.4,.5,1), width .3s ease;
+}
+#navbar.dragging #nav_pill, #nav_pill.instant { transition: none; }
+#navbar.dragging #nav_pill { background: rgba(127,127,127,.36); }
+
+/* Hidden while scrolling down, back on scroll up. */
+#navbar_support { transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s; }
+#navbar_support.hide { transform: translateY(140%); opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  #nav_pill, #navbar_support, .nav_cap { transition: none; }
+  .nav_btn.pop .nav_ic { animation: none; }
+}
 
 #loading { position: fixed; inset: 0; background: var(--background); z-index: 10; display: grid; place-items: center; }
 .spin { width: 3em; height: 3em; border: 6px solid var(--icon-bc); border-top-color: var(--green); border-radius: 50%; animation: sp .8s linear infinite; }
