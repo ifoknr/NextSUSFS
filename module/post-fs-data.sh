@@ -177,12 +177,24 @@ if [[ "${config_hide_addon_d}" == "1" ]]; then
 	brene_sus_path_loop "/system/addon.d"
 fi
 
+# INFO: Zygote keeps framework files (such as org.lineageos.platform-res.apk) open, and
+#         every app zygote it forks reopens them by path. Hiding such a path from apps
+#         makes that reopen fail, and the app zygote aborts ("Failed open(...)"), so apps
+#         that use an app zygote crash on launch. Framework files only get hidden from
+#         memory maps.
+is_zygote_file() {
+	case "$1" in
+		*/framework/*|*@framework@*) return 0 ;;
+	esac
+	return 1
+}
+
 # Hide Custom ROM Paths
 if [[ "${config_hide_custom_rom_paths}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /system /system_ext /vendor /product -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			brene_sus_path_loop "${path}"
+			is_zygote_file "${path}" || brene_sus_path_loop "${path}"
 		done
 
 		find /data -maxdepth 1 -iname "*${i}*" | while read -r path; do
@@ -197,7 +209,7 @@ if [[ "${config_hide_custom_rom_paths_2}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /data/misc /data/dalvik-cache /data/resource-cache -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			brene_sus_path_loop "${path}"
+			is_zygote_file "${path}" || brene_sus_path_loop "${path}"
 		done
 	done
 fi

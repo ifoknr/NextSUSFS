@@ -5,6 +5,11 @@
   opening the path opens the new path instead, for the processes in the scope (0 to 4,
   3 is apps without root). The WebUI explains the scopes and checks each line before
   saving; the boot script applies the list with SuSFS open_redirect.
+- Fixed: with "Hide custom ROM files" on, apps that use an app zygote (for example the
+  Chunqiu Native Check detector) crashed on launch with "Failed open(/system/framework/
+  org.lineageos.platform-res.apk)". Zygote keeps framework files open and every app zygote
+  reopens them, so hiding them from apps made that reopen fail. Files under a framework
+  folder are now hidden from memory maps only.
 
 ## v0.0.6
 - Tools page, Play Integrity: Play Integrity Fork, TEESimulator and Tricky Addon next to
