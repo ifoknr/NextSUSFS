@@ -71,6 +71,12 @@ const STR = {
     'backup.confirmreset': 'Reset all switches?', 'backup.confirmresetd': 'Every hiding switch goes back to its default.',
     'backup.confirmimport': 'Restore backup?', 'backup.confirmimportd': 'Your current settings and lists will be replaced.',
     'reboot.confirm': 'Reboot now?', 'reboot.confirmd': 'The device restarts and your changes take effect.',
+    'safe.title': 'Safe Mode',
+    'safe.desc': 'The last boots did not finish, so this boot NextSUSFS skipped all hiding in case it caused the loop. Your settings are saved. Turn off a recent change you suspect, then reboot to try again.',
+    'safe.reboot': 'Reboot and retry',
+    'props.restore': 'Restore real values now',
+    'props.restored': 'Real values restored.',
+    'props.restoredesc': 'Puts the spoofed properties back to their real values immediately, without a reboot.',
   },
   ar: {
     'nav.home': 'الرئيسية', 'nav.hiding': 'الإخفاء', 'nav.tools': 'الأدوات', 'nav.settings': 'الإعدادات',
@@ -134,6 +140,12 @@ const STR = {
     'backup.confirmreset': 'ترجّع كل المفاتيح؟', 'backup.confirmresetd': 'كل مفاتيح الإخفاء ترجع لوضعها الافتراضي.',
     'backup.confirmimport': 'تسترجع النسخة؟', 'backup.confirmimportd': 'إعداداتك وقوائمك الحالية بتنستبدل.',
     'reboot.confirm': 'تعيد التشغيل الحين؟', 'reboot.confirmd': 'الجهاز يعيد التشغيل وتتطبّق تعديلاتك.',
+    'safe.title': 'الوضع الآمن',
+    'safe.desc': 'الإقلاعات الأخيرة ما كمّلت، فهالإقلاع NextSUSFS تجاوز كل الإخفاء تحسّباً إنه هو السبب. إعداداتك محفوظة. أطفِ تعديلاً أخيراً تشكّ فيه، ثم أعد التشغيل للمحاولة.',
+    'safe.reboot': 'إعادة التشغيل والمحاولة',
+    'props.restore': 'استرجاع القيم الحقيقية الآن',
+    'props.restored': 'تم استرجاع القيم الحقيقية.',
+    'props.restoredesc': 'يرجّع خصائص النظام المزيّفة لقيمها الحقيقية فوراً بدون إعادة تشغيل.',
   },
 }
 const LANG_KEY = '/NextSUSFS/language'
@@ -255,6 +267,18 @@ async function renderHome() {
     [t('dev.kernel'), kver], [t('dev.susfs'), version || '—'], [t('dev.arch'), arch],
   ].filter(([, v]) => v)
   $('device').innerHTML = rows.map(([k, v]) => `<div class="drow"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')
+
+  // Boot-loop protection: if the module skipped hiding this boot, warn and offer a retry.
+  const safebar = $('safebar')
+  if (await exists(`${DATA}/safe_mode`)) {
+    safebar.className = 'alert show warn'
+    $('safebar_ic').innerHTML = STATUS.warn
+    $('safebar_t').textContent = t('safe.title')
+    $('safebar_d').textContent = t('safe.desc')
+    const btn = $('safebar_btn')
+    btn.textContent = t('safe.reboot')
+    btn.onclick = reboot
+  } else safebar.className = 'alert'
 }
 
 /* ---------- hiding hub ---------- */
@@ -303,7 +327,19 @@ function renderConfigPage(page) {
       `<div class="field"><input class="input" dir="ltr" spellcheck="false" autocomplete="off" data-text="${item.key}" value="${esc(val)}" placeholder="${esc(item.dflt)}">` +
       `<div class="btn small" data-save="${item.key}">${t('text.save')}</div></div></div>`
   }).join('') + '</div>'
+  // Properties page: a button that puts spoofed properties back to their real values now.
+  if (page.id === 'props') {
+    html += `<div class="card"><div class="row col"><div class="row_body"><div class="row_title">${esc(t('props.restore'))}</div>` +
+      `<div class="row_sub">${esc(t('props.restoredesc'))}</div></div>` +
+      `<div class="btn small" id="prop_restore">${esc(t('props.restore'))}</div></div></div>`
+  }
   body.innerHTML = html
+  if (page.id === 'props') {
+    $('prop_restore').addEventListener('click', async () => {
+      await exec(`. ${MODULE}/utils.sh; restore_original_props`)
+      toast(t('props.restored'))
+    })
+  }
   bindSwitches(body)
   body.querySelectorAll('[data-save]').forEach((btn) => btn.addEventListener('click', async () => {
     const key = btn.getAttribute('data-save')

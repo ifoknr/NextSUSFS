@@ -18,6 +18,27 @@ SUSFS_VARIANT=$(${SUSFS_BIN} show variant)
 true > "${PERSISTENT_DIR}/log.txt"
 true > "${PERSISTENT_DIR}/logs.txt"
 
+# Start each boot with an empty property backup; the spoof helpers refill it with the
+# real values before they change anything, so the WebUI can restore without a reboot.
+true > "${PERSISTENT_DIR}/prop_backup.txt"
+
+# INFO: Boot-loop protection (Safe Mode).
+#         post-fs-data runs on every boot; boot-completed only runs after a *successful*
+#         boot and resets this counter. So if the counter reaches the limit it means the
+#         last few boots never finished, and NextSUSFS may be the cause. In that case we
+#         skip all hiding/spoofing this boot so the device can come up, and leave a marker
+#         the WebUI reads to warn the user. A later successful boot clears it.
+SAFE_MODE_LIMIT=3
+boot_attempts=$(cat "${PERSISTENT_DIR}/boot_attempts" 2>/dev/null)
+case "${boot_attempts}" in '' | *[!0-9]*) boot_attempts=0 ;; esac
+boot_attempts=$((boot_attempts + 1))
+echo "${boot_attempts}" > "${PERSISTENT_DIR}/boot_attempts"
+if [[ "${boot_attempts}" -ge "${SAFE_MODE_LIMIT}" ]]; then
+	echo "${boot_attempts}" > "${PERSISTENT_DIR}/safe_mode"
+	echo "post-fs-data.sh ⏭️ Safe Mode (boot attempt ${boot_attempts}): hiding skipped this boot" >> "${PERSISTENT_DIR}/log.txt"
+	exit 0
+fi
+
 ## Important Notes:
 ## - The following command can be run at other stages like service.sh, boot-completed.sh etc..,
 ## - This module is just an demo showing how to use ksu_susfs tool to commuicate with kernel

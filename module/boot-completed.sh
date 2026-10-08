@@ -15,6 +15,29 @@ CUSTOM_ROM_NAMES="lineage|infinity|evolution|crdroid|mistos|axion|pixelos|rising
 
 update_config_date
 
+# INFO: Boot-loop protection (Safe Mode). Reaching boot-completed means this boot
+#         succeeded. If post-fs-data had hit the attempt limit it skipped all hiding this
+#         boot; detect that here (counter still at/above the limit), write the status the
+#         WebUI reads, keep the marker so the user is warned, and stop before doing any
+#         hiding of our own. A normal boot falls through and clears the marker at the end.
+SAFE_MODE_LIMIT=3
+boot_attempts=$(cat "${PERSISTENT_DIR}/boot_attempts" 2>/dev/null)
+case "${boot_attempts}" in '' | *[!0-9]*) boot_attempts=0 ;; esac
+if [[ "${boot_attempts}" -ge "${SAFE_MODE_LIMIT}" ]]; then
+	echo 0 > "${PERSISTENT_DIR}/boot_attempts"
+	susfs_version=$(${SUSFS_BIN} show version 2>/dev/null)
+	kernel_version=$(cat /proc/version | awk '{print $3}' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+	${KSU_BIN} module config set override.description "[Status: Safe Mode ⚠️ hiding skipped | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none}] NextSUSFS" 2>/dev/null
+	if [[ "${susfs_version}" == "v2"* ]]; then
+		echo "working" > "${PERSISTENT_DIR}/status"
+	elif [[ "${susfs_version}" == "v1"* ]]; then
+		echo "old" > "${PERSISTENT_DIR}/status"
+	else
+		echo "no_kernel" > "${PERSISTENT_DIR}/status"
+	fi
+	exit 0
+fi
+
 # Update Description
 susfs_total_features=9
 susfs_version=$(${SUSFS_BIN} show version)
@@ -420,6 +443,16 @@ if [[ -e "${PERSISTENT_DIR}/custom_open_redirect.txt" ]]; then
 	done < "${PERSISTENT_DIR}/custom_open_redirect.txt"
 fi
 
+# Load custom_sus_kstat.txt
+if [[ -e "${PERSISTENT_DIR}/custom_sus_kstat.txt" ]]; then
+	while IFS= read -r i; do
+		# Skip empty lines or comments
+		[[ -z "${i// /}" || "${i// /}" == "#"* ]] && continue
+
+		brene_sus_kstat "${i}"
+	done < "${PERSISTENT_DIR}/custom_sus_kstat.txt"
+fi
+
 #### Hide the mmapped real file from various maps in /proc/self/, effective only for processes that are marked umounted with uid >= 10000 ####
 ## - *Please note that it is better to do it in boot-completed starge
 ##   Since some target path may be mounted by ksu, and make sure the
@@ -490,6 +523,11 @@ elif [[ "${susfs_ver}" == "v1"* ]]; then
 else
 	echo "no_kernel" > "${PERSISTENT_DIR}/status"
 fi
+
+# Boot-loop protection: a normal boot reached the end, so clear the attempt counter and
+# remove any stale Safe Mode marker left by an earlier recovered boot loop.
+echo 0 > "${PERSISTENT_DIR}/boot_attempts"
+rm -f "${PERSISTENT_DIR}/safe_mode"
 
 if [[ "${config_brene_logs}" == "1" ]]; then
 	echo "boot-completed.sh ✅" >> "${PERSISTENT_DIR}/log.txt"

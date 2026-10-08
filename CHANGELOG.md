@@ -1,6 +1,15 @@
 # NextSUSFS changelog
 
 ## v0.0.7
+- Boot-loop protection (Safe Mode): if the last three boots never finished, the next
+  boot skips all hiding so the device comes up, and the Home screen warns you that your
+  settings were skipped and offers a reboot to retry. A successful boot clears it.
+- New list: Spoof file stats. Paths listed here are shown to apps with an old, untouched
+  timestamp, so a system file you edited does not give itself away by its modify time.
+- System properties: a "Restore real values now" button puts spoofed properties back to
+  their real values immediately, without a reboot.
+- Navbar: equal-width icons with a pill that slides to the active tab; you can drag across
+  the bar to switch, and it slides out of the way while you scroll down.
 - New list: Open redirect (from BRENE v0.0.70). Each line is "<path> <new path> <scope>":
   opening the path opens the new path instead, for the processes in the scope (0 to 4,
   3 is apps without root). The WebUI explains the scopes and checks each line before

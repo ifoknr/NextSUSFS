@@ -87,6 +87,7 @@ custom_kernel_umount.txt
 custom_sus_path.txt
 custom_sus_path_loop.txt
 custom_open_redirect.txt
+custom_sus_kstat.txt
 "
 for file in ${files}; do
 	if [[ ! -f "${PERSISTENT_DIR}/${file}" ]]; then
@@ -111,6 +112,9 @@ fi
 update_config_date 2>/dev/null
 
 [[ -d "${PERSISTENT_DIR}/fake_files" ]] && rm -rf "${PERSISTENT_DIR}/fake_files"
+
+# Reset boot-loop protection so a fresh (re)install starts from a clean slate.
+rm -f "${PERSISTENT_DIR}/boot_attempts" "${PERSISTENT_DIR}/safe_mode"
 
 # INFO: No "WebUI without reboot" shortcut here. Copying the module into
 #         /data/adb/modules and deleting MODPATH while the manager is still installing

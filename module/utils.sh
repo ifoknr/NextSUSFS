@@ -34,7 +34,31 @@ brene_clone_perm() {
 # 	done
 # }
 
+PROP_BACKUP="${PERSISTENT_DIR}/prop_backup.txt"
+
+# Remember a property's real value the first time we change it, so the WebUI can put the
+# real value back without a reboot. One "name<TAB>value" line per property, written once.
+save_original_prop() {
+	local PROP_NAME=$1 CURRENT_VALUE=$2
+	[[ -z "${PROP_NAME}" ]] && return
+	grep -q "^${PROP_NAME}	" "${PROP_BACKUP}" 2> /dev/null && return
+	printf '%s\t%s\n' "${PROP_NAME}" "${CURRENT_VALUE}" >> "${PROP_BACKUP}"
+}
+
+# Put every spoofed property back to its saved real value (no reboot) and clear the
+# backup. Called from the WebUI when the user turns the spoofing off.
+restore_original_props() {
+	[[ -e "${PROP_BACKUP}" ]] || return
+	while IFS=$'\t' read -r name value; do
+		[[ -z "${name}" ]] && continue
+		resetprop -n "${name}" "${value}"
+	done < "${PROP_BACKUP}"
+	resetprop -c --force 2> /dev/null
+	rm -f "${PROP_BACKUP}"
+}
+
 resetprop_n() {
+	save_original_prop "$1" "$(resetprop "$1")"
 	resetprop -n "$1" "$2"
 }
 
@@ -44,7 +68,10 @@ if_prop_exits_resetprop_n() {
 	local CURRENT_VALUE
 	CURRENT_VALUE=$(resetprop "${PROP_NAME}")
 
-	[[ -z "${CURRENT_VALUE}" ]] || [[ "${CURRENT_VALUE}" == "${NEW_VALUE}" ]] || resetprop_n "${PROP_NAME}" "${NEW_VALUE}"
+	[[ -z "${CURRENT_VALUE}" ]] || [[ "${CURRENT_VALUE}" == "${NEW_VALUE}" ]] || {
+		save_original_prop "${PROP_NAME}" "${CURRENT_VALUE}"
+		resetprop -n "${PROP_NAME}" "${NEW_VALUE}"
+	}
 }
 
 # if_contains_resetprop_n() {
@@ -220,4 +247,13 @@ brene_open_redirect() {
 brene_kernel_umount() {
 	${KSU_BIN} kernel notify-module-mounted
 	${KSU_BIN} kernel umount add -f 2 "$1" 2> /dev/null
+}
+# Spoof a path's stat (timestamps) so an edited system file looks untouched to apps.
+# Only ino/dev/size are left at their real values ('default'); the three times are set
+# to a fixed old date. Effective only for umounted processes with uid >= 10000.
+brene_sus_kstat() {
+	[[ -e "$1" ]] || return
+	if ${SUSFS_BIN} add_sus_kstat_statically "$1" 'default' 'default' 'default' 'default' '1230768000' '0' '1230768000' '0' '1230768000' '0' 'default' 'default' && [[ "${config_brene_logs}" == "1" ]]; then
+		echo "[sus_kstat]: $1" >> "${PERSISTENT_DIR}/logs.txt"
+	fi
 }

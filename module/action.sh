@@ -45,5 +45,6 @@ printf '  %-24s %s\n' "Re-hidden paths" "$(count "${PERSISTENT_DIR}/custom_sus_p
 printf '  %-24s %s\n' "Hidden from memory maps" "$(count "${PERSISTENT_DIR}/custom_sus_map.txt")"
 printf '  %-24s %s\n' "Unmounted for apps" "$(count "${PERSISTENT_DIR}/custom_kernel_umount.txt")"
 printf '  %-24s %s\n' "Open redirect" "$(count "${PERSISTENT_DIR}/custom_open_redirect.txt")"
+printf '  %-24s %s\n' "Spoofed file stats" "$(count "${PERSISTENT_DIR}/custom_sus_kstat.txt")"
 echo ""
 echo "Open the WebUI to change settings."

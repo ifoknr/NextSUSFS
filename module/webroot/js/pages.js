@@ -208,4 +208,9 @@ export const LISTS = [
       'Scope:\n0  non-app processes\n1  root processes without su\n2  every process without su\n3  apps without root (recommended)\n4  every unmounted process\nBoth files must exist; set their SELinux context yourself.'],
     ar: ['إعادة توجيه الفتح', 'فتح مسار يفتح ملف ثاني بداله. سطر لكل وحدة: المسار، المسار البديل، النطاق.',
       'النطاق:\n0  العمليات غير التطبيقات\n1  عمليات الروت بدون su\n2  كل العمليات بدون su\n3  التطبيقات بدون روت (المقترح)\n4  كل العمليات المفكوك عنها التركيب\nلازم الملفين يكونون موجودين، وسياق SELinux عليك.'] },
+  { file: 'custom_sus_kstat.txt',
+    en: ['Spoofed file stats', 'Files whose timestamps are shown to apps as an old, untouched date. Use for system files you edited, so their modified time does not give you away.',
+      'One path per line. ino, device and size stay real; only the access/modify/change times are spoofed.'],
+    ar: ['تزييف بيانات الملفات', 'ملفات تُعرض أوقاتها للتطبيقات بتاريخ قديم غير معدّل. استخدمها لملفات نظام عدّلتها، عشان وقت التعديل ما يفضحك.',
+      'سطر لكل مسار. الـ ino والجهاز والحجم تبقى حقيقية؛ يتزيّف فقط وقت الوصول والتعديل والتغيير.'] },
 ]
