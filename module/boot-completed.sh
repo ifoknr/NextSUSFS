@@ -60,7 +60,12 @@ elif [[ "${config_su_compat}" == "0" ]]; then
 fi
 
 # Kernel Umount
-if [[ "${config_kernel_umount}" == "1" ]]; then
+# INFO: NextZygisk turns KernelSU's kernel umount off when it starts and unmounts for
+#         apps itself (including our "Unmounted for apps" list). Turning it back on here
+#         made both unmount the same apps on every launch, so leave it to NextZygisk.
+if [[ -d "${KSU_MODULES_DIR}/rezygisk" ]] && [[ ! -e "${KSU_MODULES_DIR}/rezygisk/disable" ]] && [[ ! -e "${KSU_MODULES_DIR}/rezygisk/remove" ]]; then
+	[[ "${config_brene_logs}" == "1" ]] && echo "kernel_umount: left to NextZygisk" >> "${PERSISTENT_DIR}/log.txt"
+elif [[ "${config_kernel_umount}" == "1" ]]; then
 	${KSU_BIN} feature set kernel_umount 1
 elif [[ "${config_kernel_umount}" == "0" ]]; then
 	${KSU_BIN} feature set kernel_umount 0

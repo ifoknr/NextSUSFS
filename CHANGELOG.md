@@ -1,6 +1,9 @@
 # NextSUSFS changelog
 
 ## v0.0.7
+- Fixed: NextSUSFS turned KernelSU's kernel umount back on at boot after NextZygisk had
+  turned it off, so both unmounted the same apps on every launch. With NextZygisk installed
+  and enabled, NextSUSFS now leaves kernel umount to it.
 - Boot-loop protection (Safe Mode): if the last three boots never finished, the next
   boot skips all hiding so the device comes up, and the Home screen warns you that your
   settings were skipped and offers a reboot to retry. A successful boot clears it.

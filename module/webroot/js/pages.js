@@ -139,8 +139,8 @@ export const PAGES = [
     d: { en: 'Root manager features applied at boot', ar: 'ميزات مدير الروت تُطبَّق عند الإقلاع' },
     items: [
       { key: 'config_kernel_umount',
-        en: ['Kernel unmount', 'KernelSU unmounts module files for apps without root.'],
-        ar: ['فك التركيب من النواة', 'KernelSU يفك تركيب ملفات الوحدات عن التطبيقات اللي ما عندها روت.'] },
+        en: ['Kernel unmount', 'KernelSU unmounts module files for apps without root.', 'With NextZygisk installed, NextZygisk does the unmounting and this switch is ignored, so the two never unmount the same apps twice.'],
+        ar: ['فك التركيب من النواة', 'KernelSU يفك تركيب ملفات الوحدات عن التطبيقات اللي ما عندها روت.', 'إذا NextZygisk مركّب، هو اللي يفك التركيب وهذا المفتاح يتجاهَل، عشان ما ينفك نفس التطبيق مرتين.'] },
       { key: 'config_selinux_hide',
         en: ['Hide SELinux changes', 'KernelSU hides its SELinux policy changes from apps.'],
         ar: ['إخفاء تعديلات SELinux', 'KernelSU يخفي تعديلاته على سياسة SELinux عن التطبيقات.'] },
