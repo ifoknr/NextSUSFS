@@ -12,8 +12,6 @@
 
 Kernel-level root hiding with [SuSFS](https://gitlab.com/simonpunk/susfs4ksu) for KernelSU. NextSUSFS is the kernel layer of the NEXT stack: it hides paths, mounts, memory maps and properties from apps, and works alongside [NextWheel](https://github.com/ifoknr/NextWheel) (apps) and [NextZygisk](https://github.com/ifoknr/NexTZygisk) (Zygote).
 
-> [!WARNING]
-> **Personal project, use at your own risk.** NextSUSFS changes how the kernel shows files and system values to apps. Keep a way to boot without modules (safe mode) before you install it.
 
 ## What it does
 
@@ -45,6 +43,8 @@ Kernel-level root hiding with [SuSFS](https://gitlab.com/simonpunk/susfs4ksu) fo
 | Zygote | [NextZygisk](https://github.com/ifoknr/NexTZygisk) | Standalone Zygisk that loads NextWheel |
 | Kernel | **NextSUSFS** | Hides traces at the kernel level with SuSFS |
 
+> [!WARNING]
+> **Personal project, use at your own risk.** NextSUSFS changes how the kernel shows files and system values to apps. Keep a way to boot without modules (safe mode) before you install it.
 ## Credits
 
 - Developed by [**IFOKNR**](https://github.com/ifoknr).
