@@ -356,6 +356,28 @@ brene_set_uname() {
 		echo "[set_uname]: $1 $2" >> "${PERSISTENT_DIR}/logs.txt"
 	fi
 }
+# Show apps a realistic copy of a system text file with only the ROM-name lines removed,
+# instead of an empty file. An empty sepolicy/file_contexts is itself a giveaway (the real
+# one is thousands of lines), so we keep the whole file and drop just the lines that name
+# the ROM. The redirect is scope '3' (apps only); the system keeps reading the real file.
+# $1 = real path, $2 = regex of ROM names to strip (grep -iE). Redirects only if something
+# was actually removed and the result is non-empty.
+brene_clean_redirect() {
+	local path=$1 names=$2 file_name fake
+	[[ -r "${path}" ]] || return
+	grep -iqE "${names}" "${path}" || return
+
+	file_name=$(basename "${path}")
+	fake="${PERSISTENT_DIR}/fake_files/${file_name}"
+	[[ -d "${PERSISTENT_DIR}/fake_files" ]] || mkdir -p "${PERSISTENT_DIR}/fake_files"
+
+	grep -ivE "${names}" "${path}" > "${fake}" 2>/dev/null
+	# Never hand apps an empty file; if stripping emptied it, leave the original visible.
+	[[ -s "${fake}" ]] || { rm -f "${fake}"; return; }
+
+	brene_open_redirect "${path}" "${fake}" '3'
+}
+
 brene_open_redirect() {
 	brene_clone_perm "$2" "$1"
 	if ${SUSFS_BIN} add_open_redirect "$1" "$2" "$3" && [[ "${config_brene_logs}" == "1" ]]; then

@@ -161,37 +161,28 @@ fi
 
 # Hide LineageOS Strings
 if [[ "${config_hide_lineage_strings}" == "1" ]]; then
+	# Strip the detected ROM's name from sepolicy, file_contexts and .rc files, so a scanner
+	# that counts "lineage" markers finds none, while the files still look real to apps.
+	# Fall back to the full ROM-name list when the detected name is unknown.
+	rom_name=$(sed -n 's/^name=//p' "${ROM_TYPE_FILE}" 2>/dev/null)
+	strip_names="${rom_name:-${CUSTOM_ROM_NAMES}}"
+
 	find /system /system_ext /vendor /product \( -iname "*sepolicy.cil" -o -iname "*file_contexts" \) | while read -r path; do
-		file_name=$(basename "${path}")
-		fake_file_path="${PERSISTENT_DIR}/fake_files/${file_name}"
-
-		[[ ! -d "${PERSISTENT_DIR}/fake_files" ]] && mkdir -p "${PERSISTENT_DIR}/fake_files"
-		[[ ! -f "${fake_file_path}" ]] && {
-			touch "${fake_file_path}"
-		}
-
-		brene_open_redirect "${path}" "${fake_file_path}" '3'
+		brene_clean_redirect "${path}" "${strip_names}"
 	done
 
 	find /system /system_ext /vendor /product -iname "*.rc" | while read -r path; do
-		if grep -iq "lineage" "${path}"; then
-			file_name=$(basename "${path}")
-			fake_file_path="${PERSISTENT_DIR}/fake_files/${file_name}"
-
-			[[ ! -d "${PERSISTENT_DIR}/fake_files" ]] && mkdir -p "${PERSISTENT_DIR}/fake_files"
-			[[ ! -f "${fake_file_path}" ]] && {
-				touch "${fake_file_path}"
-			}
-
-			brene_open_redirect "${path}" "${fake_file_path}" '3'
-		fi
+		brene_clean_redirect "${path}" "${strip_names}"
 	done
 
+	# Updater.xml only exists on the ROM; an empty copy is fine here (no stock equivalent).
 	path=/system_ext/etc/permissions/Updater.xml
-	file_name=$(basename "${path}")
-	fake_file_path="${PERSISTENT_DIR}/fake_files/${file_name}"
-	[[ ! -f "${fake_file_path}" ]] && touch "${fake_file_path}"
-	brene_open_redirect "${path}" "${fake_file_path}" '3'
+	if [[ -e "${path}" ]]; then
+		fake_file_path="${PERSISTENT_DIR}/fake_files/Updater.xml"
+		[[ ! -d "${PERSISTENT_DIR}/fake_files" ]] && mkdir -p "${PERSISTENT_DIR}/fake_files"
+		[[ ! -f "${fake_file_path}" ]] && touch "${fake_file_path}"
+		brene_open_redirect "${path}" "${fake_file_path}" '3'
+	fi
 fi
 
 #### Hide some sus paths, effective only for processes that are marked umounted with uid >= 10000 ####
