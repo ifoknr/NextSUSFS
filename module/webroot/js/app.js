@@ -63,7 +63,7 @@ const STR = {
     'f.open_redirect': 'Open redirect', 'f.try_umount': 'Unmount traces', 'f.hide_symbols': 'Hide KSU symbols',
     'f.spoof_cmdline': 'Spoof cmdline', 'f.enable_log': 'Kernel log',
     'text.save': 'Save', 'text.invalid': 'Invalid value',
-    'list.save': 'Save', 'list.saved': 'List saved. Reboot to apply.', 'list.bad': 'Line %s must start with /',
+    'list.save': 'Save', 'list.saved': 'List saved. Reboot to apply.', 'list.bad': 'Line %s must start with /', 'list.badredirect': 'Line %s must be: path  new-path  scope (0-4)',
     'list.count': '%s paths',
     'logs.actions': 'Hidden paths & spoofed values', 'logs.stages': 'Boot stages', 'logs.empty': 'Empty',
     'logs.off': 'Detailed logs are off, so only boot stages are recorded. Turn them on in Settings.',
@@ -138,7 +138,7 @@ const STR = {
     'f.open_redirect': 'تحويل فتح الملفات', 'f.try_umount': 'فك تركيب الآثار', 'f.hide_symbols': 'إخفاء رموز KSU',
     'f.spoof_cmdline': 'تزييف cmdline', 'f.enable_log': 'سجل النواة',
     'text.save': 'حفظ', 'text.invalid': 'قيمة غير صحيحة',
-    'list.save': 'حفظ', 'list.saved': 'تم حفظ القائمة. أعد التشغيل للتطبيق.', 'list.bad': 'السطر %s لازم يبدأ بـ/',
+    'list.save': 'حفظ', 'list.saved': 'تم حفظ القائمة. أعد التشغيل للتطبيق.', 'list.bad': 'السطر %s لازم يبدأ بـ/', 'list.badredirect': 'السطر %s لازم يكون: مسار  مسار-بديل  نطاق (0-4)',
     'list.count': '%s مسار',
     'logs.actions': 'المسارات المخفية والقيم المزيّفة', 'logs.stages': 'مراحل الإقلاع', 'logs.empty': 'فاضي',
     'logs.off': 'السجلات المفصّلة مطفية، فينسجل بس مراحل الإقلاع. فعّلها من الإعدادات.',
@@ -474,7 +474,7 @@ async function renderListsPage() {
       ? (s) => /^\/\S+\s+\/\S+\s+[0-4]$/.test(cleanLine(s))
       : (s) => cleanLine(s).startsWith('/')
     const bad = lines.findIndex((s) => cleanLine(s) && !cleanLine(s).startsWith('#') && !ok(s))
-    if (bad >= 0) { area.classList.add('bad'); toast(t('list.bad').replace('%s', bad + 1)); return }
+    if (bad >= 0) { area.classList.add('bad'); toast(t(LISTS[i].kind === 'redirect' ? 'list.badredirect' : 'list.bad').replace('%s', bad + 1)); return }
     area.classList.remove('bad')
     const text = lines.map(cleanLine).join('\n').replace(/\n+$/, '') + '\n'
     const r = await exec(`echo '${b64(text)}' | base64 -d > ${DATA}/${LISTS[i].file}`)
