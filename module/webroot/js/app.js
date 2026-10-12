@@ -37,6 +37,7 @@ const STR = {
     'settings.language': 'Language', 'settings.system': 'System', 'settings.general': 'General',
     'settings.logs': 'Detailed logs', 'settings.logsd': 'Record every hidden path and spoofed value. Read them in Hiding → Logs.',
     'settings.reboot': 'Reboot device', 'settings.rebootd': 'Most changes apply at the next boot.',
+    'settings.theme': 'Theme', 'settings.themesys': 'System', 'settings.dark': 'Dark', 'settings.light': 'Light',
     'settings.about': 'About', 'settings.version': 'Version', 'settings.developer': 'Developer', 'settings.credits': 'Based on', 'settings.license': 'License', 'settings.risk': 'Personal project, use at your own risk.',
     'mode.working': 'Working', 'mode.nokernel': 'No SuSFS in kernel', 'mode.old': 'Old SuSFS version', 'mode.unknown': 'Unable to determine',
     'desc.nokernel': 'This kernel has no SuSFS patches, so NextSUSFS cannot hide anything. Flash a SuSFS-patched kernel.',
@@ -110,6 +111,7 @@ const STR = {
     'tools.conflictsub': 'مشغّل SuSFS آخر — واحد فقط يعمل',
     'tools.checking': '…', 'tools.installed': 'مثبّت', 'tools.notinstalled': 'غير مثبّت', 'tools.disabled': 'معطّل',
     'settings.language': 'اللغة', 'settings.system': 'لغة الجهاز', 'settings.general': 'عام',
+    'settings.theme': 'الثيم', 'settings.themesys': 'النظام', 'settings.dark': 'داكن', 'settings.light': 'فاتح',
     'settings.logs': 'سجلات مفصّلة', 'settings.logsd': 'يسجّل كل مسار مخفي وكل قيمة مزيّفة. تقرأها من الإخفاء ← السجلات.',
     'settings.reboot': 'إعادة تشغيل الجهاز', 'settings.rebootd': 'أغلب التعديلات تتطبّق مع الإقلاع الجاي.',
     'settings.about': 'حول', 'settings.version': 'الإصدار', 'settings.developer': 'المطوّر', 'settings.credits': 'مبني على', 'settings.license': 'الرخصة', 'settings.risk': 'مشروع شخصي، استخدمه على مسؤوليتك.',
@@ -160,6 +162,23 @@ const STR = {
     'props.restoredesc': 'يرجّع خصائص النظام المزيّفة لقيمها الحقيقية فوراً بدون إعادة تشغيل.',
   },
 }
+const THEME_KEY = '/NextSUSFS/theme'
+let themePref = 'system'
+try { themePref = localStorage.getItem(THEME_KEY) || 'system' } catch (e) {}
+const systemDark = () => !window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches
+// Dark is the default :root; light is applied with data-theme="light". "system" follows the OS.
+function applyTheme(pref) {
+  const dark = pref === 'dark' || (pref === 'system' && systemDark())
+  if (dark) document.documentElement.removeAttribute('data-theme')
+  else document.documentElement.setAttribute('data-theme', 'light')
+}
+applyTheme(themePref)
+try {
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (themePref === 'system') applyTheme('system')
+  })
+} catch (e) {}
+
 const LANG_KEY = '/NextSUSFS/language'
 let langPref = 'system'
 try { langPref = localStorage.getItem(LANG_KEY) || 'system' } catch (e) {}
@@ -576,6 +595,15 @@ async function renderTools() {
 
 /* ---------- settings ---------- */
 async function renderSettings() {
+  document.querySelectorAll('#theme_seg .seg_btn').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-theme-opt') === themePref)
+    b.onclick = () => {
+      themePref = b.getAttribute('data-theme-opt')
+      try { localStorage.setItem(THEME_KEY, themePref) } catch (e) {}
+      applyTheme(themePref)
+      document.querySelectorAll('#theme_seg .seg_btn').forEach((x) => x.classList.toggle('active', x === b))
+    }
+  })
   document.querySelectorAll('#lang_seg .seg_btn').forEach((b) => {
     b.classList.toggle('active', b.getAttribute('data-lang') === langPref)
     b.onclick = () => {
