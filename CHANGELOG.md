@@ -2,6 +2,24 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.8
+- علامة روم مخصص/رسمي في الرئيسية وبطاقة الجهاز، تُكتشف من الخصائص قبل ما يخفيها الموديول.
+- «تنظيف هوية البناء» (للروم المخصص): يعيد كتابة البصمة ووصف البناء والنكهة ورقم البناء والنوع لكل الأقسام بشكل رسمي موحّد، بدون test-keys ولا اسم الروم، قبل تشغيل التطبيقات.
+- «إخفاء نصوص الروم في ملفات السياسة»: صار يعرض نسخة حقيقية من sepolicy و.rc محذوف منها أسطر اسم الروم فقط، بدل ملف فاضي يفضح نفسه.
+- خيار منفصل: «إخفاء أسطر الروت في ملفات init» (resetprop و magisk و زيجيسك).
+- خيار «تاريخ قديم لـ/debug_ramdisk» لكل الرومات.
+- صفحة «فحص الآثار»: كاشف مصغّر يعرض كل أثر وحالته مع زر إصلاح.
+- كل الخيارات الجديدة اختيارية ومطفية افتراضياً، وخيارات الروم المخصص تختفي على الروم الرسمي.
+
+**English**
+- Custom/stock ROM badge on Home and the device card, detected before the module hides the traces.
+- "Clean build identity" (custom ROMs): rewrites fingerprint, description, flavor, build number and type across all partitions into one stock-looking set, without test-keys or the ROM name, before apps start.
+- "Hide ROM strings in policy files" now shows a real copy of sepolicy and .rc files with only the ROM-name lines removed, instead of an empty file that gives itself away.
+- Separate option: "Hide root lines in init files" (resetprop, magisk, zygisk).
+- "Old date for /debug_ramdisk" option, for every ROM.
+- "Trace check" page: a mini detector showing each trace and whether it is covered, with a fix link.
+- Every new option is off by default, and custom-ROM options are hidden on a stock ROM.
+
 ## v0.0.7
 - Fixed: NextSUSFS turned KernelSU's kernel umount back on at boot after NextZygisk had
   turned it off, so both unmounted the same apps on every launch. With NextZygisk installed
