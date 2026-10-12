@@ -8,6 +8,9 @@ export const PAGES = [
     t: { en: 'Paths & files', ar: 'المسارات والملفات' },
     d: { en: 'Folders and files that give root away', ar: 'مجلدات وملفات تكشف الروت' },
     items: [
+      { key: 'config_old_debug_ramdisk_time', isNew: true,
+        en: ['Old date for /debug_ramdisk', 'Root tools change this folder, so apps see a recent date. Shows them 2009-01-01 like the rest of the system.'],
+        ar: ['تاريخ قديم لـ ‎/debug_ramdisk', 'أدوات الروت تعدّل هالمجلد فيبان تاريخه حديث. يعرض للتطبيقات 2009-01-01 مثل باقي النظام.'] },
       { key: 'config_hide_custom_recovery',
         en: ['Hide custom recovery folders', 'TWRP and OrangeFox folders, /data/recovery and install-recovery.sh.'],
         ar: ['إخفاء مجلدات الريكفري', 'مجلدات TWRP و OrangeFox و ‎/data/recovery وملف install-recovery.sh.'] },
@@ -50,7 +53,12 @@ export const PAGES = [
     id: 'rom', icon: 'rom',
     t: { en: 'Custom ROM', ar: 'الروم المخصص' },
     d: { en: 'Traces of LineageOS, crDroid and others', ar: 'آثار LineageOS و crDroid وغيرها' },
+    // Shown only when post-fs-data detected a custom ROM; on a stock ROM there is nothing to hide here
+    onlyCustom: true,
     items: [
+      { key: 'config_clean_build_identity', isNew: true,
+        en: ['Clean build identity', 'Rewrites the fingerprint, build description, flavor, display ID, build number and product name into one stock-looking set, without test-keys, userdebug or the ROM name. Applied before apps start.'],
+        ar: ['تنظيف هوية البناء', 'يعيد كتابة البصمة ووصف البناء والنكهة ورقم العرض ورقم البناء واسم المنتج بشكل رسمي موحّد، بدون test-keys ولا userdebug ولا اسم الروم. يتطبّق قبل تشغيل التطبيقات.'] },
       { key: 'config_hide_custom_rom_paths',
         en: ['Hide custom ROM files', 'Finds files named after known ROMs in the system partitions and /data, and hides them.'],
         ar: ['إخفاء ملفات الروم المخصص', 'يدوّر على ملفات تحمل أسماء رومات معروفة في أقسام النظام و ‎/data ويخفيها.'] },

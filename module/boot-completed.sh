@@ -124,6 +124,14 @@ fi
 # Remove Custom ROM Properties
 if [[ "${config_rom_props}" == "1" ]]; then
 	resetprop | grep -iE "${CUSTOM_ROM_NAMES}" | awk -F'[][]' '{print $2}' | while read -r prop; do
+		# INFO: Never delete the build identity: an empty ro.build.fingerprint or product name
+		#         gives a device away far more than the ROM name in it. "Clean build identity"
+		#         rewrites these instead.
+		case "${prop}" in
+			ro.build.fingerprint | ro.*.build.fingerprint | ro.build.description | ro.build.flavor | \
+				ro.build.display.id | ro.build.product | ro.build.version.incremental | \
+				ro.*.build.version.incremental | ro.product.name | ro.product.*.name) continue ;;
+		esac
 		resetprop -d "${prop}"
 	done
 
@@ -196,7 +204,8 @@ if [[ "${config_spoof_system_properties}" == "1" ]]; then
 	spoof_system_properties
 fi
 # Spoof Fingerprint Properties
-if [[ "${config_spoof_fingerprint_properties}" == "1" ]]; then
+# (skipped when "Clean build identity" already rewrote the fingerprints at post-fs-data)
+if [[ "${config_spoof_fingerprint_properties}" == "1" ]] && ! { [[ "${config_clean_build_identity}" == "1" ]] && grep -q '^type=custom' "${ROM_TYPE_FILE}" 2>/dev/null; }; then
 	spoof_fingerprint_properties
 fi
 # Spoof UTC Properties
@@ -449,6 +458,12 @@ if [[ -e "${PERSISTENT_DIR}/custom_open_redirect.txt" ]]; then
 fi
 
 # Load custom_sus_kstat.txt
+# Root tools touch /debug_ramdisk, so its recent timestamp gives root away; show apps the
+# untouched 2009-01-01 date like the rest of the system. Every ROM, when turned on.
+if [[ "${config_old_debug_ramdisk_time}" == "1" ]]; then
+	brene_sus_kstat "/debug_ramdisk"
+fi
+
 if [[ -e "${PERSISTENT_DIR}/custom_sus_kstat.txt" ]]; then
 	while IFS= read -r i; do
 		# Skip empty lines or comments

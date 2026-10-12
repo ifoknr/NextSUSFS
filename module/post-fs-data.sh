@@ -42,6 +42,14 @@ if [[ "${boot_attempts}" -ge "${SAFE_MODE_LIMIT}" ]]; then
 	exit 0
 fi
 
+# Clean the custom ROM build identity (fingerprint, build strings, product name) here,
+# before zygote starts: apps read android.os.Build values that zygote caches at startup.
+# Custom ROMs only, and only when the user turned it on.
+if [[ "${config_clean_build_identity}" == "1" ]] && grep -q '^type=custom' "${ROM_TYPE_FILE}" 2>/dev/null; then
+	clean_build_identity
+	echo "post-fs-data.sh ✅ Cleaned custom ROM build identity" >> "${PERSISTENT_DIR}/log.txt"
+fi
+
 ## Important Notes:
 ## - The following command can be run at other stages like service.sh, boot-completed.sh etc..,
 ## - This module is just an demo showing how to use ksu_susfs tool to commuicate with kernel

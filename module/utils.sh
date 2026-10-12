@@ -184,6 +184,99 @@ spoof_fingerprint_properties() {
 	if_prop_exits_resetprop_n "ro.vendor_dlkm.build.fingerprint" "${new_fingerprint_value}"
 }
 
+# INFO: Custom ROM build identity. ROMs ship fingerprints and build strings like
+#         "google/lineage_cheetah/cheetah:15/AP4A.250105.002/eng.root.20251001:userdebug/test-keys".
+#         Turn every dirty one into a single consistent stock-looking identity:
+#         product without the ROM prefix, a numeric incremental, user/release-keys. Clean
+#         values (often the OEM's own vendor fingerprint) are left alone.
+is_dirty_build_value() {
+	echo "$1" | grep -iqE "test-keys|dev-keys|userdebug|/eng\.|:eng/|^eng\.|${CUSTOM_ROM_NAMES}"
+}
+
+# Strip a "<rom>_" prefix (lineage_cheetah -> cheetah)
+strip_rom_prefix() {
+	local value=$1 lower name
+	lower=$(echo "${value}" | tr '[:upper:]' '[:lower:]')
+	for name in ${CUSTOM_ROM_NAMES//|/ }; do
+		case "${lower}" in "${name}_"*) echo "${value#*_}"; return ;; esac
+	done
+	echo "${value}"
+}
+
+clean_build_identity() {
+	local fp prefix rest brand product device release id incr
+	local clean_product clean_incr clean_fp p key val
+	fp=$(resetprop ro.build.fingerprint)
+	[[ -z "${fp}" ]] && return
+	is_dirty_build_value "${fp}" || return
+
+	# brand/product/device:release/id/incremental:type/tags
+	prefix=${fp%%:*}
+	rest=${fp#*:}
+	brand=${prefix%%/*}
+	device=${prefix##*/}
+	product=${prefix#*/}
+	product=${product%/*}
+	release=${rest%%/*}
+	rest=${rest#*/}
+	id=${rest%%/*}
+	incr=${rest#*/}
+	incr=${incr%%:*}
+
+	clean_product=$(strip_rom_prefix "${product}")
+	[[ -z "${clean_product}" ]] && clean_product=${device}
+	clean_incr=${incr}
+	if is_dirty_build_value "/${incr}"; then
+		# Prefer the real build number from a clean OEM fingerprint of the same release and
+		# build id (vendor/odm often keep the stock one), else the build date as a number.
+		clean_incr=""
+		for key in ro.vendor.build.fingerprint ro.odm.build.fingerprint ro.bootimage.build.fingerprint; do
+			val=$(resetprop "${key}")
+			[[ -z "${val}" ]] && continue
+			is_dirty_build_value "${val}" && continue
+			case "${val}" in *":${release}/${id}/"*) ;; *) continue ;; esac
+			val=${val#*":${release}/${id}/"}
+			clean_incr=${val%%:*}
+			break
+		done
+		[[ -z "${clean_incr}" ]] && clean_incr=$(resetprop ro.build.date.utc)
+		[[ -z "${clean_incr}" ]] && clean_incr=$(date +%s)
+	fi
+	clean_fp="${brand}/${clean_product}/${device}:${release}/${id}/${clean_incr}:user/release-keys"
+
+	for p in "" system. system_ext. product. odm. vendor. vendor_dlkm. odm_dlkm. system_dlkm. bootimage.; do
+		key="ro.${p}build.fingerprint"
+		val=$(resetprop "${key}")
+		[[ -n "${val}" ]] && is_dirty_build_value "${val}" && resetprop_n "${key}" "${clean_fp}"
+
+		key="ro.${p}build.version.incremental"
+		val=$(resetprop "${key}")
+		[[ -n "${val}" ]] && is_dirty_build_value "/${val}" && resetprop_n "${key}" "${clean_incr}"
+
+		key="ro.${p}build.type"
+		[[ -n "$(resetprop "${key}")" ]] && [[ "$(resetprop "${key}")" != "user" ]] && resetprop_n "${key}" "user"
+
+		key="ro.${p}build.tags"
+		[[ -n "$(resetprop "${key}")" ]] && [[ "$(resetprop "${key}")" != "release-keys" ]] && resetprop_n "${key}" "release-keys"
+	done
+
+	for p in "" system. system_ext. product. vendor. odm.; do
+		key="ro.product.${p}name"
+		val=$(resetprop "${key}")
+		[[ -n "${val}" ]] && is_dirty_build_value "${val}" && resetprop_n "${key}" "$(strip_rom_prefix "${val}")"
+	done
+
+	val=$(resetprop ro.build.description)
+	[[ -n "${val}" ]] && is_dirty_build_value "${val}" && \
+		resetprop_n ro.build.description "${clean_product}-user ${release} ${id} ${clean_incr} release-keys"
+	val=$(resetprop ro.build.flavor)
+	[[ -n "${val}" ]] && is_dirty_build_value "${val}" && resetprop_n ro.build.flavor "${clean_product}-user"
+	val=$(resetprop ro.build.display.id)
+	[[ -n "${val}" ]] && is_dirty_build_value "${val}" && resetprop_n ro.build.display.id "${id}"
+	val=$(resetprop ro.build.product)
+	[[ -n "${val}" ]] && is_dirty_build_value "${val}" && resetprop_n ro.build.product "$(strip_rom_prefix "${val}")"
+}
+
 spoof_utc_properties() {
 	new_utc_value=$(resetprop ro.build.date.utc)
 	if_prop_exits_resetprop_n "ro.bootimage.build.date.utc" "${new_utc_value}"
