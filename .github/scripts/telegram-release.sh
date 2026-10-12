@@ -34,8 +34,9 @@ notes=$(awk -v v="## $VERSION" '
   { if (item != "") print item; item = ""; gsub(/\*\*/, ""); print }
   END { if (item != "") print item }' CHANGELOG.md 2> /dev/null | esc || true)
 
-# INFO: A caption holds 1024 characters, so long notes are cut at a line end.
-max=560
+# INFO: A caption holds 1024 characters and the rest of it takes about 150, so
+#         long notes are cut at a line end. Room for an Arabic and an English list.
+max=760
 if [ "${#notes}" -gt "$max" ]; then
   notes="${notes:0:$max}"
   notes="${notes%$'\n'*}"$'\n'"…"
