@@ -2,6 +2,18 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.9
+- إصلاح: إخفاء نصوص الروم في ملفات السياسة كان لا يشتغل على الرومات المبنية على LineageOS (crDroid، Evolution، إلخ). كان يبحث عن اسم الروم المكتشف بدل «lineage»، فيتخطّى ملفات sepolicy. الآن يشيل كل أسماء الرومات.
+- إصلاح: التحويل (open redirect) ما كان يمسك الملفات اللي تحت /system_ext و/product و/vendor، لأنها روابط رمزية والكاشف يقرأها بمسارها المختصر. الآن يُسجّل التحويل لكل المسارات المكافئة.
+- إصلاح: إضافة مسار في القوائم كان يرفضه أحياناً بحجة «لازم يبدأ بـ/» رغم إنه صحيح، بسبب محرف اتجاه مخفي من لوحة المفاتيح العربية. الآن يُنظَّف المحرف قبل الحفظ.
+- تحسين: رسالة واضحة لقائمة Open redirect (مسار، مسار بديل، نطاق) بدل رسالة مضلّلة.
+
+**English**
+- Fixed: hiding ROM strings in policy files did nothing on LineageOS-based ROMs (crDroid, Evolution, ...). It searched for the detected brand instead of "lineage", so it skipped the sepolicy files. It now strips every ROM name.
+- Fixed: open redirect missed files under /system_ext, /product and /vendor, which are symlinks that detectors read by their short path. The redirect is now registered for every equivalent path.
+- Fixed: adding a path to a list was sometimes rejected as "must start with /" although it was correct, because of a hidden direction mark from the Arabic keyboard. The mark is now stripped before saving.
+- Improved: a clear message for the Open redirect list (path, new path, scope) instead of a misleading one.
+
 ## v0.0.8
 - علامة روم مخصص/رسمي في الرئيسية وبطاقة الجهاز، تُكتشف من الخصائص قبل ما يخفيها الموديول.
 - «تنظيف هوية البناء» (للروم المخصص): يعيد كتابة البصمة ووصف البناء والنكهة ورقم البناء والنوع لكل الأقسام بشكل رسمي موحّد، بدون test-keys ولا اسم الروم، قبل تشغيل التطبيقات.
