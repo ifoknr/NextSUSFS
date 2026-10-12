@@ -378,11 +378,33 @@ brene_clean_redirect() {
 	brene_open_redirect "${path}" "${fake}" '3'
 }
 
+# On most devices /system_ext, /product and /vendor are symlinks to /system/system_ext,
+# /system/product and /system/vendor. A detector may open a file through EITHER path, and
+# SuSFS open_redirect matches the literal path, so a redirect on one path misses the other.
+# Echo the given path plus every symlink-alias of it.
+path_aliases() {
+	local p=$1
+	echo "${p}"
+	case "${p}" in
+		/system/system_ext/*) echo "/system_ext/${p#/system/system_ext/}" ;;
+		/system/product/*)    echo "/product/${p#/system/product/}" ;;
+		/system/vendor/*)     echo "/vendor/${p#/system/vendor/}" ;;
+		/system_ext/*)        echo "/system/system_ext/${p#/system_ext/}" ;;
+		/product/*)           echo "/system/product/${p#/product/}" ;;
+		/vendor/*)            echo "/system/vendor/${p#/vendor/}" ;;
+	esac
+}
+
+# Redirect a path (and each of its symlink-aliases) to a replacement file, for apps.
 brene_open_redirect() {
-	brene_clone_perm "$2" "$1"
-	if ${SUSFS_BIN} add_open_redirect "$1" "$2" "$3" && [[ "${config_brene_logs}" == "1" ]]; then
-		echo "[open_redirect]: $1 $2 $3" >> "${PERSISTENT_DIR}/logs.txt"
-	fi
+	local target=$1 redirect=$2 scope=$3 alias
+	for alias in $(path_aliases "${target}"); do
+		[[ -e "${alias}" ]] || continue
+		brene_clone_perm "${redirect}" "${alias}"
+		if ${SUSFS_BIN} add_open_redirect "${alias}" "${redirect}" "${scope}" && [[ "${config_brene_logs}" == "1" ]]; then
+			echo "[open_redirect]: ${alias} ${redirect} ${scope}" >> "${PERSISTENT_DIR}/logs.txt"
+		fi
+	done
 }
 brene_kernel_umount() {
 	${KSU_BIN} kernel notify-module-mounted
