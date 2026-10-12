@@ -124,6 +124,14 @@ fi
 # Remove Custom ROM Properties
 if [[ "${config_rom_props}" == "1" ]]; then
 	resetprop | grep -iE "${CUSTOM_ROM_NAMES}" | awk -F'[][]' '{print $2}' | while read -r prop; do
+		# INFO: Never delete the build identity: an empty ro.build.fingerprint or product name
+		#         gives a device away far more than the ROM name in it. "Clean build identity"
+		#         rewrites these instead.
+		case "${prop}" in
+			ro.build.fingerprint | ro.*.build.fingerprint | ro.build.description | ro.build.flavor | \
+				ro.build.display.id | ro.build.product | ro.build.version.incremental | \
+				ro.*.build.version.incremental | ro.product.name | ro.product.*.name) continue ;;
+		esac
 		resetprop -d "${prop}"
 	done
 
@@ -151,39 +159,48 @@ if [[ "${config_spoof_libstagefright}" == "1" ]]; then
 	brene_open_redirect "${path}" "${fake_file_path}" '3'
 fi
 
-# Hide LineageOS Strings
+# Root markers that root tools inject into init .rc files (magisk/ksu service lines,
+# resetprop exec lines, SELinux magisk/zygisk domains). Stripping them hides the root
+# footprint a scanner looks for in readable .rc files.
+ROOT_RC_MARKERS="magisk|resetprop|zygisk|ksud|\bksu\b|u:r:magisk|u:r:su:|/data/adb/|post-fs-data\.sh|service\.adb\.root"
+
+# Hide ROM strings in policy files
 if [[ "${config_hide_lineage_strings}" == "1" ]]; then
+	# Strip the detected ROM's name from sepolicy, file_contexts and .rc files, so a scanner
+	# that counts "lineage" markers finds none, while the files still look real to apps.
+	# Fall back to the full ROM-name list when the detected name is unknown.
+	rom_name=$(sed -n 's/^name=//p' "${ROM_TYPE_FILE}" 2>/dev/null)
+	strip_names="${rom_name:-${CUSTOM_ROM_NAMES}}"
+
 	find /system /system_ext /vendor /product \( -iname "*sepolicy.cil" -o -iname "*file_contexts" \) | while read -r path; do
-		file_name=$(basename "${path}")
-		fake_file_path="${PERSISTENT_DIR}/fake_files/${file_name}"
-
-		[[ ! -d "${PERSISTENT_DIR}/fake_files" ]] && mkdir -p "${PERSISTENT_DIR}/fake_files"
-		[[ ! -f "${fake_file_path}" ]] && {
-			touch "${fake_file_path}"
-		}
-
-		brene_open_redirect "${path}" "${fake_file_path}" '3'
+		brene_clean_redirect "${path}" "${strip_names}"
 	done
 
-	find /system /system_ext /vendor /product -iname "*.rc" | while read -r path; do
-		if grep -iq "lineage" "${path}"; then
-			file_name=$(basename "${path}")
-			fake_file_path="${PERSISTENT_DIR}/fake_files/${file_name}"
-
-			[[ ! -d "${PERSISTENT_DIR}/fake_files" ]] && mkdir -p "${PERSISTENT_DIR}/fake_files"
-			[[ ! -f "${fake_file_path}" ]] && {
-				touch "${fake_file_path}"
-			}
-
-			brene_open_redirect "${path}" "${fake_file_path}" '3'
-		fi
-	done
-
+	# Updater.xml only exists on the ROM; an empty copy is fine here (no stock equivalent).
 	path=/system_ext/etc/permissions/Updater.xml
-	file_name=$(basename "${path}")
-	fake_file_path="${PERSISTENT_DIR}/fake_files/${file_name}"
-	[[ ! -f "${fake_file_path}" ]] && touch "${fake_file_path}"
-	brene_open_redirect "${path}" "${fake_file_path}" '3'
+	if [[ -e "${path}" ]]; then
+		fake_file_path="${PERSISTENT_DIR}/fake_files/Updater.xml"
+		[[ ! -d "${PERSISTENT_DIR}/fake_files" ]] && mkdir -p "${PERSISTENT_DIR}/fake_files"
+		[[ ! -f "${fake_file_path}" ]] && touch "${fake_file_path}"
+		brene_open_redirect "${path}" "${fake_file_path}" '3'
+	fi
+fi
+
+# Hide traces in init .rc files (ROM name and/or root markers). Both toggles target .rc
+# files, so build one combined pattern and redirect each file once, to avoid two options
+# fighting over the same redirect.
+rc_pattern=""
+if [[ "${config_hide_lineage_strings}" == "1" ]]; then
+	rom_name=$(sed -n 's/^name=//p' "${ROM_TYPE_FILE}" 2>/dev/null)
+	rc_pattern="${rom_name:-${CUSTOM_ROM_NAMES}}"
+fi
+if [[ "${config_hide_root_rc_lines}" == "1" ]]; then
+	rc_pattern="${rc_pattern:+${rc_pattern}|}${ROOT_RC_MARKERS}"
+fi
+if [[ -n "${rc_pattern}" ]]; then
+	find /system /system_ext /vendor /product -iname "*.rc" | while read -r path; do
+		brene_clean_redirect "${path}" "${rc_pattern}"
+	done
 fi
 
 #### Hide some sus paths, effective only for processes that are marked umounted with uid >= 10000 ####
@@ -196,7 +213,8 @@ if [[ "${config_spoof_system_properties}" == "1" ]]; then
 	spoof_system_properties
 fi
 # Spoof Fingerprint Properties
-if [[ "${config_spoof_fingerprint_properties}" == "1" ]]; then
+# (skipped when "Clean build identity" already rewrote the fingerprints at post-fs-data)
+if [[ "${config_spoof_fingerprint_properties}" == "1" ]] && ! { [[ "${config_clean_build_identity}" == "1" ]] && grep -q '^type=custom' "${ROM_TYPE_FILE}" 2>/dev/null; }; then
 	spoof_fingerprint_properties
 fi
 # Spoof UTC Properties
@@ -449,6 +467,12 @@ if [[ -e "${PERSISTENT_DIR}/custom_open_redirect.txt" ]]; then
 fi
 
 # Load custom_sus_kstat.txt
+# Root tools touch /debug_ramdisk, so its recent timestamp gives root away; show apps the
+# untouched 2009-01-01 date like the rest of the system. Every ROM, when turned on.
+if [[ "${config_old_debug_ramdisk_time}" == "1" ]]; then
+	brene_sus_kstat "/debug_ramdisk"
+fi
+
 if [[ -e "${PERSISTENT_DIR}/custom_sus_kstat.txt" ]]; then
 	while IFS= read -r i; do
 		# Skip empty lines or comments

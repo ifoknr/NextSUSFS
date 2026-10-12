@@ -43,7 +43,10 @@ const STR = {
     'desc.old': 'Your kernel has an old SuSFS (v1). v2 is recommended for effective hiding.',
     'desc.reboot': 'NextSUSFS is installed. Reboot to start hiding.',
     'desc.working': '%s of 9 kernel features enabled',
-    'dev.android': 'Android', 'dev.model': 'Model', 'dev.kernel': 'Kernel', 'dev.susfs': 'SuSFS', 'dev.arch': 'Architecture',
+    'dev.android': 'Android', 'dev.model': 'Model', 'dev.kernel': 'Kernel', 'dev.susfs': 'SuSFS', 'dev.arch': 'Architecture', 'dev.rom': 'ROM',
+    'rom.custom': 'Custom ROM', 'rom.stock': 'Stock ROM', 'new': 'New',
+    'sug.title': 'Suggestions for %s', 'sug.desc': 'Optional settings that suit your ROM. Pick what you want; nothing changes until you apply.',
+    'sug.apply': 'Turn on selected (%s)', 'sug.later': 'Later', 'sug.applied': 'Turned on. Reboot to apply.',
     'count.on': '%a of %b on', 'on': 'On', 'off': 'Off',
     'pending.title': 'Saved. Reboot to apply.', 'pending.reboot': 'Reboot',
     'dlg.cancel': 'Cancel', 'dlg.ok': 'OK',
@@ -112,7 +115,10 @@ const STR = {
     'desc.old': 'نواتك فيها SuSFS قديم (v1). يُنصح بـv2 للإخفاء الفعّال.',
     'desc.reboot': 'تم تثبيت NextSUSFS. أعد التشغيل ليبدأ الإخفاء.',
     'desc.working': '%s من 9 ميزات نواة مفعّلة',
-    'dev.android': 'أندرويد', 'dev.model': 'الطراز', 'dev.kernel': 'النواة', 'dev.susfs': 'SuSFS', 'dev.arch': 'المعمارية',
+    'dev.android': 'أندرويد', 'dev.model': 'الطراز', 'dev.kernel': 'النواة', 'dev.susfs': 'SuSFS', 'dev.arch': 'المعمارية', 'dev.rom': 'الروم',
+    'rom.custom': 'روم مخصص', 'rom.stock': 'روم رسمي', 'new': 'جديد',
+    'sug.title': 'مقترحات لروم %s', 'sug.desc': 'إعدادات اختيارية تناسب رومك. اختر اللي تبغاه، وما يتغيّر شي إلا إذا ضغطت تفعيل.',
+    'sug.apply': 'تفعيل المختار (%s)', 'sug.later': 'لاحقاً', 'sug.applied': 'تم التفعيل. أعد التشغيل للتطبيق.',
     'count.on': '%a من %b مفعّل', 'on': 'مفعّل', 'off': 'مطفي',
     'pending.title': 'تم الحفظ. أعد التشغيل للتطبيق.', 'pending.reboot': 'إعادة تشغيل',
     'dlg.cancel': 'إلغاء', 'dlg.ok': 'موافق',
@@ -193,6 +199,8 @@ async function setConfig(key, value, quoted) {
   return r.errno === 0
 }
 const isOn = (key) => cfg[key] === '1'
+// Custom-ROM-only pages stay hidden on a stock ROM (their settings are kept but never applied)
+const visiblePages = () => PAGES.filter((p) => !p.onlyCustom || rom.type === 'custom')
 const toggles = (page) => page.items.filter((i) => !i.type)
 
 /* ---------- pending reboot ---------- */
@@ -220,12 +228,29 @@ async function reboot() {
 /* ---------- home ---------- */
 const FEATURES = ['sus_path', 'sus_mount', 'sus_kstat', 'spoof_uname', 'open_redirect', 'try_umount', 'hide_symbols', 'spoof_cmdline', 'enable_log']
 let kernel = { version: '', enabled: new Set(), state: 'unknown' }
+// Written by post-fs-data from the real props, before NextSUSFS hides the ROM's traces
+let rom = { type: '', name: '' }
+const ROM_NAMES = {
+  lineage: 'LineageOS', crdroid: 'crDroid', evolution: 'Evolution X', pixelos: 'PixelOS', axion: 'AxionOS',
+  infinity: 'Infinity X', rising: 'RisingOS', derpfest: 'DerpFest', graphene: 'GrapheneOS', calyx: 'CalyxOS',
+  matrixx: 'Project Matrixx', aospa: 'Paranoid Android', yaap: 'YAAP', bliss: 'Bliss OS', havoc: 'Havoc-OS',
+  alphadroid: 'AlphaDroid', lmodroid: 'LMODroid', mistos: 'MistOS', lunaris: 'LunarisAOSP', halcyon: 'Halcyon',
+  lumine: 'Lumine', clover: 'Clover',
+}
+const romLabel = () => rom.type === 'custom'
+  ? t('rom.custom') + (rom.name ? ` · ${ROM_NAMES[rom.name] || rom.name}` : '')
+  : rom.type === 'stock' ? t('rom.stock') : ''
 
 async function loadKernel() {
   kernel.state = await out(`cat ${DATA}/kernel_state`) || 'unknown'
   kernel.version = await out('susfs show version')
   const raw = await out('susfs show enabled_features')
   kernel.enabled = new Set(raw.split('\n').map((s) => s.trim()).filter(Boolean))
+  rom = { type: '', name: '' }
+  ;(await out(`cat ${DATA}/rom_type`)).split('\n').forEach((line) => {
+    const [k, v = ''] = line.split('=')
+    if (k === 'type' || k === 'name') rom[k] = v.trim()
+  })
 }
 
 async function renderHome() {
@@ -241,7 +266,10 @@ async function renderHome() {
   $('hero_ring').style.setProperty('--ring', RING[cls])
   $('hero_title').textContent = title
   $('hero_sub').textContent = desc
-  $('hero_chips').innerHTML = (version ? `<span class="chip v">${esc(version)}</span>` : '') + `<span class="chip">${enabled.size}/9</span>`
+  $('hero_chips').innerHTML = (version ? `<span class="chip v">${esc(version)}</span>` : '') + `<span class="chip">${enabled.size}/9</span>` +
+    (rom.type ? `<span class="chip rom ${rom.type === 'custom' ? 'custom' : 'stock'}">${esc(romLabel())}</span>` : '')
+
+  renderSuggestions()
 
   // banner only for problems, never for a user choice
   const banner = $('banner')
@@ -253,7 +281,7 @@ async function renderHome() {
   } else banner.className = 'alert'
 
   // one tile per hiding page with how many of its switches are on
-  $('overview').innerHTML = PAGES.filter((p) => p.id !== 'display').map((p) => {
+  $('overview').innerHTML = visiblePages().filter((p) => p.id !== 'display').map((p) => {
     const tg = toggles(p); const on = tg.filter((i) => isOn(i.key)).length
     return tile(`#hiding/${p.id}`, p.icon, L(p.t), t('count.on').replace('%a', on).replace('%b', tg.length))
   }).join('')
@@ -264,6 +292,7 @@ async function renderHome() {
   const rows = [
     [t('dev.model'), [man, model].filter(Boolean).join(' ')],
     [t('dev.android'), rel ? `${rel}${sdk ? ` · SDK ${sdk}` : ''}` : ''],
+    [t('dev.rom'), romLabel()],
     [t('dev.kernel'), kver], [t('dev.susfs'), version || '—'], [t('dev.arch'), arch],
   ].filter(([, v]) => v)
   $('device').innerHTML = rows.map(([k, v]) => `<div class="drow"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')
@@ -281,6 +310,52 @@ async function renderHome() {
   } else safebar.className = 'alert'
 }
 
+/* ---------- custom ROM suggestions ----------
+   Only on a custom ROM, only options that are still off, never applied without the user
+   picking them and pressing the button. "Later" hides the card for this ROM. */
+const SUGGEST_KEY = '/NextSUSFS/romSuggestDismissed'
+function suggestedItems() {
+  const keys = ['config_clean_build_identity', 'config_hide_custom_rom_paths', 'config_rom_props']
+  if (rom.name === 'lineage') keys.push('config_hide_lineage_strings')
+  const all = PAGES.flatMap((p) => p.items)
+  return keys.map((k) => all.find((i) => i.key === k)).filter((i) => i && !isOn(i.key))
+}
+function renderSuggestions() {
+  const box = $('suggest')
+  let dismissed = ''
+  try { dismissed = localStorage.getItem(SUGGEST_KEY) || '' } catch (e) {}
+  const items = rom.type === 'custom' ? suggestedItems() : []
+  if (!items.length || dismissed === (rom.name || 'custom')) { box.innerHTML = ''; return }
+  const name = ROM_NAMES[rom.name] || rom.name || t('rom.custom')
+  box.innerHTML = `<div class="sug"><div class="sug_t">${esc(t('sug.title').replace('%s', name))}</div>` +
+    `<div class="sug_d">${esc(t('sug.desc'))}</div>` +
+    items.map((i) => {
+      const [title, desc] = L(i)
+      return `<label class="sug_row"><input type="checkbox" data-sug="${i.key}"><span class="box"></span>` +
+        `<span class="sug_body"><span class="sug_rt">${esc(title)}</span><span class="sug_rd">${esc(desc)}</span></span></label>`
+    }).join('') +
+    `<div class="sug_btns"><div class="btn small" id="sug_apply"></div><div class="btn small ghost" id="sug_later">${esc(t('sug.later'))}</div></div></div>`
+  const apply = $('sug_apply')
+  const update = () => {
+    const n = box.querySelectorAll('input[data-sug]:checked').length
+    apply.textContent = t('sug.apply').replace('%s', n)
+    apply.classList.toggle('off', n === 0)
+  }
+  box.querySelectorAll('input[data-sug]').forEach((c) => c.addEventListener('change', update))
+  update()
+  apply.addEventListener('click', async () => {
+    const picked = [...box.querySelectorAll('input[data-sug]:checked')].map((c) => c.getAttribute('data-sug'))
+    if (!picked.length) return
+    for (const key of picked) await setConfig(key, '1')
+    toast(t('sug.applied'))
+    renderSuggestions()
+  })
+  $('sug_later').addEventListener('click', () => {
+    try { localStorage.setItem(SUGGEST_KEY, rom.name || 'custom') } catch (e) {}
+    box.innerHTML = ''
+  })
+}
+
 /* ---------- hiding hub ---------- */
 function tile(href, ic, title, sub) {
   return `<a class="tile" href="${href}"><div class="tile_ic">${icon(ic)}</div>` +
@@ -289,7 +364,7 @@ function tile(href, ic, title, sub) {
 function renderHub() {
   $('hub_hiding').innerHTML =
     tile('#hiding/features', 'features', t('page.features'), `${kernel.enabled.size}/9 · ${t('page.featuresd')}`) +
-    PAGES.map((p) => {
+    visiblePages().map((p) => {
       const tg = toggles(p); const on = tg.filter((i) => isOn(i.key)).length
       return tile(`#hiding/${p.id}`, p.icon, L(p.t), `${on}/${tg.length} · ${L(p.d)}`)
     }).join('')
@@ -300,8 +375,8 @@ function renderHub() {
 }
 
 /* ---------- single pages ---------- */
-function switchRow(key, title, desc, warn) {
-  return `<div class="row"><div class="row_body"><div class="row_title">${esc(title)}</div>` +
+function switchRow(key, title, desc, warn, isNew) {
+  return `<div class="row"><div class="row_body"><div class="row_title">${esc(title)}${isNew ? ` <span class="chip newc">${esc(t('new'))}</span>` : ''}</div>` +
     (desc ? `<div class="row_sub">${esc(desc)}</div>` : '') +
     (warn ? `<div class="row_warn">${esc(warn)}</div>` : '') + '</div>' +
     `<label class="switch"><input type="checkbox" data-key="${key}" ${isOn(key) ? 'checked' : ''}><span class="slider"></span></label></div>`
@@ -321,7 +396,7 @@ function renderConfigPage(page) {
   if (page.note) html += `<div class="note top">${esc(L(page.note))}</div>`
   html += '<div class="card">' + page.items.map((item) => {
     const [title, desc, warn] = L(item)
-    if (!item.type) return switchRow(item.key, title, desc, warn)
+    if (!item.type) return switchRow(item.key, title, desc, warn, item.isNew)
     const val = cfg[item.key] ?? item.dflt
     return `<div class="row col"><div class="row_body"><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div></div>` +
       `<div class="field"><input class="input" dir="ltr" spellcheck="false" autocomplete="off" data-text="${item.key}" value="${esc(val)}" placeholder="${esc(item.dflt)}">` +

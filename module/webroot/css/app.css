@@ -74,6 +74,10 @@ a { color: var(--blue); text-decoration: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .chip { white-space: nowrap; flex: 0 0 auto; font-size: 11px; padding: 4px 10px; border-radius: 50px; background: var(--icon-bc); border: 1px solid var(--card-line); color: var(--desc); font-weight: 600; }
 .chip.v { background: #1a2748; border-color: transparent; color: #cdd9ff; }
+.chip.rom { display: inline-flex; align-items: center; gap: 6px; }
+.chip.rom::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.chip.rom.stock { background: rgba(52, 211, 153, .12); border-color: transparent; color: var(--green); }
+.chip.rom.custom { background: rgba(243, 169, 58, .12); border-color: transparent; color: var(--amber); }
 
 /* Alert banner */
 .alert { display: none; gap: 11px; align-items: flex-start; border-radius: 14px; padding: 14px 16px; margin-bottom: 11px; border: 1px solid; }
@@ -297,3 +301,21 @@ a.ext.plain { color: var(--blue); }
 .dlg_t { font-size: 17px; font-weight: 700; }
 .dlg_d { color: var(--desc); font-size: 13px; margin-top: 8px; line-height: 1.5; }
 .dlg_btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+/* "New" marker on recently added switches */
+.chip.newc { font-size: 10px; padding: 2px 8px; background: rgba(91, 140, 255, .15); color: #9db8ff; border-color: transparent; vertical-align: middle; margin-inline-start: 6px; }
+
+/* Custom ROM suggestions card on Home (custom ROMs only) */
+.sug { background: #17150f; border: 1px solid #4a3a17; border-radius: 14px; padding: 14px 16px; margin-bottom: 11px; }
+.sug_t { font-weight: 700; font-size: 15px; color: var(--amber); }
+.sug_d { font-size: 12px; color: var(--desc); margin-top: 4px; line-height: 1.5; }
+.sug_row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid #2c2618; margin-top: 10px; cursor: pointer; }
+.sug_row + .sug_row { margin-top: 0; }
+.sug_row input { display: none; }
+.sug_row .box { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #5a4a25; flex: 0 0 auto; margin-top: 1px; }
+.sug_row input:checked + .box { background: var(--amber); border-color: var(--amber); box-shadow: inset 0 0 0 3px #17150f; }
+.sug_body { display: flex; flex-direction: column; gap: 2px; }
+.sug_rt { font-size: 13.5px; font-weight: 600; }
+.sug_rd { font-size: 11.5px; color: var(--desc); line-height: 1.45; }
+.sug_btns { display: flex; gap: 8px; margin-top: 12px; }
+.btn.off { opacity: .45; pointer-events: none; }

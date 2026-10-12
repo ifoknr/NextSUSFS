@@ -22,6 +22,9 @@ true > "${PERSISTENT_DIR}/logs.txt"
 # real values before they change anything, so the WebUI can restore without a reboot.
 true > "${PERSISTENT_DIR}/prop_backup.txt"
 
+# Custom or stock ROM, read from the real props before anything below can change them.
+detect_rom_type
+
 # INFO: Boot-loop protection (Safe Mode).
 #         post-fs-data runs on every boot; boot-completed only runs after a *successful*
 #         boot and resets this counter. So if the counter reaches the limit it means the
@@ -37,6 +40,14 @@ if [[ "${boot_attempts}" -ge "${SAFE_MODE_LIMIT}" ]]; then
 	echo "${boot_attempts}" > "${PERSISTENT_DIR}/safe_mode"
 	echo "post-fs-data.sh ⏭️ Safe Mode (boot attempt ${boot_attempts}): hiding skipped this boot" >> "${PERSISTENT_DIR}/log.txt"
 	exit 0
+fi
+
+# Clean the custom ROM build identity (fingerprint, build strings, product name) here,
+# before zygote starts: apps read android.os.Build values that zygote caches at startup.
+# Custom ROMs only, and only when the user turned it on.
+if [[ "${config_clean_build_identity}" == "1" ]] && grep -q '^type=custom' "${ROM_TYPE_FILE}" 2>/dev/null; then
+	clean_build_identity
+	echo "post-fs-data.sh ✅ Cleaned custom ROM build identity" >> "${PERSISTENT_DIR}/log.txt"
 fi
 
 ## Important Notes:

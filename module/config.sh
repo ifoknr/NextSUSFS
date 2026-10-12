@@ -26,6 +26,8 @@ config_spoof_vendor_security_patch_level_property=1
 
 config_pif_props=0
 config_rom_props=0
+config_clean_build_identity=0
+config_old_debug_ramdisk_time=0
 config_saturation=0
 config_brene_logs=0
 config_enable_log=0
@@ -37,6 +39,7 @@ config_custom_spoof_uname=0
 config_wireless_debugging=0
 config_hide_suspicious_pty=0
 config_hide_lineage_strings=0
+config_hide_root_rc_lines=0
 config_spoof_libstagefright=0
 config_hide_custom_rom_paths=0
 config_hide_custom_rom_paths_2=0
