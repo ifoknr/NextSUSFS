@@ -162,7 +162,7 @@ fi
 # Root markers that root tools inject into init .rc files (magisk/ksu service lines,
 # resetprop exec lines, SELinux magisk/zygisk domains). Stripping them hides the root
 # footprint a scanner looks for in readable .rc files.
-ROOT_RC_MARKERS="magisk|resetprop|zygisk|ksud|\bksu\b|u:r:magisk|u:r:su:|/debug_ramdisk|post-fs-data\.sh|late_start_service"
+ROOT_RC_MARKERS="magisk|resetprop|zygisk|ksud|\bksu\b|u:r:magisk|u:r:su:|/data/adb/|post-fs-data\.sh|service\.adb\.root"
 
 # Hide ROM strings in policy files
 if [[ "${config_hide_lineage_strings}" == "1" ]]; then
