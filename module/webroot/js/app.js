@@ -53,6 +53,9 @@ const STR = {
     'page.features': 'Kernel features', 'page.featuresd': 'What your kernel\'s SuSFS can do',
     'page.featuresnote': 'These come from the kernel and cannot be switched here. A feature that is off was not built into your kernel.',
     'page.lists': 'Your lists', 'page.listsd': 'Add your own paths to hide',
+    'page.scan': 'Trace check', 'page.scand': 'Which root traces are covered',
+    'scan.note': 'Properties are read live. File redirects target apps only, so they are shown as covered when their option is on, not read back here.',
+    'scan.run': 'Re-check', 'scan.fix': 'Fix', 'scan.hidden': 'Covered', 'scan.exposed': 'Exposed', 'scan.clean': 'Clean', 'scan.cant': 'Kernel-level', 'scan.coveredn': '%a/%b covered',
     'page.listsnote': 'One path per line, starting with /. Lines starting with # are comments.',
     'page.logs': 'Logs', 'page.logsd': 'What happened at the last boot',
     'page.backup': 'Backup & reset', 'page.backupd': 'Save, restore or reset your settings',
@@ -125,6 +128,9 @@ const STR = {
     'page.features': 'ميزات النواة', 'page.featuresd': 'وش يقدر يسوي SuSFS في نواتك',
     'page.featuresnote': 'هذي تجي من النواة وما تنغيّر من هنا. الميزة المطفية معناها إنها ما انبنت في نواتك.',
     'page.lists': 'قوائمك', 'page.listsd': 'أضف مساراتك الخاصة للإخفاء',
+    'page.scan': 'فحص الآثار', 'page.scand': 'وش الآثار المغطّاة',
+    'scan.note': 'الخصائص تُقرأ مباشرة. تحويلات الملفات للتطبيقات فقط، فتُعرض «مغطّى» إذا خيارها مفعّل، ما تُقرأ من هنا.',
+    'scan.run': 'إعادة الفحص', 'scan.fix': 'إصلاح', 'scan.hidden': 'مغطّى', 'scan.exposed': 'ظاهر', 'scan.clean': 'نظيف', 'scan.cant': 'مستوى النواة', 'scan.coveredn': '%a/%b مغطّى',
     'page.listsnote': 'مسار واحد في كل سطر، ويبدأ بـ/. السطر اللي يبدأ بـ# ملاحظة.',
     'page.logs': 'السجلات', 'page.logsd': 'وش صار في آخر إقلاع',
     'page.backup': 'النسخ والاستعادة', 'page.backupd': 'احفظ إعداداتك أو استرجعها أو صفّرها',
@@ -369,6 +375,7 @@ function renderHub() {
       return tile(`#hiding/${p.id}`, p.icon, L(p.t), `${on}/${tg.length} · ${L(p.d)}`)
     }).join('')
   $('hub_manage').innerHTML =
+    tile('#hiding/scan', 'scan', t('page.scan'), t('page.scand')) +
     tile('#hiding/lists', 'lists', t('page.lists'), t('page.listsd')) +
     tile('#hiding/logs', 'logs', t('page.logs'), t('page.logsd')) +
     tile('#hiding/backup', 'backup', t('page.backup'), t('page.backupd'))
@@ -611,6 +618,75 @@ const SPECIAL = {
   lists: { title: () => t('page.lists'), render: renderListsPage },
   logs: { title: () => t('page.logs'), render: renderLogsPage },
   backup: { title: () => t('page.backup'), render: renderBackupPage },
+  scan: { title: () => t('page.scan'), render: renderScanPage },
+}
+
+/* ---------- trace check ----------
+   Honest probing: property traces are read live (resetprop changes them for everyone,
+   root included). File-redirect traces are apps-only, so we cannot read the app view from
+   this root shell; for those we report "covered" when the hiding option is on, "exposed"
+   when the raw trace is present and the option is off. SELinux su domain is kernel-level. */
+const ROM_RE = Object.keys(ROM_NAMES).join('|') + '|lineage|crdroid|evolution|test-keys|userdebug'
+
+async function scanChecks() {
+  const fp = await out('getprop ro.build.fingerprint')
+  const romProps = await out(`resetprop 2>/dev/null | grep -icE '\\[(ro\\.(modversion|[a-z_]*\\.?build\\.(fingerprint|description|flavor)))' ; true`)
+  const romNamed = await out(`resetprop 2>/dev/null | grep -iE '${ROM_RE}' | grep -ivE 'fingerprint|description|flavor|display|incremental' | head -1`)
+  const dbgExists = await exists('/debug_ramdisk')
+
+  const checks = []
+  // 1) build fingerprint (live)
+  const fpDirty = /test-keys|userdebug|eng\.|lineage|crdroid|evolution/i.test(fp)
+  checks.push({ t: t2('بصمة البناء', 'Build fingerprint'), d: 'ro.build.fingerprint',
+    state: fp ? (fpDirty ? 'exposed' : 'clean') : 'clean', fix: '#hiding/rom', live: true })
+  // 2) ROM-named properties still present (live)
+  checks.push({ t: t2('خصائص باسم الروم', 'ROM-named properties'), d: 'resetprop',
+    state: romNamed ? 'exposed' : 'clean', fix: '#hiding/rom', live: true,
+    detail: romNamed || '' })
+  // 3) sepolicy / policy files (configured)
+  checks.push({ t: t2('نصوص الروم في السياسة', 'ROM strings in policy'), d: 'sepolicy.cil / file_contexts',
+    state: isOn('config_hide_lineage_strings') ? 'hidden' : 'exposed', fix: '#hiding/rom' })
+  // 4) init .rc root lines (configured)
+  checks.push({ t: t2('أسطر الروت في init', 'Root lines in init'), d: 'init .rc',
+    state: isOn('config_hide_root_rc_lines') ? 'hidden' : 'exposed', fix: '#hiding/rom' })
+  // 5) /debug_ramdisk timestamp (configured, every ROM)
+  if (dbgExists) checks.push({ t: t2('وقت /debug_ramdisk', '/debug_ramdisk time'), d: '/debug_ramdisk',
+    state: isOn('config_old_debug_ramdisk_time') ? 'hidden' : 'exposed', fix: '#hiding/paths' })
+  // 6) framework jar (cannot hide safely)
+  checks.push({ t: t2('ملف framework', 'Framework jar'), d: 'org.*.platform.jar',
+    state: 'cant', note: t2('إخفاؤه يكسر التطبيقات', 'Hiding it breaks apps') })
+  // 7) SELinux su domain (kernel-level)
+  checks.push({ t: t2('سياسة SELinux', 'SELinux policy'), d: 'su domain',
+    state: 'cant', note: t2('على مستوى النواة', 'Kernel level') })
+  return checks
+}
+const t2 = (ar, en) => (lang === 'ar' ? ar : en)
+
+async function renderScanPage() {
+  const body = $('page_body')
+  body.innerHTML = `<div class="page_head"><div class="page_ic">${icon('scan')}</div><div class="page_d">${esc(t('page.scand'))}</div></div>` +
+    `<div class="note top">${esc(t('scan.note'))}</div><div class="scanhero"><div class="spin sm"></div></div>`
+  const checks = await scanChecks()
+  const coverable = checks.filter((c) => c.state !== 'cant')
+  const good = coverable.filter((c) => c.state === 'hidden' || c.state === 'clean').length
+  const pill = (c) => {
+    if (c.state === 'hidden' || c.state === 'clean')
+      return `<div class="row_val st_on"><span class="dot on"></span>${t(c.state === 'clean' ? 'scan.clean' : 'scan.hidden')}</div>`
+    if (c.state === 'cant')
+      return `<div class="row_val" style="color:var(--desc)"><span class="dot neutral"></span>${t('scan.cant')}</div>`
+    return `<div class="row_val st_off" style="color:var(--amber)"><span class="dot off"></span>${t('scan.exposed')}</div>`
+  }
+  body.innerHTML = `<div class="page_head"><div class="page_ic">${icon('scan')}</div><div class="page_d">${esc(t('page.scand'))}</div></div>` +
+    `<div class="note top">${esc(t('scan.note'))}</div>` +
+    `<div class="scanhero"><div class="scannum">${good}/${coverable.length}</div><div class="scanlbl">${esc(t('scan.coveredn').replace('%a','').replace('/%b','').trim()||'')}</div>` +
+    `<div class="btn small ghost" id="scan_run">${icon('reset')}${t('scan.run')}</div></div>` +
+    '<div class="card">' + checks.map((c) =>
+      `<div class="row"><div class="row_body"><div class="row_title">${esc(c.t)}</div>` +
+      `<div class="row_sub mono">${esc(c.detail ? c.detail.slice(0,60) : c.d)}</div>` +
+      (c.note ? `<div class="row_warn">${esc(c.note)}</div>` : '') +
+      (c.state === 'exposed' && c.fix ? `<a class="chip fixc" href="${c.fix}">${t('scan.fix')}</a>` : '') +
+      '</div>' + pill(c) + '</div>').join('') + '</div>'
+  $('scan_run').addEventListener('click', renderScanPage)
 }
 
 /* ---------- floating navbar ---------- */
