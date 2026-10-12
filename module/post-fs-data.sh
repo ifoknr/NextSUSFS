@@ -22,6 +22,9 @@ true > "${PERSISTENT_DIR}/logs.txt"
 # real values before they change anything, so the WebUI can restore without a reboot.
 true > "${PERSISTENT_DIR}/prop_backup.txt"
 
+# Custom or stock ROM, read from the real props before anything below can change them.
+detect_rom_type
+
 # INFO: Boot-loop protection (Safe Mode).
 #         post-fs-data runs on every boot; boot-completed only runs after a *successful*
 #         boot and resets this counter. So if the counter reaches the limit it means the

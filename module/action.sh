@@ -27,6 +27,12 @@ echo "SuSFS:    ${susfs_version:-none}"
 echo "Features: $(printf '%s\n' "${features}" | grep -c .)/9"
 echo "Kernel:   $(uname -r)"
 echo "Device:   $(getprop ro.product.manufacturer) $(getprop ro.product.model) · Android $(getprop ro.build.version.release)"
+rom_type=$(sed -n 's/^type=//p' "${PERSISTENT_DIR}/rom_type" 2>/dev/null)
+rom_name=$(sed -n 's/^name=//p' "${PERSISTENT_DIR}/rom_type" 2>/dev/null)
+case "${rom_type}" in
+	custom) echo "ROM:      Custom${rom_name:+ (${rom_name})}" ;;
+	stock) echo "ROM:      Stock" ;;
+esac
 echo ""
 
 echo "NEXT stack"

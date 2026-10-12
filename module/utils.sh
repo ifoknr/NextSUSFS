@@ -57,6 +57,31 @@ restore_original_props() {
 	rm -f "${PROP_BACKUP}"
 }
 
+# Record whether this is a custom ROM or the stock one, for the WebUI and the Action button.
+# Runs early in post-fs-data, before "Remove Custom ROM Properties" deletes the evidence.
+# Writes "type=custom|stock" plus "name=<rom>" (when known) and "reason=<what matched>".
+ROM_TYPE_FILE="${PERSISTENT_DIR}/rom_type"
+detect_rom_type() {
+	local name="" reason=""
+	name=$(resetprop | awk -F'[][]' '{print $2}' | grep -ioE "${CUSTOM_ROM_NAMES}" | head -n 1)
+	[[ -z "${name}" ]] && name=$(resetprop ro.build.flavor | grep -ioE "${CUSTOM_ROM_NAMES}" | head -n 1)
+	if [[ -n "${name}" ]]; then
+		reason="props"
+	elif [[ -n "$(resetprop ro.modversion)" ]]; then
+		reason="ro.modversion"
+	elif [[ "$(resetprop ro.build.tags)" == *"test-keys"* ]]; then
+		reason="test-keys"
+	elif [[ -d /system/addon.d ]]; then
+		reason="addon.d"
+	fi
+
+	if [[ -n "${reason}" ]]; then
+		printf 'type=custom\nname=%s\nreason=%s\n' "$(echo "${name}" | tr '[:upper:]' '[:lower:]')" "${reason}" > "${ROM_TYPE_FILE}"
+	else
+		printf 'type=stock\nname=\nreason=\n' > "${ROM_TYPE_FILE}"
+	fi
+}
+
 resetprop_n() {
 	save_original_prop "$1" "$(resetprop "$1")"
 	resetprop -n "$1" "$2"

@@ -74,6 +74,10 @@ a { color: var(--blue); text-decoration: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .chip { white-space: nowrap; flex: 0 0 auto; font-size: 11px; padding: 4px 10px; border-radius: 50px; background: var(--icon-bc); border: 1px solid var(--card-line); color: var(--desc); font-weight: 600; }
 .chip.v { background: #1a2748; border-color: transparent; color: #cdd9ff; }
+.chip.rom { display: inline-flex; align-items: center; gap: 6px; }
+.chip.rom::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.chip.rom.stock { background: rgba(52, 211, 153, .12); border-color: transparent; color: var(--green); }
+.chip.rom.custom { background: rgba(243, 169, 58, .12); border-color: transparent; color: var(--amber); }
 
 /* Alert banner */
 .alert { display: none; gap: 11px; align-items: flex-start; border-radius: 14px; padding: 14px 16px; margin-bottom: 11px; border: 1px solid; }

@@ -43,7 +43,8 @@ const STR = {
     'desc.old': 'Your kernel has an old SuSFS (v1). v2 is recommended for effective hiding.',
     'desc.reboot': 'NextSUSFS is installed. Reboot to start hiding.',
     'desc.working': '%s of 9 kernel features enabled',
-    'dev.android': 'Android', 'dev.model': 'Model', 'dev.kernel': 'Kernel', 'dev.susfs': 'SuSFS', 'dev.arch': 'Architecture',
+    'dev.android': 'Android', 'dev.model': 'Model', 'dev.kernel': 'Kernel', 'dev.susfs': 'SuSFS', 'dev.arch': 'Architecture', 'dev.rom': 'ROM',
+    'rom.custom': 'Custom ROM', 'rom.stock': 'Stock ROM',
     'count.on': '%a of %b on', 'on': 'On', 'off': 'Off',
     'pending.title': 'Saved. Reboot to apply.', 'pending.reboot': 'Reboot',
     'dlg.cancel': 'Cancel', 'dlg.ok': 'OK',
@@ -112,7 +113,8 @@ const STR = {
     'desc.old': 'نواتك فيها SuSFS قديم (v1). يُنصح بـv2 للإخفاء الفعّال.',
     'desc.reboot': 'تم تثبيت NextSUSFS. أعد التشغيل ليبدأ الإخفاء.',
     'desc.working': '%s من 9 ميزات نواة مفعّلة',
-    'dev.android': 'أندرويد', 'dev.model': 'الطراز', 'dev.kernel': 'النواة', 'dev.susfs': 'SuSFS', 'dev.arch': 'المعمارية',
+    'dev.android': 'أندرويد', 'dev.model': 'الطراز', 'dev.kernel': 'النواة', 'dev.susfs': 'SuSFS', 'dev.arch': 'المعمارية', 'dev.rom': 'الروم',
+    'rom.custom': 'روم مخصص', 'rom.stock': 'روم رسمي',
     'count.on': '%a من %b مفعّل', 'on': 'مفعّل', 'off': 'مطفي',
     'pending.title': 'تم الحفظ. أعد التشغيل للتطبيق.', 'pending.reboot': 'إعادة تشغيل',
     'dlg.cancel': 'إلغاء', 'dlg.ok': 'موافق',
@@ -220,12 +222,29 @@ async function reboot() {
 /* ---------- home ---------- */
 const FEATURES = ['sus_path', 'sus_mount', 'sus_kstat', 'spoof_uname', 'open_redirect', 'try_umount', 'hide_symbols', 'spoof_cmdline', 'enable_log']
 let kernel = { version: '', enabled: new Set(), state: 'unknown' }
+// Written by post-fs-data from the real props, before NextSUSFS hides the ROM's traces
+let rom = { type: '', name: '' }
+const ROM_NAMES = {
+  lineage: 'LineageOS', crdroid: 'crDroid', evolution: 'Evolution X', pixelos: 'PixelOS', axion: 'AxionOS',
+  infinity: 'Infinity X', rising: 'RisingOS', derpfest: 'DerpFest', graphene: 'GrapheneOS', calyx: 'CalyxOS',
+  matrixx: 'Project Matrixx', aospa: 'Paranoid Android', yaap: 'YAAP', bliss: 'Bliss OS', havoc: 'Havoc-OS',
+  alphadroid: 'AlphaDroid', lmodroid: 'LMODroid', mistos: 'MistOS', lunaris: 'LunarisAOSP', halcyon: 'Halcyon',
+  lumine: 'Lumine', clover: 'Clover',
+}
+const romLabel = () => rom.type === 'custom'
+  ? t('rom.custom') + (rom.name ? ` · ${ROM_NAMES[rom.name] || rom.name}` : '')
+  : rom.type === 'stock' ? t('rom.stock') : ''
 
 async function loadKernel() {
   kernel.state = await out(`cat ${DATA}/kernel_state`) || 'unknown'
   kernel.version = await out('susfs show version')
   const raw = await out('susfs show enabled_features')
   kernel.enabled = new Set(raw.split('\n').map((s) => s.trim()).filter(Boolean))
+  rom = { type: '', name: '' }
+  ;(await out(`cat ${DATA}/rom_type`)).split('\n').forEach((line) => {
+    const [k, v = ''] = line.split('=')
+    if (k === 'type' || k === 'name') rom[k] = v.trim()
+  })
 }
 
 async function renderHome() {
@@ -241,7 +260,8 @@ async function renderHome() {
   $('hero_ring').style.setProperty('--ring', RING[cls])
   $('hero_title').textContent = title
   $('hero_sub').textContent = desc
-  $('hero_chips').innerHTML = (version ? `<span class="chip v">${esc(version)}</span>` : '') + `<span class="chip">${enabled.size}/9</span>`
+  $('hero_chips').innerHTML = (version ? `<span class="chip v">${esc(version)}</span>` : '') + `<span class="chip">${enabled.size}/9</span>` +
+    (rom.type ? `<span class="chip rom ${rom.type === 'custom' ? 'custom' : 'stock'}">${esc(romLabel())}</span>` : '')
 
   // banner only for problems, never for a user choice
   const banner = $('banner')
@@ -264,6 +284,7 @@ async function renderHome() {
   const rows = [
     [t('dev.model'), [man, model].filter(Boolean).join(' ')],
     [t('dev.android'), rel ? `${rel}${sdk ? ` · SDK ${sdk}` : ''}` : ''],
+    [t('dev.rom'), romLabel()],
     [t('dev.kernel'), kver], [t('dev.susfs'), version || '—'], [t('dev.arch'), arch],
   ].filter(([, v]) => v)
   $('device').innerHTML = rows.map(([k, v]) => `<div class="drow"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')
