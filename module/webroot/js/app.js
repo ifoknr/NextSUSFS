@@ -186,6 +186,11 @@ async function out(cmd) { const r = await exec(cmd); return r.errno === 0 ? r.st
 async function exists(path) { return (await exec(`test -e "${path}"`)).errno === 0 }
 // UTF-8 safe base64, so file contents never pass through shell quoting
 const b64 = (s) => btoa(unescape(encodeURIComponent(s)))
+// Strip zero-width and bidirectional marks (U+200B-200F, U+202A-202E, U+2066-2069, BOM)
+// that an Arabic/RTL keyboard can slip in before a path, then trim. String.trim() leaves
+// these format characters, so without this a line that looks like "/path" fails the "/"
+// check and would be written with a stray byte the kernel cannot match.
+const cleanLine = (s) => s.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '').trim()
 
 /* ---------- config ---------- */
 let cfg = {}
@@ -466,16 +471,16 @@ async function renderListsPage() {
     const lines = area.value.replace(/\r/g, '').split('\n')
     // a redirect line is "<path> <new path> <scope 0-4>"; other lists take one path per line
     const ok = LISTS[i].kind === 'redirect'
-      ? (s) => /^\/\S+\s+\/\S+\s+[0-4]$/.test(s.trim())
-      : (s) => s.trim().startsWith('/')
-    const bad = lines.findIndex((s) => s.trim() && !s.trim().startsWith('#') && !ok(s))
+      ? (s) => /^\/\S+\s+\/\S+\s+[0-4]$/.test(cleanLine(s))
+      : (s) => cleanLine(s).startsWith('/')
+    const bad = lines.findIndex((s) => cleanLine(s) && !cleanLine(s).startsWith('#') && !ok(s))
     if (bad >= 0) { area.classList.add('bad'); toast(t('list.bad').replace('%s', bad + 1)); return }
     area.classList.remove('bad')
-    const text = lines.map((s) => s.trim()).join('\n').replace(/\n+$/, '') + '\n'
+    const text = lines.map(cleanLine).join('\n').replace(/\n+$/, '') + '\n'
     const r = await exec(`echo '${b64(text)}' | base64 -d > ${DATA}/${LISTS[i].file}`)
     if (r.errno === 0) {
       markPending(); toast(t('list.saved'))
-      const n = lines.filter((s) => s.trim() && !s.trim().startsWith('#')).length
+      const n = lines.filter((s) => cleanLine(s) && !cleanLine(s).startsWith('#')).length
       body.querySelector(`[data-count="${i}"]`).textContent = t('list.count').replace('%s', n)
     }
   }))
