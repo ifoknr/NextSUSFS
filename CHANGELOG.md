@@ -2,6 +2,12 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.10
+- جديد: وضع نهاري/ليلي للواجهة. مفتاح في الإعدادات (النظام / داكن / فاتح)؛ خيار «النظام» يتبع إعداد جهازك ويتغيّر فورًا. الوضع الداكن يبقى الافتراضي، وكل الصفحات صارت واضحة في الوضع الفاتح.
+
+**English**
+- New: a day/night theme for the WebUI. A switch in Settings (System / Dark / Light); "System" follows your device's appearance and updates live. Dark stays the default, and every page now reads cleanly in light mode.
+
 ## v0.0.9
 - إصلاح: إخفاء نصوص الروم في ملفات السياسة كان لا يشتغل على الرومات المبنية على LineageOS (crDroid، Evolution، إلخ). كان يبحث عن اسم الروم المكتشف بدل «lineage»، فيتخطّى ملفات sepolicy. الآن يشيل كل أسماء الرومات.
 - إصلاح: التحويل (open redirect) ما كان يمسك الملفات اللي تحت /system_ext و/product و/vendor، لأنها روابط رمزية والكاشف يقرأها بمسارها المختصر. الآن يُسجّل التحويل لكل المسارات المكافئة.
