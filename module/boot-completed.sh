@@ -166,11 +166,11 @@ ROOT_RC_MARKERS="magisk|resetprop|zygisk|ksud|\bksu\b|u:r:magisk|u:r:su:|/data/a
 
 # Hide ROM strings in policy files
 if [[ "${config_hide_lineage_strings}" == "1" ]]; then
-	# Strip the detected ROM's name from sepolicy, file_contexts and .rc files, so a scanner
+	# Strip every known ROM name from sepolicy, file_contexts and .rc files, so a scanner
 	# that counts "lineage" markers finds none, while the files still look real to apps.
-	# Fall back to the full ROM-name list when the detected name is unknown.
-	rom_name=$(sed -n 's/^name=//p' "${ROM_TYPE_FILE}" 2>/dev/null)
-	strip_names="${rom_name:-${CUSTOM_ROM_NAMES}}"
+	# Always the full list, not the detected brand: most custom ROMs are LineageOS forks and
+	# inherit "lineage" markers, so a crDroid/Evolution device still has "lineage" in sepolicy.
+	strip_names="${CUSTOM_ROM_NAMES}"
 
 	find /system /system_ext /vendor /product \( -iname "*sepolicy.cil" -o -iname "*file_contexts" \) | while read -r path; do
 		brene_clean_redirect "${path}" "${strip_names}"
@@ -191,8 +191,7 @@ fi
 # fighting over the same redirect.
 rc_pattern=""
 if [[ "${config_hide_lineage_strings}" == "1" ]]; then
-	rom_name=$(sed -n 's/^name=//p' "${ROM_TYPE_FILE}" 2>/dev/null)
-	rc_pattern="${rom_name:-${CUSTOM_ROM_NAMES}}"
+	rc_pattern="${CUSTOM_ROM_NAMES}"
 fi
 if [[ "${config_hide_root_rc_lines}" == "1" ]]; then
 	rc_pattern="${rc_pattern:+${rc_pattern}|}${ROOT_RC_MARKERS}"
