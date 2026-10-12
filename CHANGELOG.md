@@ -1,5 +1,7 @@
 # NextSUSFS changelog
 
+<!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
+
 ## v0.0.7
 - Fixed: NextSUSFS turned KernelSU's kernel umount back on at boot after NextZygisk had
   turned it off, so both unmounted the same apps on every launch. With NextZygisk installed
