@@ -39,6 +39,7 @@ config_custom_spoof_uname=0
 config_wireless_debugging=0
 config_hide_suspicious_pty=0
 config_hide_lineage_strings=0
+config_hide_root_rc_lines=0
 config_spoof_libstagefright=0
 config_hide_custom_rom_paths=0
 config_hide_custom_rom_paths_2=0

@@ -159,7 +159,12 @@ if [[ "${config_spoof_libstagefright}" == "1" ]]; then
 	brene_open_redirect "${path}" "${fake_file_path}" '3'
 fi
 
-# Hide LineageOS Strings
+# Root markers that root tools inject into init .rc files (magisk/ksu service lines,
+# resetprop exec lines, SELinux magisk/zygisk domains). Stripping them hides the root
+# footprint a scanner looks for in readable .rc files.
+ROOT_RC_MARKERS="magisk|resetprop|zygisk|ksud|\bksu\b|u:r:magisk|u:r:su:|/debug_ramdisk|post-fs-data\.sh|late_start_service"
+
+# Hide ROM strings in policy files
 if [[ "${config_hide_lineage_strings}" == "1" ]]; then
 	# Strip the detected ROM's name from sepolicy, file_contexts and .rc files, so a scanner
 	# that counts "lineage" markers finds none, while the files still look real to apps.
@@ -171,10 +176,6 @@ if [[ "${config_hide_lineage_strings}" == "1" ]]; then
 		brene_clean_redirect "${path}" "${strip_names}"
 	done
 
-	find /system /system_ext /vendor /product -iname "*.rc" | while read -r path; do
-		brene_clean_redirect "${path}" "${strip_names}"
-	done
-
 	# Updater.xml only exists on the ROM; an empty copy is fine here (no stock equivalent).
 	path=/system_ext/etc/permissions/Updater.xml
 	if [[ -e "${path}" ]]; then
@@ -183,6 +184,23 @@ if [[ "${config_hide_lineage_strings}" == "1" ]]; then
 		[[ ! -f "${fake_file_path}" ]] && touch "${fake_file_path}"
 		brene_open_redirect "${path}" "${fake_file_path}" '3'
 	fi
+fi
+
+# Hide traces in init .rc files (ROM name and/or root markers). Both toggles target .rc
+# files, so build one combined pattern and redirect each file once, to avoid two options
+# fighting over the same redirect.
+rc_pattern=""
+if [[ "${config_hide_lineage_strings}" == "1" ]]; then
+	rom_name=$(sed -n 's/^name=//p' "${ROM_TYPE_FILE}" 2>/dev/null)
+	rc_pattern="${rom_name:-${CUSTOM_ROM_NAMES}}"
+fi
+if [[ "${config_hide_root_rc_lines}" == "1" ]]; then
+	rc_pattern="${rc_pattern:+${rc_pattern}|}${ROOT_RC_MARKERS}"
+fi
+if [[ -n "${rc_pattern}" ]]; then
+	find /system /system_ext /vendor /product -iname "*.rc" | while read -r path; do
+		brene_clean_redirect "${path}" "${rc_pattern}"
+	done
 fi
 
 #### Hide some sus paths, effective only for processes that are marked umounted with uid >= 10000 ####
