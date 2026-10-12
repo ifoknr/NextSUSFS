@@ -319,3 +319,12 @@ a.ext.plain { color: var(--blue); }
 .sug_rd { font-size: 11.5px; color: var(--desc); line-height: 1.45; }
 .sug_btns { display: flex; gap: 8px; margin-top: 12px; }
 .btn.off { opacity: .45; pointer-events: none; }
+
+/* Trace check page */
+.scanhero { display: flex; align-items: center; gap: 4px; min-height: 58px; background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+.scannum { font-size: 26px; font-weight: 800; color: var(--green); }
+.scanlbl { font-size: 13px; color: var(--desc); margin-inline-start: 10px; }
+.scanhero .btn.small { display: inline-flex; align-items: center; gap: 6px; margin-inline-start: auto; }
+.scanhero .btn.small svg { width: 15px; height: 15px; }
+.spin.sm { width: 1.6em; height: 1.6em; border-width: 4px; margin: 0 auto; }
+.chip.fixc { display: inline-block; margin-top: 8px; background: rgba(243, 169, 58, .15); color: var(--amber); border-color: transparent; }
