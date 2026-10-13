@@ -363,3 +363,73 @@ a.ext.plain { color: var(--blue); }
 :root[data-theme="light"] .sug_row .box { border-color: #cbb577; }
 :root[data-theme="light"] .sug_row input:checked + .box { box-shadow: inset 0 0 0 3px #fdf7ea; }
 :root[data-theme="light"] .chip.newc { background: rgba(59,111,224,.12); color: #2a52b5; }
+:root[data-theme="light"] #navbar { background: #ffffff; }
+/* The nav glyphs are black SVGs inverted to white for the dark bar. On the light bar, drop
+   the inversion so they show dark, like NextWheel and NextZygisk. */
+:root[data-theme="light"] .nav_ic { filter: none; }
+
+/* ===== Tablets and desktops (same layout as NextZygisk): centered content, two columns,
+         a bigger hero with stats. Phones keep the single-column layout above. ===== */
+.hero_stats { display: none; }
+.hero.ok { --hero-rgb: 52, 211, 153; }
+.hero.warn { --hero-rgb: 243, 169, 58; }
+.hero.err { --hero-rgb: 240, 82, 82; }
+
+@media (min-width: 760px) {
+  #app { max-width: 1200px; margin-inline: auto; }
+  /* Settings and single hiding pages are lists, so they stay narrow like NextZygisk's Settings. */
+  #app:has(.panel.active:is([data-panel="settings"], [data-panel="page"])) { max-width: 820px; }
+
+  .cols {
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 24px; align-items: start;
+  }
+  .cols .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .tile { padding: 16px; }
+  .card.device { padding: 6px 18px; gap: 0; border-radius: 20px; }
+  .device .drow { align-items: center; padding: 11px 0; border-bottom: 1px solid var(--card-line); }
+  .device .drow:last-child { border-bottom: none; }
+  .device .drow .v { font-size: 14px; word-break: break-word; }
+
+  .hero { padding: 28px 30px; gap: 26px; border-radius: 24px; flex-wrap: wrap; }
+  .hero_ring { width: 112px; height: 112px; }
+  .hero_ring::after { inset: 10px; }
+  .hero_title { font-size: 32px; }
+  .hero_sub { font-size: 14px; }
+
+  /* Stats get their own row until there is room for them beside the status. */
+  .hero_stats {
+    display: flex; align-items: center; justify-content: space-around; flex-basis: 100%;
+    padding-top: 16px; border-top: 1px solid rgba(var(--hero-rgb, 127, 127, 127), .3);
+  }
+  .hero_stat {
+    min-width: 96px; padding: 6px 20px; text-align: center;
+    border-inline-start: 1px solid rgba(var(--hero-rgb, 127, 127, 127), .3);
+  }
+  .hero_stats .hero_stat:first-child { border-inline-start: none; }
+  .hero_stat_v { font-size: 26px; font-weight: 600; line-height: 1.1; white-space: nowrap; }
+  .hero_stat_l { font-size: 12px; color: var(--desc); margin-top: 6px; white-space: nowrap; }
+
+  /* Tools: the groups flow into two columns. */
+  [data-panel="tools"].active { columns: 2; column-gap: 24px; }
+  .grp { break-inside: avoid; display: flow-root; padding-bottom: 14px; }
+  .grp > .sec:first-child { margin-top: 4px; }
+  .grp > .note { margin-bottom: 0; }
+
+  #navbar { width: min(100%, 420px); }
+}
+
+@media (min-width: 880px) {
+  .hero { flex-wrap: nowrap; }
+  .hero_stats {
+    justify-content: flex-start; flex-basis: auto; flex-shrink: 0; margin-inline-start: auto;
+    padding-top: 0; border-top: none;
+  }
+  .hero_stats .hero_stat:first-child { border-inline-start: 1px solid rgba(var(--hero-rgb, 127, 127, 127), .3); }
+}
+
+@media (min-width: 980px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cols .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

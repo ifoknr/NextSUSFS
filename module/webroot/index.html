@@ -40,6 +40,8 @@
             <div class="hero_sub" id="hero_sub"></div>
             <div class="chips" id="hero_chips"></div>
           </div>
+          <!-- only shown on wide screens -->
+          <div class="hero_stats" id="hero_stats"></div>
         </div>
 
         <!-- optional suggestions, custom ROMs only -->
@@ -59,11 +61,17 @@
           </div>
         </div>
 
-        <div class="sec" data-i18n="home.overview">Overview</div>
-        <div class="grid" id="overview"></div>
-
-        <div class="sec" data-i18n="home.device">Device</div>
-        <div class="card device" id="device"></div>
+        <!-- one column on phones, two columns on tablets -->
+        <div class="cols">
+          <div class="col">
+            <div class="sec" data-i18n="home.overview">Overview</div>
+            <div class="grid" id="overview"></div>
+          </div>
+          <div class="col">
+            <div class="sec" data-i18n="home.device">Device</div>
+            <div class="card device" id="device"></div>
+          </div>
+        </div>
       </section>
 
       <!-- HIDING hub -->
@@ -81,115 +89,128 @@
 
       <!-- TOOLS -->
       <section class="panel" data-panel="tools">
-        <div class="sec" data-i18n="tools.stack">NEXT stack</div>
-        <div class="card" id="tools-stack">
-          <div class="row" data-module="treat_wheel">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
-              <div class="row_sub" data-i18n="tools.nextwheel">Hides the Zygisk and root environment inside apps</div></div>
-            <div class="row_val status">…</div>
+        <!-- groups sit side by side on tablets -->
+        <div class="grp">
+          <div class="sec" data-i18n="tools.stack">NEXT stack</div>
+          <div class="card" id="tools-stack">
+            <div class="row" data-module="treat_wheel">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NextWheel">NextWheel</a></div>
+                <div class="row_sub" data-i18n="tools.nextwheel">Hides the Zygisk and root environment inside apps</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-module="rezygisk">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NexTZygisk">NextZygisk</a></div>
+                <div class="row_sub" data-i18n="tools.nextzygisk">Standalone Zygisk that loads NextWheel</div></div>
+              <div class="row_val status">…</div>
+            </div>
           </div>
-          <div class="row" data-module="rezygisk">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr/NexTZygisk">NextZygisk</a></div>
-              <div class="row_sub" data-i18n="tools.nextzygisk">Standalone Zygisk that loads NextWheel</div></div>
-            <div class="row_val status">…</div>
-          </div>
-        </div>
 
-        <div class="sec" data-i18n="tools.hiding">Root hiding</div>
-        <div class="card" id="tools-hiding">
-          <div class="row" data-module="hma_oss_zygisk">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/frknkrc44/HMA-OSS">HMA-OSS</a></div>
-              <div class="row_sub" data-i18n="tools.hma">Hides installed app names from other apps</div></div>
-            <div class="row_val status">…</div>
-          </div>
         </div>
+        <div class="grp">
+          <div class="sec" data-i18n="tools.hiding">Root hiding</div>
+          <div class="card" id="tools-hiding">
+            <div class="row" data-module="hma_oss_zygisk">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/frknkrc44/HMA-OSS">HMA-OSS</a></div>
+                <div class="row_sub" data-i18n="tools.hma">Hides installed app names from other apps</div></div>
+              <div class="row_val status">…</div>
+            </div>
+          </div>
 
-        <div class="sec" data-i18n="tools.integrity">Play Integrity</div>
-        <div class="card" id="tools-integrity">
-          <div class="row" data-module="tricky_store" data-name="AlwaysStrong">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/evoker0/AlwaysStrong">AlwaysStrong</a></div>
-              <div class="row_sub" data-i18n="tools.alwaysstrong">Strong Play Integrity in one module (includes Play Integrity Fork)</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="playintegrityfix" data-name="Play Integrity Fork">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/osm0sis/PlayIntegrityFork">Play Integrity Fork</a></div>
-              <div class="row_sub" data-i18n="tools.pif">Fixes Play Integrity verdicts, Google Wallet and RCS</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="tricky_store" data-name="TEESimulator">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/JingMatrix/TEESimulator">TEESimulator</a></div>
-              <div class="row_sub" data-i18n="tools.tee">Simulates hardware-backed keys and key attestation</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="TA_utl" data-name="Tricky Addon">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/KOWX712/Tricky-Addon-Update-Target-List">Tricky Addon</a></div>
-              <div class="row_sub" data-i18n="tools.ta">WebUI to manage the TrickyStore target list</div></div>
-            <div class="row_val status">…</div>
-          </div>
         </div>
-        <div class="note" data-i18n="tools.alwaysstrongnote">Use AlwaysStrong alone, or Play Integrity Fork with TEESimulator and Tricky Addon. Don't mix the two.</div>
+        <div class="grp">
+          <div class="sec" data-i18n="tools.integrity">Play Integrity</div>
+          <div class="card" id="tools-integrity">
+            <div class="row" data-module="tricky_store" data-name="AlwaysStrong">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/evoker0/AlwaysStrong">AlwaysStrong</a></div>
+                <div class="row_sub" data-i18n="tools.alwaysstrong">Strong Play Integrity in one module (includes Play Integrity Fork)</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-module="playintegrityfix" data-name="Play Integrity Fork">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/osm0sis/PlayIntegrityFork">Play Integrity Fork</a></div>
+                <div class="row_sub" data-i18n="tools.pif">Fixes Play Integrity verdicts, Google Wallet and RCS</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-module="tricky_store" data-name="TEESimulator">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/JingMatrix/TEESimulator">TEESimulator</a></div>
+                <div class="row_sub" data-i18n="tools.tee">Simulates hardware-backed keys and key attestation</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-module="TA_utl" data-name="Tricky Addon">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/KOWX712/Tricky-Addon-Update-Target-List">Tricky Addon</a></div>
+                <div class="row_sub" data-i18n="tools.ta">WebUI to manage the TrickyStore target list</div></div>
+              <div class="row_val status">…</div>
+            </div>
+          </div>
+          <div class="note" data-i18n="tools.alwaysstrongnote">Use AlwaysStrong alone, or Play Integrity Fork with TEESimulator and Tricky Addon. Don't mix the two.</div>
 
-        <div class="sec" data-i18n="tools.detectors">Detection apps</div>
-        <div class="card" id="tools-detectors">
-          <div class="row" data-app="com.reveny.nativecheck">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/reveny/Android-Native-Root-Detector">Native Detector</a></div>
-              <div class="row_sub" data-i18n="tools.native">Native checks for root, Zygisk and hooks</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-app="com.lingqing.trustattestor">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/LingQingBigKing/TrustAttestor">TrustAttestor</a></div>
-              <div class="row_sub" data-i18n="tools.trust">Key attestation, system integrity and runtime checks</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-app="com.juanma0511.rootdetector">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/juanma0511/kknd_Root_Detector">KKND Detector</a></div>
-              <div class="row_sub" data-i18n="tools.kknd">139 checks: mounts, SELinux, props, Zygisk and LSPosed</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-app="io.github.vvb2060.keyattestation">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/VisionR1/KeyAttestation/releases">Key Attestation</a></div>
-              <div class="row_sub" data-i18n="tools.keyatt">Generates and verifies Android key and ID attestation</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-app="ru.vd171.vdgoogle">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/VD171/VD-Google/releases">VD Google</a></div>
-              <div class="row_sub" data-i18n="tools.vdgoogle">Shows RCS, Google Wallet and Play Integrity attestations, on the device</div></div>
-            <div class="row_val status">…</div>
-          </div>
         </div>
-        <div class="note" data-i18n="tools.detectorsnote">After changing a setting, reboot and run these to see what is still visible.</div>
+        <div class="grp">
+          <div class="sec" data-i18n="tools.detectors">Detection apps</div>
+          <div class="card" id="tools-detectors">
+            <div class="row" data-app="com.reveny.nativecheck">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/reveny/Android-Native-Root-Detector">Native Detector</a></div>
+                <div class="row_sub" data-i18n="tools.native">Native checks for root, Zygisk and hooks</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-app="com.lingqing.trustattestor">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/LingQingBigKing/TrustAttestor">TrustAttestor</a></div>
+                <div class="row_sub" data-i18n="tools.trust">Key attestation, system integrity and runtime checks</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-app="com.juanma0511.rootdetector">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/juanma0511/kknd_Root_Detector">KKND Detector</a></div>
+                <div class="row_sub" data-i18n="tools.kknd">139 checks: mounts, SELinux, props, Zygisk and LSPosed</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-app="io.github.vvb2060.keyattestation">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/VisionR1/KeyAttestation/releases">Key Attestation</a></div>
+                <div class="row_sub" data-i18n="tools.keyatt">Generates and verifies Android key and ID attestation</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-app="ru.vd171.vdgoogle">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/VD171/VD-Google/releases">VD Google</a></div>
+                <div class="row_sub" data-i18n="tools.vdgoogle">Shows RCS, Google Wallet and Play Integrity attestations, on the device</div></div>
+              <div class="row_val status">…</div>
+            </div>
+          </div>
+          <div class="note" data-i18n="tools.detectorsnote">After changing a setting, reboot and run these to see what is still visible.</div>
 
-        <div class="sec" data-i18n="tools.conflict">Conflicting modules</div>
-        <div class="card" id="tools-conflict">
-          <div class="row" data-module="brene">
-            <div class="row_body"><div class="row_title">BRENE</div>
-              <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="susfs4ksu">
-            <div class="row_body"><div class="row_title">susfs4ksu-module</div>
-              <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
-            <div class="row_val status">…</div>
-          </div>
-          <div class="row" data-module="susfs_manager">
-            <div class="row_body"><div class="row_title">SuSFS Manager</div>
-              <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
-            <div class="row_val status">…</div>
-          </div>
         </div>
+        <div class="grp">
+          <div class="sec" data-i18n="tools.conflict">Conflicting modules</div>
+          <div class="card" id="tools-conflict">
+            <div class="row" data-module="brene">
+              <div class="row_body"><div class="row_title">BRENE</div>
+                <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-module="susfs4ksu">
+              <div class="row_body"><div class="row_title">susfs4ksu-module</div>
+                <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
+              <div class="row_val status">…</div>
+            </div>
+            <div class="row" data-module="susfs_manager">
+              <div class="row_body"><div class="row_title">SuSFS Manager</div>
+                <div class="row_sub" data-i18n="tools.conflictsub">Another SuSFS driver — only one may run</div></div>
+              <div class="row_val status">…</div>
+            </div>
+          </div>
 
-        <div class="sec" data-i18n="tools.community">Community</div>
-        <div class="card" id="tools-community">
-          <div class="row">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://t.me/BeNeXTBrO">BeNeXTBrO</a></div>
-              <div class="row_sub" data-i18n="tools.group">Telegram group: updates and support for every NEXT tool</div></div>
-          </div>
-          <div class="row">
-            <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr">ifoknr</a></div>
-              <div class="row_sub" data-i18n="tools.dev">Developer on GitHub</div></div>
-          </div>
         </div>
-        <div class="note" data-i18n="tools.help">Need help, or have an idea or a fix? Write in the group or contact me on GitHub.</div>
+        <div class="grp">
+          <div class="sec" data-i18n="tools.community">Community</div>
+          <div class="card" id="tools-community">
+            <div class="row">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://t.me/BeNeXTBrO">BeNeXTBrO</a></div>
+                <div class="row_sub" data-i18n="tools.group">Telegram group: updates and support for every NEXT tool</div></div>
+            </div>
+            <div class="row">
+              <div class="row_body"><div class="row_title"><a class="ext" href="https://github.com/ifoknr">ifoknr</a></div>
+                <div class="row_sub" data-i18n="tools.dev">Developer on GitHub</div></div>
+            </div>
+          </div>
+          <div class="note" data-i18n="tools.help">Need help, or have an idea or a fix? Write in the group or contact me on GitHub.</div>
+        </div>
       </section>
 
       <!-- SETTINGS -->

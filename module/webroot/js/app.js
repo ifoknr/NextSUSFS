@@ -12,6 +12,7 @@ const STR = {
   en: {
     'nav.home': 'Home', 'nav.hiding': 'Hiding', 'nav.tools': 'Tools', 'nav.settings': 'Settings',
     'home.overview': 'Overview', 'home.device': 'Device',
+    'stat.features': 'Kernel features', 'stat.options': 'Options on', 'stat.uptime': 'Uptime',
     'hub.hiding': 'Hiding', 'hub.manage': 'Manage',
     'tools.stack': 'NEXT stack', 'tools.hiding': 'Root hiding', 'tools.integrity': 'Play Integrity', 'tools.detectors': 'Detection apps', 'tools.conflict': 'Conflicting modules',
     'tools.native': 'Native checks for root, Zygisk and hooks', 'tools.trust': 'Key attestation, system integrity and runtime checks',
@@ -88,6 +89,7 @@ const STR = {
   ar: {
     'nav.home': 'الرئيسية', 'nav.hiding': 'الإخفاء', 'nav.tools': 'الأدوات', 'nav.settings': 'الإعدادات',
     'home.overview': 'نظرة عامة', 'home.device': 'الجهاز',
+    'stat.features': 'ميزات النواة', 'stat.options': 'خيارات مفعّلة', 'stat.uptime': 'مدة التشغيل',
     'hub.hiding': 'الإخفاء', 'hub.manage': 'الإدارة',
     'tools.stack': 'منظومة NEXT', 'tools.hiding': 'إخفاء الروت', 'tools.integrity': 'نزاهة Play', 'tools.detectors': 'تطبيقات الفحص', 'tools.conflict': 'وحدات متعارضة',
     'tools.native': 'فحوصات أصلية (Native) للروت و Zygisk والهوكات', 'tools.trust': 'إثبات المفاتيح وسلامة النظام وبيئة التشغيل',
@@ -300,6 +302,7 @@ async function renderHome() {
     (rom.type ? `<span class="chip rom ${rom.type === 'custom' ? 'custom' : 'stock'}">${esc(romLabel())}</span>` : '')
 
   renderSuggestions()
+  renderHeroStats()
 
   // banner only for problems, never for a user choice
   const banner = $('banner')
@@ -338,6 +341,24 @@ async function renderHome() {
     btn.textContent = t('safe.reboot')
     btn.onclick = reboot
   } else safebar.className = 'alert'
+}
+
+// Wide screens only (hidden by CSS on phones): the same numbers NextZygisk shows beside its status.
+async function renderHeroStats() {
+  const tg = visiblePages().filter((p) => p.id !== 'display').flatMap((p) => toggles(p))
+  const secs = parseFloat((await out('cat /proc/uptime')).split(' ')[0])
+  const stats = [
+    [`${kernel.enabled.size} / 9`, t('stat.features')],
+    [`${tg.filter((i) => isOn(i.key)).length} / ${tg.length}`, t('stat.options')],
+    [secs > 0 ? duration(secs) : '', t('stat.uptime')],
+  ].filter(([v]) => v)
+  $('hero_stats').innerHTML = stats.map(([v, l]) =>
+    `<div class="hero_stat"><div class="hero_stat_v" dir="ltr">${esc(v)}</div><div class="hero_stat_l">${esc(l)}</div></div>`).join('')
+}
+
+function duration(secs) {
+  const d = Math.floor(secs / 86400), h = Math.floor(secs % 86400 / 3600), m = Math.floor(secs % 3600 / 60)
+  return d ? `${d}d ${h}h ${m}m` : h ? `${h}h ${m}m` : `${m}m`
 }
 
 /* ---------- custom ROM suggestions ----------

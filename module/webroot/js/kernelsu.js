@@ -13,6 +13,7 @@ const DEV = {
   'getprop ro.build.version.sdk': { errno: 0, stdout: '34', stderr: '' },
   'getprop ro.product.cpu.abi': { errno: 0, stdout: 'arm64-v8a', stderr: '' },
   'uname -r': { errno: 0, stdout: '6.1.177-GKID-IFOKNR-Kernel', stderr: '' },
+  'cat /proc/uptime': { errno: 0, stdout: '187320.55 1402345.10', stderr: '' },
 }
 
 function dev(command) {
