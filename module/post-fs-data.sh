@@ -227,6 +227,11 @@ is_reopened_by_apps() {
 		*/resource-cache/*) return 0 ;;
 		*/dalvik-cache/*|*@classes.*) return 0 ;;
 		*/misc/profiles/*) return 0 ;;
+		# Installed app packages: an app (its own process, or another that binds to its
+		#   provider/service) reopens these by path, so only hide them from memory maps.
+		*/priv-app/*|*/app/*|*/data-app/*) return 0 ;;
+		# Any loadable artifact the runtime mmaps by path.
+		*.apk | *.jar | *.so | *.art | *.odex | *.vdex | *.dex) return 0 ;;
 	esac
 	return 1
 }
