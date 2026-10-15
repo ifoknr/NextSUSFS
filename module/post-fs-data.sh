@@ -236,12 +236,35 @@ is_reopened_by_apps() {
 	return 1
 }
 
+# INFO: Config the OS and apps both parse: permission grants, privapp and default-permission
+#         whitelists, package sysconfig, VINTF matrices, init .rc and sepolicy. add_sus_path
+#         hides a path only from umounted apps (uid >= 10000), not from the system, so hiding
+#         these returns ENOENT to apps like Play Services that open them and stalls or breaks
+#         them, while buying nothing against the system. Never hide these by path; hand apps a
+#         copy with the ROM-name lines removed (brene_clean_redirect) so the file is never
+#         missing and never empty, and the system keeps reading the real one.
+is_read_by_system() {
+	case "$1" in
+		*/etc/permissions/*) return 0 ;;
+		*/etc/sysconfig/*) return 0 ;;
+		*/etc/default-permissions/*) return 0 ;;
+		*/etc/vintf/*) return 0 ;;
+		*/etc/init/*.rc) return 0 ;;
+		*/etc/selinux/*) return 0 ;;
+	esac
+	return 1
+}
+
 # Hide Custom ROM Paths
 if [[ "${config_hide_custom_rom_paths}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /system /system_ext /vendor /product -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			is_reopened_by_apps "${path}" || brene_sus_path_loop "${path}"
+			if is_read_by_system "${path}"; then
+				brene_clean_redirect "${path}" "${CUSTOM_ROM_NAMES}"
+			elif ! is_reopened_by_apps "${path}"; then
+				brene_sus_path_loop "${path}"
+			fi
 		done
 
 		find /data -maxdepth 1 -iname "*${i}*" | while read -r path; do
