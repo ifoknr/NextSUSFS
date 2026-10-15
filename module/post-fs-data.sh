@@ -214,9 +214,19 @@ fi
 #         makes that reopen fail, and the app zygote aborts ("Failed open(...)"), so apps
 #         that use an app zygote crash on launch. Framework files only get hidden from
 #         memory maps.
-is_zygote_file() {
+# INFO: Files the app runtime reopens by path after Zygote forks. Hiding these from a path
+#         (sus_path_loop) makes that reopen fail, so apps hang or crash on launch. They are
+#         still removed from memory maps (brene_sus_map), which is where detectors look.
+#         Covers: framework (zygote keeps it open); RRO overlay APKs and their idmaps, which
+#         the resource system loads for every app; dalvik-cache and ART profiles, which the
+#         runtime mmaps. This matters on overlay-heavy GSIs (crDroid, LineageOS, ...).
+is_reopened_by_apps() {
 	case "$1" in
 		*/framework/*|*@framework@*) return 0 ;;
+		*/overlay/*) return 0 ;;
+		*/resource-cache/*) return 0 ;;
+		*/dalvik-cache/*|*@classes.*) return 0 ;;
+		*/misc/profiles/*) return 0 ;;
 	esac
 	return 1
 }
@@ -226,7 +236,7 @@ if [[ "${config_hide_custom_rom_paths}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /system /system_ext /vendor /product -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			is_zygote_file "${path}" || brene_sus_path_loop "${path}"
+			is_reopened_by_apps "${path}" || brene_sus_path_loop "${path}"
 		done
 
 		find /data -maxdepth 1 -iname "*${i}*" | while read -r path; do
@@ -241,7 +251,7 @@ if [[ "${config_hide_custom_rom_paths_2}" == "1" ]]; then
 	for i in ${CUSTOM_ROM_NAMES//|/ }; do
 		find /data/misc /data/dalvik-cache /data/resource-cache -iname "*${i}*" | while read -r path; do
 			brene_sus_map "${path}"
-			is_zygote_file "${path}" || brene_sus_path_loop "${path}"
+			is_reopened_by_apps "${path}" || brene_sus_path_loop "${path}"
 		done
 	done
 fi
