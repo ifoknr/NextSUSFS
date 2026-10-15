@@ -363,3 +363,51 @@ a.ext.plain { color: var(--blue); }
 :root[data-theme="light"] .sug_row .box { border-color: #cbb577; }
 :root[data-theme="light"] .sug_row input:checked + .box { box-shadow: inset 0 0 0 3px #fdf7ea; }
 :root[data-theme="light"] .chip.newc { background: rgba(59,111,224,.12); color: #2a52b5; }
+
+/* ============================================================
+   Light mode: bottom navbar (icons were inverted to white for
+   the dark pill, which made them invisible on the light pill).
+   ============================================================ */
+:root[data-theme="light"] .nav_ic { filter: none; }
+:root[data-theme="light"] #navbar { box-shadow: 0 8px 24px rgba(20, 30, 60, .14); }
+:root[data-theme="light"] #nav_pill { background: rgba(40, 70, 140, .13); }
+:root[data-theme="light"] #navbar.dragging #nav_pill { background: rgba(40, 70, 140, .22); }
+
+/* ============================================================
+   Tablets and large screens: centre the content, enlarge it,
+   and use two columns so the page is not half empty. Matches
+   the NextZygisk layout.
+   ============================================================ */
+@media (min-width: 720px) {
+  #app { max-width: 1040px; margin-inline: auto; padding: 30px 24px 150px; }
+
+  /* Bigger status hero */
+  .hero { padding: 26px 32px; gap: 26px; }
+  .hero_ring { width: 108px; height: 108px; }
+  .hero_ic svg { width: 40px; height: 40px; }
+  .hero_title { font-size: 30px; }
+  .hero_sub { font-size: 14px; margin-top: 7px; }
+
+  /* Overview tiles: roomier */
+  .grid { gap: 14px; }
+  .tile { min-height: 132px; padding: 18px; }
+  .tile_t { font-size: 15px; }
+  .tile_d { font-size: 12.5px; }
+
+  /* Device rows a touch taller */
+  .drow { padding: 13px 16px; }
+
+  /* Options pages: two columns of options, each kept whole, so the
+     width is used and the empty bottom half shrinks. (List and
+     padded cards keep their single column.) */
+  [data-panel="page"] #page_body > .card:not(.pad) { columns: 2; column-gap: 14px; }
+  [data-panel="page"] #page_body > .card:not(.pad) > .row {
+    break-inside: avoid; border-top: none; border-bottom: 1px solid var(--card-line);
+  }
+
+  /* Bigger floating navbar and icons */
+  #navbar { width: min(100%, 560px); padding: 8px; }
+  .nav_cap, #nav_pill { width: 66px; height: 34px; }
+  .nav_ic { width: 25px; height: 25px; }
+  .nav_lb { font-size: 12.5px; }
+}
