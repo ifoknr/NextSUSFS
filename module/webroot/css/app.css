@@ -329,6 +329,68 @@ a.ext.plain { color: var(--blue); }
 .spin.sm { width: 1.6em; height: 1.6em; border-width: 4px; margin: 0 auto; }
 .chip.fixc { display: inline-block; margin-top: 8px; background: rgba(243, 169, 58, .15); color: var(--amber); border-color: transparent; }
 
+/* ============================================================
+   Home dashboard (NextZygisk-style): a full-width status hero
+   with a stat trio, then a two-column grid of status, category,
+   list, device and tool cards. Reuses the shared card variables
+   so both themes work. Single column on phones.
+   ============================================================ */
+.hero { flex-wrap: wrap; }
+.hero_body { flex: 1 1 180px; }
+
+/* hero stat trio (right side on tablets, a row under the hero on phones) */
+.hero_stats { width: 100%; display: flex; justify-content: space-between; border-top: 1px solid var(--card-line); margin-top: 8px; padding-top: 14px; }
+.hstat { flex: 1; text-align: center; position: relative; min-width: 0; }
+.hstat + .hstat::before { content: ''; position: absolute; inset-inline-start: 0; top: 8%; height: 84%; width: 1px; background: var(--card-line); }
+.hstat_n { font-size: 24px; font-weight: 800; line-height: 1; }
+.hstat_l { font-size: 11px; color: var(--desc); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* dashboard columns */
+.dash { display: grid; grid-template-columns: 1fr; gap: 0; }
+.dash_col { min-width: 0; }
+.sechead { display: flex; align-items: center; justify-content: space-between; margin: 20px 4px 10px; }
+.sechead .sec { margin: 0; }
+.seclink { font-size: 12.5px; font-weight: 600; color: var(--blue); cursor: pointer; white-space: nowrap; }
+
+/* status / category grid (KERNEL, PROTECTION, TOOLS) */
+.statgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+/* KERNEL + PROTECTION status cards */
+.scard { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 14px 15px; min-height: 98px; color: var(--font); }
+a.scard.cat:active { background: #191b20; }
+.scard_top { display: flex; align-items: center; gap: 7px; color: var(--desc); font-size: 12.5px; font-weight: 600; min-width: 0; }
+.scard_top svg { width: 15px; height: 15px; stroke: var(--desc); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+.scard_top span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scard_val { display: flex; align-items: center; gap: 7px; font-size: 19px; font-weight: 700; margin-top: 12px; line-height: 1.1; }
+.scard_val .tot { font-size: 14px; font-weight: 600; color: var(--desc); }
+.scard_val .dot { margin: 0; }
+.scard_sub { font-size: 11.5px; color: var(--desc); margin-top: 5px; line-height: 1.35; }
+
+/* TOOLS cards */
+.tcard { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 15px; min-height: 116px; color: var(--font); }
+.tcard:active { background: #191b20; }
+.tcard_ic { width: 34px; height: 34px; border-radius: 10px; background: rgba(91,140,255,.14); color: var(--blue); display: grid; place-items: center; margin-bottom: auto; }
+.tcard_ic svg { width: 18px; height: 18px; }
+.tcard_t { font-size: 14px; font-weight: 700; margin-top: 14px; }
+.tcard_d { font-size: 11.5px; color: var(--desc); margin-top: 3px; line-height: 1.4; }
+.tcard.danger .tcard_ic { background: rgba(240,82,82,.14); color: var(--red); }
+
+/* YOUR LISTS card */
+.lists_card { display: block; color: var(--font); }
+.lrow { display: flex; align-items: center; gap: 12px; padding: 13px 15px; }
+.lrow + .lrow { border-top: 1px solid var(--card-line); }
+.lrow_ic { width: 34px; height: 34px; border-radius: 10px; flex: 0 0 auto; background: rgba(91,140,255,.14); color: var(--blue); display: grid; place-items: center; }
+.lrow_ic svg { width: 17px; height: 17px; }
+.lrow_body { flex: 1; min-width: 0; }
+.lrow_t { font-size: 13.5px; font-weight: 600; }
+.lrow_f { margin-top: 2px; color: var(--desc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow_n { font-size: 12px; color: var(--desc); white-space: nowrap; flex: 0 0 auto; }
+.lists_card:active, .lists_empty:active { background: #191b20; }
+.lists_empty { display: flex; align-items: center; min-height: 58px; padding: 14px 16px; color: var(--desc); font-size: 13px; }
+
+/* amber status dot (old SuSFS, permissive SELinux, safe mode) */
+.dot.warn { background: var(--amber); box-shadow: 0 0 0 4px rgba(243,169,58,.14); }
+
 /* ===== Light theme (NEXT design, matching NextZygisk) ===== */
 :root[data-theme="light"] {
   --background: #f4f5f7;
@@ -357,7 +419,9 @@ a.ext.plain { color: var(--blue); }
 :root[data-theme="light"] .pending { background: #e4ebff; border-color: #bccef5; }
 :root[data-theme="light"] .pending_t { color: #2a52b5; }
 :root[data-theme="light"] .mono { color: #39414f; }
-:root[data-theme="light"] .tile:active, :root[data-theme="light"] .row.act:active { background: #eceef2; }
+:root[data-theme="light"] .tile:active, :root[data-theme="light"] .row.act:active,
+:root[data-theme="light"] a.scard.cat:active, :root[data-theme="light"] .tcard:active,
+:root[data-theme="light"] .lists_card:active, :root[data-theme="light"] .lists_empty:active { background: #eceef2; }
 :root[data-theme="light"] .sug { background: #fdf7ea; border-color: #ead9ae; }
 :root[data-theme="light"] .sug_row { border-top-color: #ece0c6; }
 :root[data-theme="light"] .sug_row .box { border-color: #cbb577; }
@@ -388,6 +452,12 @@ a.ext.plain { color: var(--blue); }
   .hero_title { font-size: 30px; }
   .hero_sub { font-size: 14px; margin-top: 7px; }
 
+  /* Stat trio moves to the right of the hero, no divider line above */
+  .hero_stats { width: auto; flex: 0 0 auto; margin-inline-start: auto; border-top: none; margin-top: 0; padding-top: 0; }
+  .hstat { flex: 0 0 auto; padding: 0 22px; }
+  .hstat_n { font-size: 27px; }
+  .hstat_l { font-size: 11.5px; }
+
   /* Overview tiles: roomier */
   .grid { gap: 14px; }
   .tile { min-height: 132px; padding: 18px; }
@@ -410,4 +480,18 @@ a.ext.plain { color: var(--blue); }
   .nav_cap, #nav_pill { width: 66px; height: 34px; }
   .nav_ic { width: 25px; height: 25px; }
   .nav_lb { font-size: 12.5px; }
+}
+
+/* ============================================================
+   Home dashboard: two columns side by side on tablets, so the
+   KERNEL/PROTECTION/LISTS column sits next to DEVICE/TOOLS.
+   Phones keep the single-column stack above.
+   ============================================================ */
+@media (min-width: 820px) {
+  .dash { grid-template-columns: 1fr 1fr; gap: 26px; align-items: start; }
+  /* align the top of both columns: trim the first header's top margin */
+  .dash_col > .sec:first-child, .dash_col > .sechead:first-child { margin-top: 4px; }
+  .statgrid { gap: 12px; }
+  .scard { min-height: 104px; }
+  .tcard { min-height: 124px; }
 }

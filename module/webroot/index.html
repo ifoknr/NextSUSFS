@@ -40,6 +40,7 @@
             <div class="hero_sub" id="hero_sub"></div>
             <div class="chips" id="hero_chips"></div>
           </div>
+          <div class="hero_stats" id="hero_stats"></div>
         </div>
 
         <!-- optional suggestions, custom ROMs only -->
@@ -59,11 +60,33 @@
           </div>
         </div>
 
-        <div class="sec" data-i18n="home.overview">Overview</div>
-        <div class="grid" id="overview"></div>
+        <!-- NextZygisk-style dashboard: two columns on tablets, one on phones -->
+        <div class="dash">
+          <div class="dash_col">
+            <div class="sec" data-i18n="home.kernel">Kernel</div>
+            <div class="statgrid" id="kernel_cards"></div>
 
-        <div class="sec" data-i18n="home.device">Device</div>
-        <div class="card device" id="device"></div>
+            <div class="sec" data-i18n="home.protection">Protection</div>
+            <div class="statgrid" id="protection_cards"></div>
+
+            <div class="sechead">
+              <span class="sec" data-i18n="home.lists">Your lists</span>
+              <a class="seclink" href="#hiding/lists" data-i18n="home.viewall">View all</a>
+            </div>
+            <div id="lists_card"></div>
+          </div>
+
+          <div class="dash_col">
+            <div class="sechead">
+              <span class="sec" data-i18n="home.device">Device</span>
+              <span class="seclink" id="device_copy" role="button" data-i18n="home.copy">Copy</span>
+            </div>
+            <div class="card device" id="device"></div>
+
+            <div class="sec" data-i18n="home.tools">Tools</div>
+            <div class="statgrid" id="tools_cards"></div>
+          </div>
+        </div>
       </section>
 
       <!-- HIDING hub -->

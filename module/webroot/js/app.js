@@ -12,6 +12,19 @@ const STR = {
   en: {
     'nav.home': 'Home', 'nav.hiding': 'Hiding', 'nav.tools': 'Tools', 'nav.settings': 'Settings',
     'home.overview': 'Overview', 'home.device': 'Device',
+    'home.kernel': 'Kernel', 'home.protection': 'Protection', 'home.lists': 'Your lists', 'home.tools': 'Tools',
+    'home.viewall': 'View all', 'home.copy': 'Copy', 'home.copied': 'Device info copied', 'home.active': 'Kernel-level hiding is active',
+    'home.statfeat': 'Kernel features', 'home.staton': 'Protections on', 'home.statpaths': 'Hidden paths',
+    'k.susfs': 'SuSFS', 'k.active': 'Active', 'k.old': 'Old', 'k.none': 'None',
+    'k.features': 'Features', 'k.caps': 'kernel capabilities',
+    'k.selinux': 'SELinux', 'k.enforcing': 'Enforcing', 'k.permissive': 'Permissive',
+    'k.avc': 'denial logs spoofed', 'k.avcoff': 'denial logs visible', 'k.secure': 'kernel secured',
+    'k.boot': 'Boot', 'k.safe': 'Safe', 'k.safemode': 'Safe Mode', 'k.noloop': 'no boot loop', 'k.skipped': 'hiding skipped',
+    'dev.patch': 'Security patch', 'dev.selinux': 'SELinux', 'dev.abi': 'ABI', 'dev.boot': 'Boot status',
+    'ht.bootlog': 'Boot log', 'ht.bootlogd': 'What happened at the last boot',
+    'ht.backup': 'Backup & restore', 'ht.backupd': 'Save or load your settings',
+    'ht.trace': 'Trace check', 'ht.traced': 'Scan for leftover root traces',
+    'ht.reboot': 'Reboot', 'ht.rebootd': 'Apply changes',
     'hub.hiding': 'Hiding', 'hub.manage': 'Manage',
     'tools.stack': 'NEXT stack', 'tools.hiding': 'Root hiding', 'tools.integrity': 'Play Integrity', 'tools.detectors': 'Detection apps', 'tools.conflict': 'Conflicting modules',
     'tools.native': 'Native checks for root, Zygisk and hooks', 'tools.trust': 'Key attestation, system integrity and runtime checks',
@@ -88,6 +101,19 @@ const STR = {
   ar: {
     'nav.home': 'الرئيسية', 'nav.hiding': 'الإخفاء', 'nav.tools': 'الأدوات', 'nav.settings': 'الإعدادات',
     'home.overview': 'نظرة عامة', 'home.device': 'الجهاز',
+    'home.kernel': 'النواة', 'home.protection': 'الحماية', 'home.lists': 'قوائمك', 'home.tools': 'الأدوات',
+    'home.viewall': 'عرض الكل', 'home.copy': 'نسخ', 'home.copied': 'تم نسخ معلومات الجهاز', 'home.active': 'الإخفاء على مستوى النواة يعمل',
+    'home.statfeat': 'ميزات النواة', 'home.staton': 'حماية مفعّلة', 'home.statpaths': 'مسارات مخفية',
+    'k.susfs': 'SuSFS', 'k.active': 'يعمل', 'k.old': 'قديم', 'k.none': 'غير موجود',
+    'k.features': 'الميزات', 'k.caps': 'قدرات النواة',
+    'k.selinux': 'SELinux', 'k.enforcing': 'Enforcing', 'k.permissive': 'Permissive',
+    'k.avc': 'سجلات الرفض مزيّفة', 'k.avcoff': 'سجلات الرفض ظاهرة', 'k.secure': 'النواة محمية',
+    'k.boot': 'الإقلاع', 'k.safe': 'آمن', 'k.safemode': 'الوضع الآمن', 'k.noloop': 'بدون حلقة إقلاع', 'k.skipped': 'تم تجاوز الإخفاء',
+    'dev.patch': 'تحديث الأمان', 'dev.selinux': 'SELinux', 'dev.abi': 'المعمارية', 'dev.boot': 'حالة الإقلاع',
+    'ht.bootlog': 'سجل الإقلاع', 'ht.bootlogd': 'وش صار في آخر إقلاع',
+    'ht.backup': 'النسخ والاستعادة', 'ht.backupd': 'احفظ إعداداتك أو استرجعها',
+    'ht.trace': 'فحص الآثار', 'ht.traced': 'ابحث عن آثار روت متبقية',
+    'ht.reboot': 'إعادة تشغيل', 'ht.rebootd': 'تطبيق التغييرات',
     'hub.hiding': 'الإخفاء', 'hub.manage': 'الإدارة',
     'tools.stack': 'منظومة NEXT', 'tools.hiding': 'إخفاء الروت', 'tools.integrity': 'نزاهة Play', 'tools.detectors': 'تطبيقات الفحص', 'tools.conflict': 'وحدات متعارضة',
     'tools.native': 'فحوصات أصلية (Native) للروت و Zygisk والهوكات', 'tools.trust': 'إثبات المفاتيح وسلامة النظام وبيئة التشغيل',
@@ -270,6 +296,10 @@ const ROM_NAMES = {
 const romLabel = () => rom.type === 'custom'
   ? t('rom.custom') + (rom.name ? ` · ${ROM_NAMES[rom.name] || rom.name}` : '')
   : rom.type === 'stock' ? t('rom.stock') : ''
+// Short ROM name for the hero chip and device row (just "LineageOS", not "Custom ROM · LineageOS")
+const romShort = () => rom.type === 'custom'
+  ? (rom.name ? (ROM_NAMES[rom.name] || rom.name) : t('rom.custom'))
+  : rom.type === 'stock' ? t('rom.stock') : ''
 
 async function loadKernel() {
   kernel.state = await out(`cat ${DATA}/kernel_state`) || 'unknown'
@@ -283,21 +313,68 @@ async function loadKernel() {
   })
 }
 
+// a KERNEL status card: icon + label on top, big value (optional status dot), sub caption
+function statCard(ic, label, valueHtml, sub, dotCls) {
+  return `<div class="scard"><div class="scard_top">${icon(ic)}<span>${esc(label)}</span></div>` +
+    `<div class="scard_val">${dotCls ? `<span class="dot ${dotCls}"></span>` : ''}${valueHtml}</div>` +
+    `<div class="scard_sub">${esc(sub)}</div></div>`
+}
+// a PROTECTION category card: links to its hiding page, shows on/total
+function catCard(href, ic, label, on, total) {
+  return `<a class="scard cat" href="${href}"><div class="scard_top">${icon(ic)}<span>${esc(label)}</span></div>` +
+    `<div class="scard_val">${on}<span class="tot">/${total}</span></div>` +
+    `<div class="scard_sub">${esc(t('on'))}</div></a>`
+}
+// a TOOLS card: icon tile, title, subtitle. href makes it a link; id makes it clickable in JS
+function toolCard(ic, title, sub, { href, id, cls } = {}) {
+  const inner = `<div class="tcard_ic">${icon(ic)}</div><div class="tcard_t">${esc(title)}</div><div class="tcard_d">${esc(sub)}</div>`
+  if (href) return `<a class="tcard ${cls || ''}" href="${href}">${inner}</a>`
+  return `<div class="tcard ${cls || ''}" id="${id}" role="button">${inner}</div>`
+}
+// icon for each custom-list file on the Home "Your lists" card
+const LIST_ICON = {
+  'custom_sus_path.txt': 'paths', 'custom_sus_path_loop.txt': 'paths', 'custom_sus_map.txt': 'eye',
+  'custom_kernel_umount.txt': 'kernel', 'custom_open_redirect.txt': 'next', 'custom_sus_kstat.txt': 'info',
+}
+
 async function renderHome() {
   const { state, version, enabled } = kernel
   let cls, title, desc = ''
   if (state === 'no_kernel' || (!version && state !== 'ok')) { cls = 'err'; title = t('mode.nokernel'); desc = t('desc.nokernel') }
   else if (state === 'old' || version.startsWith('v1')) { cls = 'warn'; title = t('mode.old'); desc = t('desc.old') }
-  else if (version.startsWith('v2')) { cls = 'ok'; title = t('mode.working'); desc = t('desc.working').replace('%s', String(enabled.size)) }
+  else if (version.startsWith('v2')) { cls = 'ok'; title = t('mode.working'); desc = t('home.active') }
   else { cls = 'warn'; title = t('mode.unknown'); desc = t('desc.reboot') }
 
+  // read device props, SuSFS variant, SELinux mode and every custom list in one pass
+  const [man, model, rel, sdk, arch, kver, patch, variant, selinux, safeMode, ...listCounts] = await Promise.all([
+    out('getprop ro.product.manufacturer'), out('getprop ro.product.model'), out('getprop ro.build.version.release'),
+    out('getprop ro.build.version.sdk'), out('getprop ro.product.cpu.abi'), out('uname -r'),
+    out('getprop ro.build.version.security_patch'), out('susfs show variant'), out('getenforce'),
+    exists(`${DATA}/safe_mode`),
+    ...LISTS.map((l) => out(`cat ${DATA}/${l.file} 2>/dev/null`).then((c) =>
+      c.split('\n').filter((s) => s.trim() && !s.trim().startsWith('#')).length)),
+  ])
+  const enforcing = /enforc/i.test(selinux)
+  const hiddenPaths = listCounts.reduce((a, b) => a + b, 0)
+  const protPages = visiblePages().filter((p) => p.id !== 'display')
+  const protectionsOn = protPages.reduce((s, p) => s + toggles(p).filter((i) => isOn(i.key)).length, 0)
+
+  // hero: ring, title, subtitle, chips and the right-hand stat trio
   $('hero').className = 'hero ' + cls
   $('hero_ic').innerHTML = STATUS[cls]
   $('hero_ring').style.setProperty('--ring', RING[cls])
+  $('hero_ring').style.setProperty('--deg', (cls === 'ok' ? 280 : cls === 'warn' ? 170 : 90) + 'deg')
   $('hero_title').textContent = title
   $('hero_sub').textContent = desc
-  $('hero_chips').innerHTML = (version ? `<span class="chip v">${esc(version)}</span>` : '') + `<span class="chip">${enabled.size}/9</span>` +
-    (rom.type ? `<span class="chip rom ${rom.type === 'custom' ? 'custom' : 'stock'}">${esc(romLabel())}</span>` : '')
+  $('hero_chips').innerHTML =
+    (version ? `<span class="chip v">SuSFS ${esc(version)}</span>` : '') +
+    (variant ? `<span class="chip">${esc(variant)}</span>` : '') +
+    (rom.type ? `<span class="chip rom ${rom.type === 'custom' ? 'custom' : 'stock'}">${esc(romShort())}</span>` : '')
+  $('hero_stats').innerHTML = [
+    [`${enabled.size}/9`, t('home.statfeat')],
+    [String(protectionsOn), t('home.staton')],
+    [String(hiddenPaths), t('home.statpaths')],
+  ].map(([n, l]) => `<div class="hstat"><div class="hstat_n">${esc(n)}</div><div class="hstat_l">${esc(l)}</div></div>`).join('')
 
   renderSuggestions()
 
@@ -310,26 +387,62 @@ async function renderHome() {
     $('banner_d').textContent = desc
   } else banner.className = 'alert'
 
-  // one tile per hiding page with how many of its switches are on
-  $('overview').innerHTML = visiblePages().filter((p) => p.id !== 'display').map((p) => {
-    const tg = toggles(p); const on = tg.filter((i) => isOn(i.key)).length
-    return tile(`#hiding/${p.id}`, p.icon, L(p.t), t('count.on').replace('%a', on).replace('%b', tg.length))
+  // KERNEL: SuSFS state, feature count, SELinux mode, boot-loop state
+  const susfsState = version.startsWith('v2') ? ['active', 'on'] : version.startsWith('v1') ? ['old', 'warn'] : ['none', 'off']
+  $('kernel_cards').innerHTML =
+    statCard('ksu', t('k.susfs'), t('k.' + susfsState[0]),
+      version ? version + (variant ? ` · ${variant}` : '') : '—', susfsState[1]) +
+    statCard('features', t('k.features'), `${enabled.size}<span class="tot"> / 9</span>`, t('k.caps')) +
+    statCard('kernel', t('k.selinux'), t(enforcing ? 'k.enforcing' : 'k.permissive'),
+      t(isOn('config_enable_avc_log_spoofing') ? 'k.avc' : 'k.avcoff'), enforcing ? 'on' : 'warn') +
+    statCard('power', t('k.boot'), t(safeMode ? 'k.safemode' : 'k.safe'),
+      t(safeMode ? 'k.skipped' : 'k.noloop'), safeMode ? 'warn' : 'on')
+
+  // PROTECTION: one card per visible hiding page (not the Display extras page)
+  $('protection_cards').innerHTML = protPages.map((p) => {
+    const tg = toggles(p)
+    return catCard(`#hiding/${p.id}`, p.icon, L(p.t), tg.filter((i) => isOn(i.key)).length, tg.length)
   }).join('')
 
-  const [man, model, rel, sdk, arch, kver] = await Promise.all([
-    out('getprop ro.product.manufacturer'), out('getprop ro.product.model'), out('getprop ro.build.version.release'),
-    out('getprop ro.build.version.sdk'), out('getprop ro.product.cpu.abi'), out('uname -r')])
+  // YOUR LISTS: the non-empty custom lists with their line counts
+  const filled = LISTS.map((l, i) => [l, listCounts[i]]).filter(([, n]) => n > 0)
+  $('lists_card').innerHTML = filled.length
+    ? `<a class="card lists_card" href="#hiding/lists">` + filled.map(([l, n]) => {
+        const [lt] = L(l)
+        return `<div class="lrow"><div class="lrow_ic">${icon(LIST_ICON[l.file] || 'lists')}</div>` +
+          `<div class="lrow_body"><div class="lrow_t">${esc(lt)}</div><div class="lrow_f mono">${l.file}</div></div>` +
+          `<span class="lrow_n">${esc(t('list.count').replace('%s', n))}</span></div>`
+      }).join('') + `</a>`
+    : `<a class="card lists_empty" href="#hiding/lists"><span>${esc(t('page.listsd'))}</span></a>`
+
+  // DEVICE: info rows, with a Copy link in the section header
+  const bootVal = safeMode ? t('k.safemode') : t('k.safe')
   const rows = [
     [t('dev.model'), [man, model].filter(Boolean).join(' ')],
     [t('dev.android'), rel ? `${rel}${sdk ? ` · SDK ${sdk}` : ''}` : ''],
-    [t('dev.rom'), romLabel()],
-    [t('dev.kernel'), kver], [t('dev.susfs'), version || '—'], [t('dev.arch'), arch],
+    [t('dev.patch'), patch],
+    [t('dev.kernel'), kver],
+    [t('dev.selinux'), selinux ? (enforcing ? t('k.enforcing') : t('k.permissive')) : ''],
+    [t('dev.abi'), arch],
+    [t('dev.rom'), romShort()],
+    [t('dev.susfs'), version || '—'],
+    [t('dev.boot'), bootVal],
   ].filter(([, v]) => v)
   $('device').innerHTML = rows.map(([k, v]) => `<div class="drow"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')
+  $('device_copy').onclick = () => copyText('NextSUSFS\n' + rows.map(([k, v]) => `${k}: ${v}`).join('\n'))
+
+  // TOOLS: quick links to logs, backup, trace check and a reboot action
+  const tools =
+    toolCard('logs', t('ht.bootlog'), t('ht.bootlogd'), { href: '#hiding/logs' }) +
+    toolCard('backup', t('ht.backup'), t('ht.backupd'), { href: '#hiding/backup' }) +
+    (SPECIAL.scan ? toolCard('scan', t('ht.trace'), t('ht.traced'), { href: '#hiding/scan' }) : '') +
+    toolCard('power', t('ht.reboot'), t('ht.rebootd'), { id: 'tool_reboot', cls: 'danger' })
+  $('tools_cards').innerHTML = tools
+  $('tool_reboot').onclick = reboot
 
   // Boot-loop protection: if the module skipped hiding this boot, warn and offer a retry.
   const safebar = $('safebar')
-  if (await exists(`${DATA}/safe_mode`)) {
+  if (safeMode) {
     safebar.className = 'alert show warn'
     $('safebar_ic').innerHTML = STATUS.warn
     $('safebar_t').textContent = t('safe.title')
