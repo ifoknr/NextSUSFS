@@ -1,6 +1,6 @@
 {
-  "version": "v0.0.10",
-  "versionCode": 10,
-  "zipUrl": "https://github.com/ifoknr/NextSUSFS/releases/download/v0.0.10/NextSUSFS.zip",
+  "version": "v0.0.11",
+  "versionCode": 11,
+  "zipUrl": "https://github.com/ifoknr/NextSUSFS/releases/download/v0.0.11/NextSUSFS.zip",
   "changelog": "https://raw.githubusercontent.com/ifoknr/NextSUSFS/main/CHANGELOG.md"
 }
