@@ -2,6 +2,12 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.12
+- إصلاح: على رومات الـ GSI كثيرة الـ overlay (مبنية على LineageOS/crDroid) كان خيار «إخفاء ملفات الروم المخصص» يحجب عن التطبيقات ملفات تحتاج تفتحها: حِزَم التطبيقات المثبّتة (priv-app/app) وملفات الـ overlay و idmap و dalvik-cache و ART profiles وأي ملف قابل للتحميل (apk/jar/so). النتيجة كانت تعليق التطبيقات عند الفتح. الحين هذي الملفات تنخفي من خرائط الذاكرة فقط (مكان الكشف)، وتظل التطبيقات تقدر تفتحها. ملفات الإعداد (xml/rc) تظل مخفية بالمسار.
+
+**English**
+- Fixed: on overlay-heavy GSIs (LineageOS/crDroid based), "Hide custom ROM files" blocked files apps must reopen: installed app packages (priv-app/app), overlay APKs, idmaps, dalvik-cache, ART profiles and any loadable file (apk/jar/so). Apps hung on launch. These are now hidden from memory maps only (where detectors look) and stay openable; config files (xml/rc) are still path-hidden.
+
 ## v0.0.11
 - إصلاح: خاصية التشفير `ro.crypto.state` كانت تُضبط بدري جداً في مرحلة post-fs-data، قبل ما يستقر نظام التشفير (vold)، فتبتلع إشارة الانتقال اللي تنتظرها مشغّلات vendor، وتسبّب مشاكل إقلاع على بعض الأجهزة. الحين تُضبط بعد اكتمال الإقلاع. (مصدره BRENE #61)
 - جديد: خيار «تصغير مخزّن السجلات» (إضافات الشاشة): يضبط مخزّن logcat و logd على 64K لاستهلاك أقل للمعالج والبطارية. اختياري ومطفي افتراضياً. (من BRENE v0.0.71)
