@@ -2,6 +2,14 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.11
+- إصلاح: خاصية التشفير `ro.crypto.state` كانت تُضبط بدري جداً في مرحلة post-fs-data، قبل ما يستقر نظام التشفير (vold)، فتبتلع إشارة الانتقال اللي تنتظرها مشغّلات vendor، وتسبّب مشاكل إقلاع على بعض الأجهزة. الحين تُضبط بعد اكتمال الإقلاع. (مصدره BRENE #61)
+- جديد: خيار «تصغير مخزّن السجلات» (إضافات الشاشة): يضبط مخزّن logcat و logd على 64K لاستهلاك أقل للمعالج والبطارية. اختياري ومطفي افتراضياً. (من BRENE v0.0.71)
+
+**English**
+- Fixed: `ro.crypto.state` was set too early (post-fs-data, before vold settled), which could swallow the encrypted-state transition that vendor init triggers wait on and break boot on some devices. It is now set after boot completes. (from BRENE #61)
+- New: a "Shrink log buffers" option (Display extras) that sets the logcat and logd buffers to 64K for less CPU and battery use. Optional, off by default. (from BRENE v0.0.71)
+
 ## v0.0.10
 - جديد: وضع نهاري/ليلي للواجهة. مفتاح في الإعدادات (النظام / داكن / فاتح)؛ خيار «النظام» يتبع إعداد جهازك ويتغيّر فورًا. الوضع الداكن يبقى الافتراضي، وكل الصفحات صارت واضحة في الوضع الفاتح.
 

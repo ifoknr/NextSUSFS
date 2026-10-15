@@ -116,6 +116,12 @@ if [[ "${config_show_refresh_rate}" == "1" ]]; then
 	service call SurfaceFlinger 1034 i32 1
 fi
 
+# Shrink logcat and logd buffers to save CPU and battery (from BRENE v0.0.71)
+if [[ "${config_shrink_buffer_size}" == "1" ]]; then
+	logcat -G 64K
+	resetprop -n -p persist.logd.size 65536
+fi
+
 # SELinux Enforcing
 if [[ "${config_selinux}" == "1" ]]; then
 	[[ "$(getenforce)" != "Enforcing" ]] && setenforce 1
@@ -210,6 +216,11 @@ until [[ -e "/storage/emulated/0/Android" ]]; do sleep 1; done
 # Spoof System Properties
 if [[ "${config_spoof_system_properties}" == "1" ]]; then
 	spoof_system_properties
+
+	# Set after vold has settled, so the encrypted-state transition still reaches the
+	# vendor init triggers that wait on it. Setting this early (post-fs-data) breaks boot
+	# on some devices. (from BRENE #61)
+	if_prop_exits_resetprop_n "ro.crypto.state" "encrypted"
 fi
 # Spoof Fingerprint Properties
 # (skipped when "Clean build identity" already rewrote the fingerprints at post-fs-data)

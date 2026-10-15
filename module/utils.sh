@@ -119,7 +119,10 @@ spoof_system_properties() {
 	if_prop_exits_resetprop_n "ro.build.type" "user"
 	if_prop_exits_resetprop_n "ro.build.tags" "release-keys"
 	if_prop_exits_resetprop_n "ro.build.keys" "release-keys"
-	if_prop_exits_resetprop_n "ro.crypto.state" "encrypted"
+	# INFO: ro.crypto.state is NOT set here. Setting it in post-fs-data (before vold has
+	#         settled) can swallow the encrypted-state transition that vendor init triggers
+	#         wait on, which breaks boot on some devices. boot-completed sets it instead,
+	#         after the transition has already reached vendor init. (from BRENE #61)
 	if_prop_exits_resetprop_n "ro.allow.mock.location" "0"
 	if_prop_exits_resetprop_n "ro.boot.warranty_bit" "0"
 	if_prop_exits_resetprop_n "ro.warranty_bit" "0"

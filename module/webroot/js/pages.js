@@ -194,6 +194,9 @@ export const PAGES = [
       { key: 'config_show_refresh_rate',
         en: ['Show refresh rate', 'Draws the current refresh rate on screen.'],
         ar: ['إظهار معدل التحديث', 'يعرض معدل تحديث الشاشة الحالي فوق الشاشة.'] },
+      { key: 'config_shrink_buffer_size',
+        en: ['Shrink log buffers', 'Sets the logcat and logd buffers to 64K, to use less CPU and battery.'],
+        ar: ['تصغير مخزّن السجلات', 'يضبط مخزّن logcat و logd على 64K، لاستهلاك أقل للمعالج والبطارية.'] },
     ],
   },
 ]

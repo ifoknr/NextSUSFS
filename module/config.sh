@@ -29,6 +29,7 @@ config_rom_props=0
 config_clean_build_identity=0
 config_old_debug_ramdisk_time=0
 config_saturation=0
+config_shrink_buffer_size=0
 config_brene_logs=0
 config_enable_log=0
 config_hide_addon_d=0
