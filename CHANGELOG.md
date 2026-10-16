@@ -2,6 +2,14 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.13
+- واجهة رئيسية جديدة بالكامل: لوحة معلومات على طراز NextZygisk — بطاقة حالة رئيسية مع إحصائيات، بطاقات الحالة والأقسام، معلومات الجهاز، وشبكة أدوات. تشتغل بالوضعين الفاتح والداكن و RTL، وعمودين على التابلت.
+- إصلاح: على الرومات المخصصة كان «إخفاء ملفات الروم المخصص» يحجب ملفات صلاحيات/إعدادات النظام (permissions و sysconfig و privapp_whitelist) حجباً كاملاً، فترجع «غير موجودة» للتطبيقات المدرجة بالقائمة مثل خدمات قوقل بلاي وتسبّب بطء أو تعليق. الحين تبقى مقروءة (نسخة منزوع منها اسم الروم)، فيشتغل كل شي والنظام يقرأ الأصلي والكاشف ما يشوفها.
+
+**English**
+- Brand-new Home: a NextZygisk-style dashboard — a hero status card with stats, status and section cards, device info and a tools grid. Works in light, dark and RTL, two columns on tablets.
+- Fixed: on custom ROMs, "Hide custom ROM files" fully path-hid system permission/config files (permissions, sysconfig, privapp_whitelist), returning ENOENT to denylisted apps such as Google Play Services and causing lag or hangs. They now stay readable (with the ROM name stripped), so everything keeps working, the system reads the real file, and detectors still don't see them.
+
 ## v0.0.12
 - إصلاح: على رومات الـ GSI كثيرة الـ overlay (مبنية على LineageOS/crDroid) كان خيار «إخفاء ملفات الروم المخصص» يحجب عن التطبيقات ملفات تحتاج تفتحها: حِزَم التطبيقات المثبّتة (priv-app/app) وملفات الـ overlay و idmap و dalvik-cache و ART profiles وأي ملف قابل للتحميل (apk/jar/so). النتيجة كانت تعليق التطبيقات عند الفتح. الحين هذي الملفات تنخفي من خرائط الذاكرة فقط (مكان الكشف)، وتظل التطبيقات تقدر تفتحها. ملفات الإعداد (xml/rc) تظل مخفية بالمسار.
 
