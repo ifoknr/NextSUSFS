@@ -206,6 +206,8 @@ html[dir="rtl"] input:checked + .slider:before { transform: translateX(-18px); }
   background: var(--card); border: 1px solid var(--card-line); place-items: center; color: var(--font);
 }
 .back.show { display: grid; }
+.logo { width: 40px; height: 40px; flex: 0 0 auto; }
+.back.show + .logo { display: none; }
 .back svg { width: 20px; height: 20px; }
 html[dir="rtl"] .back svg, html[dir="rtl"] .chev svg { transform: scaleX(-1); }
 
