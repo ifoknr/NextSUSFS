@@ -74,7 +74,7 @@ const STR = {
     'page.listsnote': 'One path per line, starting with /. Lines starting with # are comments.',
     'page.logs': 'Logs', 'page.logsd': 'What happened at the last boot',
     'page.backup': 'Backup & reset', 'page.backupd': 'Save, restore or reset your settings',
-    'f.sus_path': 'Hide paths', 'f.sus_mount': 'Hide mounts', 'f.sus_kstat': 'Spoof file stats', 'f.spoof_uname': 'Spoof uname',
+    'f.sus_path': 'Hide paths', 'f.sus_mount': 'Hide mounts', 'f.sus_map': 'Hide maps', 'f.sus_kstat': 'Spoof file stats', 'f.spoof_uname': 'Spoof uname',
     'f.open_redirect': 'Open redirect', 'f.try_umount': 'Unmount traces', 'f.hide_symbols': 'Hide KSU symbols',
     'f.spoof_cmdline': 'Spoof cmdline', 'f.enable_log': 'Kernel log',
     'text.save': 'Save', 'text.invalid': 'Invalid value',
@@ -164,7 +164,7 @@ const STR = {
     'page.listsnote': 'مسار واحد في كل سطر، ويبدأ بـ/. السطر اللي يبدأ بـ# ملاحظة.',
     'page.logs': 'السجلات', 'page.logsd': 'وش صار في آخر إقلاع',
     'page.backup': 'النسخ والاستعادة', 'page.backupd': 'احفظ إعداداتك أو استرجعها أو صفّرها',
-    'f.sus_path': 'إخفاء المسارات', 'f.sus_mount': 'إخفاء التركيبات', 'f.sus_kstat': 'تزييف بيانات الملفات', 'f.spoof_uname': 'تزييف uname',
+    'f.sus_path': 'إخفاء المسارات', 'f.sus_mount': 'إخفاء التركيبات', 'f.sus_map': 'إخفاء الخرائط', 'f.sus_kstat': 'تزييف بيانات الملفات', 'f.spoof_uname': 'تزييف uname',
     'f.open_redirect': 'تحويل فتح الملفات', 'f.try_umount': 'فك تركيب الآثار', 'f.hide_symbols': 'إخفاء رموز KSU',
     'f.spoof_cmdline': 'تزييف cmdline', 'f.enable_log': 'سجل النواة',
     'text.save': 'حفظ', 'text.invalid': 'قيمة غير صحيحة',
@@ -284,7 +284,24 @@ async function reboot() {
 }
 
 /* ---------- home ---------- */
-const FEATURES = ['sus_path', 'sus_mount', 'sus_kstat', 'spoof_uname', 'open_redirect', 'try_umount', 'hide_symbols', 'spoof_cmdline', 'enable_log']
+/* SuSFS features the kernel can report. `cfg` are the tokens `susfs show enabled_features`
+   prints: newer kernels use the full CONFIG_KSU_SUSFS_* name (loadKernel() strips the prefix
+   and upper-cases, so only the suffix is matched), older/stub output uses the short name — both
+   forms are listed so either matches. */
+const FEATURES = [
+  { key: 'sus_path', cfg: ['SUS_PATH'] },
+  { key: 'sus_mount', cfg: ['SUS_MOUNT'] },
+  { key: 'sus_map', cfg: ['SUS_MAP'] },
+  { key: 'sus_kstat', cfg: ['SUS_KSTAT'] },
+  { key: 'spoof_uname', cfg: ['SPOOF_UNAME'] },
+  { key: 'open_redirect', cfg: ['OPEN_REDIRECT'] },
+  { key: 'try_umount', cfg: ['TRY_UMOUNT'] },
+  { key: 'hide_symbols', cfg: ['HIDE_KSU_SUSFS_SYMBOLS', 'HIDE_SYMBOLS'] },
+  { key: 'spoof_cmdline', cfg: ['SPOOF_CMDLINE_OR_BOOTCONFIG', 'SPOOF_CMDLINE'] },
+  { key: 'enable_log', cfg: ['ENABLE_LOG'] },
+]
+const featOn = (f) => f.cfg.some((c) => kernel.enabled.has(c))
+const featCount = () => FEATURES.filter(featOn).length
 let kernel = { version: '', enabled: new Set(), state: 'unknown' }
 // Written by post-fs-data from the real props, before NextSUSFS hides the ROM's traces
 let rom = { type: '', name: '' }
@@ -307,7 +324,7 @@ async function loadKernel() {
   kernel.state = await out(`cat ${DATA}/kernel_state`) || 'unknown'
   kernel.version = await out('susfs show version')
   const raw = await out('susfs show enabled_features')
-  kernel.enabled = new Set(raw.split('\n').map((s) => s.trim()).filter(Boolean))
+  kernel.enabled = new Set(raw.split('\n').map((s) => s.trim().replace(/^CONFIG_KSU_SUSFS_/, '').toUpperCase()).filter(Boolean))
   rom = { type: '', name: '' }
   ;(await out(`cat ${DATA}/rom_type`)).split('\n').forEach((line) => {
     const [k, v = ''] = line.split('=')
@@ -373,7 +390,7 @@ async function renderHome() {
     (variant ? `<span class="chip">${esc(variant)}</span>` : '') +
     (rom.type ? `<span class="chip rom ${rom.type === 'custom' ? 'custom' : 'stock'}">${esc(romShort())}</span>` : '')
   $('hero_stats').innerHTML = [
-    [`${enabled.size}/9`, t('home.statfeat')],
+    [`${featCount()}/${FEATURES.length}`, t('home.statfeat')],
     [String(protectionsOn), t('home.staton')],
     [String(hiddenPaths), t('home.statpaths')],
   ].map(([n, l]) => `<div class="hstat"><div class="hstat_n">${esc(n)}</div><div class="hstat_l">${esc(l)}</div></div>`).join('')
@@ -394,7 +411,7 @@ async function renderHome() {
   $('kernel_cards').innerHTML =
     statCard('ksu', t('k.susfs'), t('k.' + susfsState[0]),
       version ? version + (variant ? ` · ${variant}` : '') : '—', susfsState[1]) +
-    statCard('features', t('k.features'), `${enabled.size}<span class="tot"> / 9</span>`, t('k.caps')) +
+    statCard('features', t('k.features'), `${featCount()}<span class="tot"> / ${FEATURES.length}</span>`, t('k.caps')) +
     statCard('kernel', t('k.selinux'), t(enforcing ? 'k.enforcing' : 'k.permissive'),
       t(isOn('config_enable_avc_log_spoofing') ? 'k.avc' : 'k.avcoff'), enforcing ? 'on' : 'warn') +
     statCard('power', t('k.boot'), t(safeMode ? 'k.safemode' : 'k.safe'),
@@ -508,7 +525,7 @@ function tile(href, ic, title, sub) {
 }
 function renderHub() {
   $('hub_hiding').innerHTML =
-    tile('#hiding/features', 'features', t('page.features'), `${kernel.enabled.size}/9 · ${t('page.featuresd')}`) +
+    tile('#hiding/features', 'features', t('page.features'), `${featCount()}/${FEATURES.length} · ${t('page.featuresd')}`) +
     visiblePages().map((p) => {
       const tg = toggles(p); const on = tg.filter((i) => isOn(i.key)).length
       return tile(`#hiding/${p.id}`, p.icon, L(p.t), `${on}/${tg.length} · ${L(p.d)}`)
@@ -577,9 +594,9 @@ function renderFeaturesPage() {
   $('page_body').innerHTML =
     `<div class="page_head"><div class="page_ic">${icon('features')}</div><div class="page_d">${esc(t('page.featuresd'))}</div></div>` +
     `<div class="note top">${esc(t('page.featuresnote'))}</div>` +
-    '<div class="card">' + FEATURES.map((key) => {
-      const on = kernel.enabled.has(key)
-      return `<div class="row"><div class="row_body"><div class="row_title">${esc(t('f.' + key))}</div><div class="row_sub mono">${key}</div></div>` +
+    '<div class="card">' + FEATURES.map((f) => {
+      const on = featOn(f)
+      return `<div class="row"><div class="row_body"><div class="row_title">${esc(t('f.' + f.key))}</div><div class="row_sub mono">${f.key}</div></div>` +
         `<div class="row_val ${on ? 'st_on' : 'st_off'}"><span class="dot ${on ? 'on' : 'neutral'}"></span>${on ? t('on') : t('off')}</div></div>`
     }).join('') + '</div>'
 }
