@@ -268,6 +268,15 @@ TARGET4="/storage/emulated/0/Android/obb/${TARGET}"
 rm -rf "${TARGET1}" "${TARGET2}" "${TARGET3}" "${TARGET4}"
 inotifyd "${MODDIR}/inotify.sh" /storage/emulated/0:n &
 
+# Hide the root manager's leftover storage folders (KernelSU / KernelSU-Next / APatch).
+# Removed once now and kept clean by inotifyd watchers on each Android/* folder.
+if [[ "${config_hide_ksu_directories}" == "1" ]]; then
+	sh "${MODDIR}/remove_ksu_directory.sh"
+	inotifyd "${MODDIR}/remove_ksu_directory.sh" /storage/emulated/0/Android/data:n &
+	inotifyd "${MODDIR}/remove_ksu_directory.sh" /storage/emulated/0/Android/media:n &
+	inotifyd "${MODDIR}/remove_ksu_directory.sh" /storage/emulated/0/Android/obb:n &
+fi
+
 ## For paths that are frequently modified, we can add them via 'add_sus_path_loop' ##
 ## Be reminded that without HMA's vold app data enabled, added sus_paths are still vulnerable to zwc exploit, so in this case users also have to add its underlying path as well ##
 
@@ -551,6 +560,15 @@ if [[ "${config_fix_data_local_tmp_inconsistencies}" == "1" ]]; then
 fi
 
 resetprop -c --force
+
+# Hide third-party apps from UID enumeration via the priority/ioprio syscalls (getpriority,
+# setpriority, ioprio_get, ioprio_set), which some apps abuse to list the installed/running
+# apps. Needs a SuSFS kernel that supports the priority UID filter; on older kernels the
+# command is simply ignored, so nothing breaks. HMA-OSS covers the userspace side. Off by default.
+if [[ "${config_hide_third_party_apps}" == "1" ]]; then
+	packages=$(pm list packages -3 2>/dev/null | awk -F: '{out = out (out ? "," : "") $2} END {print out}')
+	[[ -n "${packages}" ]] && ${SUSFS_BIN} set_priority_uid_filter "${packages}"
+fi
 
 # INFO: Publish a simple status NextWheel and NextZygisk can read, so they can show
 #         NextSUSFS by name and whether it is actually working in this kernel.

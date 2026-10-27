@@ -41,6 +41,7 @@ fi
 
 cp -f "${MODPATH}/tools/susfs" "${DEST_BIN_DIR}"
 chmod +x "${MODPATH}/inotify.sh"
+chmod +x "${MODPATH}/remove_ksu_directory.sh"
 chmod 755 "${DEST_BIN_DIR}/susfs"
 ln -sf "${DEST_BIN_DIR}/susfs" "${DEST_BIN_DIR}/sus"       # For development
 ln -sf "${DEST_BIN_DIR}/susfs" "${DEST_BIN_DIR}/ksu_susfs" # For compatibility
