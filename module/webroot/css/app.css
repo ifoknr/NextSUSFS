@@ -1,19 +1,19 @@
 /* INFO: NextSUSFS WebUI, styled to match NextWheel and NextZygisk: dark theme, Sora
            for Latin text, cards, a status hero and a compact floating navbar. */
 :root {
-  --background: #0a0b0d;
-  --font: #f3f5f8;
-  --desc: #8b93a0;
-  --dim: #141518;
-  --card: #141518;
-  --card-line: #23262d;
-  --icon-bc: #16181c;
+  --background: #121015;
+  --font: #E6E0E9;
+  --desc: #C7C1CE;
+  --dim: #211F26;
+  --card: #211F26;
+  --card-line: #322F3A;
+  --icon-bc: #2B2930;
   --small-card: var(--icon-bc);
   --green: #34d399;
   --amber: #f3a93a;
   --red: #f05252;
-  --blue: #5b8cff;
-  --button: #3a3f49;
+  --blue: #D0BCFF;
+  --button: #4a4653;
   --button-enabled: #34d399;
   --lock: #fff;
   --font-family: 'Sora', 'Roboto', 'Noto Kufi Arabic', sans-serif;
@@ -53,9 +53,9 @@ a { color: var(--blue); text-decoration: none; }
 
 /* Hero */
 .hero {
-  position: relative; border-radius: 18px; padding: 20px; margin-bottom: 11px;
+  position: relative; border-radius: 28px; padding: 20px; margin-bottom: 11px;
   display: flex; align-items: center; gap: 18px; overflow: hidden;
-  background: linear-gradient(135deg, #16181c, #101114); border: 1px solid var(--card-line);
+  background: linear-gradient(135deg, #2A2733, #211F26); border: 1px solid var(--card-line);
 }
 .hero.ok { background: radial-gradient(130% 120% at 15% 50%, rgba(52,211,153,.13), transparent 55%), linear-gradient(135deg,#16181c,#101114); border-color: rgba(52,211,153,.32); }
 .hero.warn { background: radial-gradient(130% 120% at 15% 50%, rgba(243,169,58,.12), transparent 55%), linear-gradient(135deg,#16181c,#101114); border-color: rgba(243,169,58,.3); }
@@ -65,7 +65,7 @@ a { color: var(--blue); text-decoration: none; }
   display: grid; place-items: center;
   background: conic-gradient(var(--ring, var(--green)) 0 var(--deg, 360deg), #242830 var(--deg, 360deg) 360deg);
 }
-.hero_ring::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: #101114; }
+.hero_ring::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: #221F28; }
 .hero_ic { position: relative; z-index: 1; width: 42%; height: 42%; }
 .hero_ic svg { width: 100%; height: 100%; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .hero_body { min-width: 0; }
@@ -95,7 +95,7 @@ a { color: var(--blue); text-decoration: none; }
 .sec { font-size: 12px; font-weight: 700; letter-spacing: .8px; color: var(--desc); text-transform: uppercase; margin: 20px 4px 10px; }
 
 /* Rows / cards */
-.card { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; overflow: hidden; }
+.card { background: var(--card); border: 1px solid var(--card-line); border-radius: 22px; overflow: hidden; }
 .row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
 .row + .row { border-top: 1px solid var(--card-line); }
 .row_ic { flex: 0 0 auto; width: 20px; height: 20px; }
@@ -393,26 +393,26 @@ a.scard.cat:active { background: #191b20; }
 
 /* ===== Light theme (NEXT design, matching NextZygisk) ===== */
 :root[data-theme="light"] {
-  --background: #f4f5f7;
-  --font: #1a1d21;
-  --desc: #5c6470;
-  --dim: #e9ebee;
-  --card: #ffffff;
-  --card-line: #e4e7ec;
-  --icon-bc: #eceef2;
+  --background: #FEF7FF;
+  --font: #1D1B20;
+  --desc: #49454F;
+  --dim: #ECE6F0;
+  --card: #F4EEF8;
+  --card-line: #E6DFEC;
+  --icon-bc: #ECE6F0;
   --green: #0f9d6b;
   --amber: #c07d12;
   --red: #dc3b3b;
-  --blue: #3b6fe0;
-  --button: #c6ccd4;
-  --lock: #1a1d21;
+  --blue: #6750A4;
+  --button: #C4C0CC;
+  --lock: #1D1B20;
 }
 :root[data-theme="light"] .hero { background: linear-gradient(135deg, #ffffff, #eef0f3); }
 :root[data-theme="light"] .hero.ok { background: radial-gradient(130% 120% at 15% 50%, rgba(15,157,107,.12), transparent 55%), linear-gradient(135deg,#ffffff,#eef0f3); border-color: rgba(15,157,107,.35); }
 :root[data-theme="light"] .hero.warn { background: radial-gradient(130% 120% at 15% 50%, rgba(192,125,18,.12), transparent 55%), linear-gradient(135deg,#ffffff,#eef0f3); border-color: rgba(192,125,18,.32); }
 :root[data-theme="light"] .hero.err { background: radial-gradient(130% 120% at 15% 50%, rgba(220,59,59,.12), transparent 55%), linear-gradient(135deg,#ffffff,#eef0f3); border-color: rgba(220,59,59,.32); }
 :root[data-theme="light"] .hero_ring { background: conic-gradient(var(--ring, var(--green)) 0 var(--deg, 360deg), #dfe3e8 var(--deg, 360deg) 360deg); }
-:root[data-theme="light"] .hero_ring::after { background: #ffffff; }
+:root[data-theme="light"] .hero_ring::after { background: #F4EEF8; }
 :root[data-theme="light"] .chip.v { background: #e4ebff; color: #2a52b5; }
 :root[data-theme="light"] .alert.warn { background: #fdf4e4; border-color: #f0dcb0; }
 :root[data-theme="light"] .alert.err { background: #fdeaea; border-color: #f3c4c4; }
