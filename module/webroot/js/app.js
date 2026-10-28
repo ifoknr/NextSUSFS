@@ -929,6 +929,7 @@ function initNavbar() {
   document.fonts?.ready.then(replace)
 }
 
+let brandMark = ''
 async function route() {
   const [tab0, sub] = location.hash.replace(/^#/, '').split('/')
   const tab = TABS.includes(tab0) ? tab0 : 'home'
@@ -945,7 +946,10 @@ async function route() {
   const panel = inPage ? 'page' : tab
   document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('active', p.getAttribute('data-panel') === panel))
   $('back').classList.toggle('show', !!inPage)
-  $('brand').textContent = inPage ? (special ? special.title() : L(page.t)) : 'NextSUSFS'
+  /* INFO: the name is drawn lettering (index.html); a page title replaces it while a page is open. */
+  if (!brandMark) brandMark = $('brand').innerHTML
+  if (inPage) $('brand').textContent = special ? special.title() : L(page.t)
+  else $('brand').innerHTML = brandMark
   window.scrollTo(0, 0)
 
   if (inPage) { if (special) await special.render(); else renderConfigPage(page) }
