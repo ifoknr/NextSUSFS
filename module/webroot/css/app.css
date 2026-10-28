@@ -497,3 +497,6 @@ a.scard.cat:active { background: #191b20; }
   .scard { min-height: 104px; }
   .tcard { min-height: 124px; }
 }
+
+/* IFOKNR in the Swamp Ninja lettering, drawn as outlines in the link colour. */
+.sig { display: inline-block; height: 15px; width: auto; vertical-align: -2px; }
