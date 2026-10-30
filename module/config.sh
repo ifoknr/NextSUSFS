@@ -46,6 +46,8 @@ config_hide_custom_rom_paths=0
 config_hide_custom_rom_paths_2=0
 config_hide_framework_res_apk=0
 config_hide_data_adb=0
+config_hide_ksu_directories=0
+config_hide_third_party_apps=0
 config_spoof_cmdline_or_bootconfig=0
 config_disable_child_process_restrictions=0
 
