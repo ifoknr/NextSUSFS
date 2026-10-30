@@ -6,9 +6,11 @@
 - جديد: «إخفاء مجلدات مدير الروت» — يحذف مجلدات تطبيقات KernelSU و KernelSU-Next و APatch من Android/data و media و obb ويبقيها محذوفة، فتطبيق عنده صلاحية التخزين ما يلقاها. مطفي افتراضياً.
 - جديد: «إخفاء التطبيقات من التعداد» — يخفي تطبيقاتك المثبّتة من syscalls (priority/ioprio) اللي تستغلها بعض الكواشف لسرد التطبيقات، عبر `set_priority_uid_filter` في SuSFS. يحتاج كيرنل SuSFS حديث يدعم الميزة؛ يُتجاهل على الكيرنل القديم فما يكسر شي. مطفي افتراضياً. (حُدّث ثنائي ksu_susfs لـ arm64 لدعم الأمر.)
 
+- شكل جديد: أيقونة رمادية هادية مثل باقي أدوات IFOKNR، واسم الأداة بخط جديد فوق، وتوقيع IFOKNR في صفحة الحقوق.
 **English**
 - New: "Hide root manager folders" — removes the KernelSU, KernelSU-Next and APatch app folders from Android/data, media and obb and keeps them cleared, so an app with storage access can't find them. Off by default.
 - New: "Hide apps from enumeration" — hides your installed apps from the priority/ioprio syscalls some detectors abuse to list apps, via SuSFS `set_priority_uid_filter`. Needs a recent SuSFS kernel that supports it; ignored on older kernels, so nothing breaks. Off by default. (The bundled arm64 ksu_susfs was updated to support the command.)
+- New look: a calm grey icon like the other IFOKNR tools, the name in new lettering at the top, and IFOKNR's signature in the credits.
 
 ## v0.0.13
 - واجهة رئيسية جديدة بالكامل: لوحة معلومات على طراز NextZygisk — بطاقة حالة رئيسية مع إحصائيات، بطاقات الحالة والأقسام، معلومات الجهاز، وشبكة أدوات. تشتغل بالوضعين الفاتح والداكن و RTL، وعمودين على التابلت.
