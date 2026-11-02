@@ -3,12 +3,14 @@
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
 ## v0.0.15
-- جديد: صف «Integrity Check» في الأدوات ← تطبيقات الكشف — يفتح تطبيق فحص Play Integrity API ويعرض النتيجة (BASIC / DEVICE / STRONG).
-- تحسين: «إخفاء مجلدات مدير الروت» صار يشمل تطبيقات أكثر — ReSukiSU و SukiSU Ultra و HMA-OSS و Termux، إضافةً إلى KernelSU و KernelSU-Next و APatch. مطفي افتراضياً. (ملاحظة: يحذف مجلد Termux في Android/data عند التفعيل.)
+- أمان: الاستعادة من النسخة الاحتياطية ما عادت تنسخ config.sh كما هو — الملف يشتغل كـ root عند الإقلاع، وأي تطبيق بصلاحية التخزين يقدر يعدّله. تُؤخذ الإعدادات المعروفة بقيم صحيحة فقط.
+- جديد: «Integrity Check» في الأدوات ← تطبيقات الكشف، يفتح فاحص Play Integrity API.
+- تحسين: «إخفاء مجلدات مدير الروت» يشمل SukiSU و ReSukiSU و HMA-OSS و Termux (يمسح مجلد Termux في Android/data). مطفي افتراضياً.
 
 **English**
-- New: an "Integrity Check" row in Tools → Detection apps that opens the Play Integrity API checker and shows the verdict (BASIC / DEVICE / STRONG).
-- Improved: "Hide root manager folders" now also clears ReSukiSU, SukiSU Ultra, HMA-OSS and Termux, on top of KernelSU, KernelSU-Next and APatch. Off by default. (Note: clears Termux's Android/data folder when enabled.)
+- Security: restoring a backup no longer copies config.sh as is — it runs as root at boot, and any app with storage access could edit it. Only known settings with valid values are taken.
+- New: "Integrity Check" in Tools → Detection apps opens the Play Integrity API checker.
+- Improved: "Hide root manager folders" also covers SukiSU, ReSukiSU, HMA-OSS and Termux (clears Termux's Android/data folder). Off by default.
 
 ## v0.0.14
 - جديد: «إخفاء مجلدات مدير الروت» — يحذف مجلدات تطبيقات KernelSU و KernelSU-Next و APatch من Android/data و media و obb ويبقيها محذوفة، فتطبيق عنده صلاحية التخزين ما يلقاها. مطفي افتراضياً.

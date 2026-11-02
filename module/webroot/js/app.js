@@ -240,6 +240,8 @@ const b64 = (s) => btoa(unescape(encodeURIComponent(s)))
 // these format characters, so without this a line that looks like "/path" fails the "/"
 // check and would be written with a stray byte the kernel cannot match.
 const cleanLine = (s) => s.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '').trim()
+// A redirect line is "<path> <new path> <scope 0-4>"; other lists take one path per line
+const listLineOk = (kind, s) => (kind === 'redirect' ? /^\/\S+\s+\/\S+\s+[0-4]$/.test(s) : s.startsWith('/'))
 
 /* ---------- config ---------- */
 let cfg = {}
@@ -622,10 +624,7 @@ async function renderListsPage() {
     const i = Number(btn.getAttribute('data-savelist'))
     const area = body.querySelector(`[data-list="${i}"]`)
     const lines = area.value.replace(/\r/g, '').split('\n')
-    // a redirect line is "<path> <new path> <scope 0-4>"; other lists take one path per line
-    const ok = LISTS[i].kind === 'redirect'
-      ? (s) => /^\/\S+\s+\/\S+\s+[0-4]$/.test(cleanLine(s))
-      : (s) => cleanLine(s).startsWith('/')
+    const ok = (s) => listLineOk(LISTS[i].kind, cleanLine(s))
     const bad = lines.findIndex((s) => cleanLine(s) && !cleanLine(s).startsWith('#') && !ok(s))
     if (bad >= 0) { area.classList.add('bad'); toast(t(LISTS[i].kind === 'redirect' ? 'list.badredirect' : 'list.bad').replace('%s', bad + 1)); return }
     area.classList.remove('bad')
@@ -685,8 +684,27 @@ async function renderBackupPage() {
   })
   body.querySelector('[data-act="import"]').addEventListener('click', async () => {
     if (!when || !(await confirmBox(t('backup.confirmimport'), t('backup.confirmimportd')))) return
-    const r = await exec(`cd ${BACKUP} && for f in ${files}; do [ -f "$f" ] && cp "$f" ${DATA}/; done; true`)
-    if (r.errno === 0) { await loadConfig(); markPending(); toast(t('backup.restored')) }
+    // The backup sits in shared storage, which any app with storage access can write, and
+    // config.sh is sourced as root at boot, so nothing is copied as is. Only keys this
+    // config already has are taken, with the same values the WebUI itself writes, and list
+    // lines must pass the editor's checks. A redirect target must live under /data/adb:
+    // its owner, mode and SELinux label are changed to match the file it stands in for.
+    const saved = await out(`cat ${BACKUP}/config.sh 2>/dev/null`)
+    for (const line of saved.split('\n')) {
+      const m = line.trim().match(/^(config_[a-z0-9_]+)=(.*)$/)
+      if (!m || !(m[1] in cfg)) continue
+      const quoted = m[2].match(/^'([A-Za-z0-9._+:#\- ]{0,96})'$/)
+      if (/^[01]$/.test(m[2])) await setConfig(m[1], m[2])
+      else if (quoted) await setConfig(m[1], quoted[1], true)
+    }
+    for (const l of LISTS) {
+      const text = await out(`cat ${BACKUP}/${l.file} 2>/dev/null`)
+      if (!text.trim()) continue
+      const lines = text.replace(/\r/g, '').split('\n').map(cleanLine).filter((s) => !s || s.startsWith('#') ||
+        (listLineOk(l.kind, s) && (l.kind !== 'redirect' || s.split(/\s+/)[1].startsWith('/data/adb/'))))
+      await exec(`echo '${b64(lines.join('\n').replace(/\n+$/, '') + '\n')}' | base64 -d > ${DATA}/${l.file}`)
+    }
+    await loadConfig(); markPending(); toast(t('backup.restored'))
   })
   body.querySelector('[data-act="reset"]').addEventListener('click', async () => {
     if (!(await confirmBox(t('backup.confirmreset'), t('backup.confirmresetd')))) return
