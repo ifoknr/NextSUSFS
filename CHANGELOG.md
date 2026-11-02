@@ -2,6 +2,14 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.15
+- جديد: صف «Integrity Check» في الأدوات ← تطبيقات الكشف — يفتح تطبيق فحص Play Integrity API ويعرض النتيجة (BASIC / DEVICE / STRONG).
+- تحسين: «إخفاء مجلدات مدير الروت» صار يشمل تطبيقات أكثر — ReSukiSU و SukiSU Ultra و HMA-OSS و Termux، إضافةً إلى KernelSU و KernelSU-Next و APatch. مطفي افتراضياً. (ملاحظة: يحذف مجلد Termux في Android/data عند التفعيل.)
+
+**English**
+- New: an "Integrity Check" row in Tools → Detection apps that opens the Play Integrity API checker and shows the verdict (BASIC / DEVICE / STRONG).
+- Improved: "Hide root manager folders" now also clears ReSukiSU, SukiSU Ultra, HMA-OSS and Termux, on top of KernelSU, KernelSU-Next and APatch. Off by default. (Note: clears Termux's Android/data folder when enabled.)
+
 ## v0.0.14
 - جديد: «إخفاء مجلدات مدير الروت» — يحذف مجلدات تطبيقات KernelSU و KernelSU-Next و APatch من Android/data و media و obb ويبقيها محذوفة، فتطبيق عنده صلاحية التخزين ما يلقاها. مطفي افتراضياً.
 - جديد: «إخفاء التطبيقات من التعداد» — يخفي تطبيقاتك المثبّتة من syscalls (priority/ioprio) اللي تستغلها بعض الكواشف لسرد التطبيقات، عبر `set_priority_uid_filter` في SuSFS. يحتاج كيرنل SuSFS حديث يدعم الميزة؛ يُتجاهل على الكيرنل القديم فما يكسر شي. مطفي افتراضياً. (حُدّث ثنائي ksu_susfs لـ arm64 لدعم الأمر.)
