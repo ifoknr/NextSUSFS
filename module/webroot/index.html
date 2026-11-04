@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="https://mui.kernelsu.org/internal/insets.css" />
     <link rel="stylesheet" href="fonts/fonts.css" />
     <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="css/mono.css" />
     <title>NextSUSFS</title>
   </head>
   <body id="main_body">
@@ -15,22 +16,22 @@
     <div id="app">
       <div class="hdr">
         <div class="hdr_main">
-          <div class="back" id="back" role="button" aria-label="Back"></div>
+          <button type="button" class="back" id="back" aria-label="Back"></button>
           <img class="logo" src="assets/logo.svg" alt="" />
           <div>
             <div class="brand" id="brand"><svg class="wm" viewBox="0 0 5449 1237" style="width:4.405em" role="img" aria-label="NextSUSFS"><path fill="currentColor" d="M78 1000H200L270 497L514 1006H637L737 300H615L544 801L304 300H176ZM792 770C769 933 828 1012 969 1012C1058 1012 1134 985 1200 927L1139 859C1089 888 1042 901 985 901C922 901 899 861 912 768L920 714L968 767C991 780 1024 789 1048 789C1182 789 1249 722 1268 583C1287 451 1210 378 1062 378C909 378 838 439 816 593ZM933 619 937 592C948 515 980 488 1061 488C1133 488 1158 515 1148 583C1139 649 1104 680 1041 680C1000 680 957 655 933 619ZM1254 1000H1386L1540 781L1632 1000H1754L1615 672L1816 390H1683L1560 565L1485 390H1363L1485 672ZM1896 769C1873 937 1919 1011 2044 1011C2121 1011 2179 986 2240 924L2183 861C2138 893 2104 902 2073 902C2014 902 2001 888 2018 768L2057 491H2238L2252 390H2071L2089 259L1965 279L1949 390H1907L1876 491H1935ZM2287 906C2351 978 2431 1012 2547 1012C2718 1012 2804 945 2826 786C2847 636 2778 560 2606 572C2500 580 2461 554 2470 488C2480 422 2518 396 2605 396C2683 396 2724 409 2772 451L2845 370C2786 313 2719 286 2614 286C2453 286 2368 350 2349 486C2330 618 2415 691 2589 681C2693 675 2717 697 2705 786C2692 873 2653 901 2549 901C2471 901 2428 885 2360 827ZM3455 300 3397 713C3376 861 3329 903 3209 903H3197C3077 903 3042 861 3063 713L3121 300H2999L2943 702C2911 930 2987 1015 3187 1015C3398 1015 3486 940 3520 702L3576 300ZM3587 906C3651 978 3731 1012 3847 1012C4018 1012 4104 945 4126 786C4147 636 4078 560 3906 572C3800 580 3761 554 3770 488C3780 422 3818 396 3905 396C3983 396 4024 409 4072 451L4145 370C4086 313 4019 286 3914 286C3753 286 3668 350 3649 486C3630 618 3715 691 3889 681C3993 675 4017 697 4005 786C3992 873 3953 901 3849 901C3771 901 3728 885 3660 827ZM4219 1000H4341L4386 678H4656L4671 570H4401L4424 411H4766L4782 300H4318ZM4746 906C4810 978 4890 1012 5006 1012C5177 1012 5263 945 5285 786C5306 636 5237 560 5065 572C4959 580 4920 554 4929 488C4939 422 4977 396 5064 396C5142 396 5183 409 5231 451L5304 370C5245 313 5178 286 5073 286C4912 286 4827 350 4808 486C4789 618 4874 691 5048 681C5152 675 5176 697 5164 786C5151 873 5112 901 5008 901C4930 901 4887 885 4819 827Z"/></svg></div>
             <div class="updated" id="updated"></div>
           </div>
         </div>
-        <div class="refresh" id="refresh" role="button" aria-label="Refresh">
-          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
-        </div>
+        <button type="button" class="refresh" id="refresh" aria-label="Refresh">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 10-2.3 5.7M20 5v5h-5"/></svg>
+        </button>
       </div>
 
       <!-- shown after any change until the user reboots -->
-      <div class="pending" id="pending">
+      <div class="pending" id="pending" role="status" aria-live="polite">
         <div class="pending_t" data-i18n="pending.title">Saved. Reboot to apply.</div>
-        <div class="btn small" id="pending_reboot" data-i18n="pending.reboot">Reboot</div>
+        <button type="button" class="btn small" id="pending_reboot" data-i18n="pending.reboot">Reboot</button>
       </div>
 
       <!-- HOME -->
@@ -58,7 +59,7 @@
           <div class="alert_body">
             <div class="alert_t" id="safebar_t"></div>
             <div class="alert_d" id="safebar_d"></div>
-            <div class="btn small" id="safebar_btn" style="margin-top:10px"></div>
+            <button type="button" class="btn small" id="safebar_btn" style="margin-top:10px"></button>
           </div>
         </div>
 
@@ -81,7 +82,7 @@
           <div class="dash_col">
             <div class="sechead">
               <span class="sec" data-i18n="home.device">Device</span>
-              <span class="seclink" id="device_copy" role="button" data-i18n="home.copy">Copy</span>
+              <button type="button" class="seclink" id="device_copy" data-i18n="home.copy">Copy</button>
             </div>
             <div class="card device" id="device"></div>
 
@@ -230,16 +231,16 @@
       <section class="panel" data-panel="settings">
         <div class="sec" data-i18n="settings.theme">Theme</div>
         <div class="seg" id="theme_seg">
-          <div class="seg_btn" data-theme-opt="system" data-i18n="settings.themesys">System</div>
-          <div class="seg_btn" data-theme-opt="dark" data-i18n="settings.dark">Dark</div>
-          <div class="seg_btn" data-theme-opt="light" data-i18n="settings.light">Light</div>
+          <button type="button" class="seg_btn" data-theme-opt="system" data-i18n="settings.themesys">System</button>
+          <button type="button" class="seg_btn" data-theme-opt="dark" data-i18n="settings.dark">Dark</button>
+          <button type="button" class="seg_btn" data-theme-opt="light" data-i18n="settings.light">Light</button>
         </div>
 
         <div class="sec" data-i18n="settings.language">Language</div>
         <div class="seg" id="lang_seg">
-          <div class="seg_btn" data-lang="system" data-i18n="settings.system">System</div>
-          <div class="seg_btn" data-lang="en">English</div>
-          <div class="seg_btn" data-lang="ar">العربية</div>
+          <button type="button" class="seg_btn" data-lang="system" data-i18n="settings.system">System</button>
+          <button type="button" class="seg_btn" data-lang="en">English</button>
+          <button type="button" class="seg_btn" data-lang="ar">العربية</button>
         </div>
 
         <div class="sec" data-i18n="settings.general">General</div>
@@ -261,21 +262,21 @@
     <!-- floating navbar -->
     <div id="navbar_support">
       <div id="navbar">
-        <div class="nav_btn" data-tab="home"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.home">Home</div></div>
-        <div class="nav_btn" data-tab="hiding"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.hiding">Hiding</div></div>
-        <div class="nav_btn" data-tab="tools"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.tools">Tools</div></div>
-        <div class="nav_btn" data-tab="settings"><div class="nav_cap"><div class="nav_ic"></div></div><div class="nav_lb" data-i18n="nav.settings">Settings</div></div>
+        <button type="button" class="nav_btn" data-tab="home"><div class="nav_cap"><div class="nav_ic" aria-hidden="true"></div></div><div class="nav_lb" data-i18n="nav.home">Home</div></button>
+        <button type="button" class="nav_btn" data-tab="hiding"><div class="nav_cap"><div class="nav_ic" aria-hidden="true"></div></div><div class="nav_lb" data-i18n="nav.hiding">Hiding</div></button>
+        <button type="button" class="nav_btn" data-tab="tools"><div class="nav_cap"><div class="nav_ic" aria-hidden="true"></div></div><div class="nav_lb" data-i18n="nav.tools">Tools</div></button>
+        <button type="button" class="nav_btn" data-tab="settings"><div class="nav_cap"><div class="nav_ic" aria-hidden="true"></div></div><div class="nav_lb" data-i18n="nav.settings">Settings</div></button>
       </div>
     </div>
 
     <!-- confirm dialog -->
-    <div class="dlg" id="dlg">
+    <div class="dlg" id="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlg_t" aria-describedby="dlg_d">
       <div class="dlg_box">
         <div class="dlg_t" id="dlg_t"></div>
         <div class="dlg_d" id="dlg_d"></div>
         <div class="dlg_btns">
-          <div class="btn ghost" id="dlg_no" data-i18n="dlg.cancel">Cancel</div>
-          <div class="btn" id="dlg_yes" data-i18n="dlg.ok">OK</div>
+          <button type="button" class="btn ghost" id="dlg_no" data-i18n="dlg.cancel">Cancel</button>
+          <button type="button" class="btn" id="dlg_yes" data-i18n="dlg.ok">OK</button>
         </div>
       </div>
     </div>

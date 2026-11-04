@@ -228,7 +228,7 @@ const STATUS = {
   warn: '<svg viewBox="0 0 24 24" stroke="#f3a93a"><path d="M12 3l9 16H3zM12 10v4M12 17v.5"/></svg>',
   err: '<svg viewBox="0 0 24 24" stroke="#f05252"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
 }
-const RING = { ok: '#34d399', warn: '#f3a93a', err: '#f05252' }
+const RING = { ok: 'var(--green)', warn: 'var(--amber)', err: 'var(--red)' }
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 const $ = (id) => document.getElementById(id)
 async function out(cmd) { const r = await exec(cmd); return r.errno === 0 ? r.stdout.trim() : '' }
@@ -352,7 +352,7 @@ function catCard(href, ic, label, on, total) {
 function toolCard(ic, title, sub, { href, id, cls } = {}) {
   const inner = `<div class="tcard_ic">${icon(ic)}</div><div class="tcard_t">${esc(title)}</div><div class="tcard_d">${esc(sub)}</div>`
   if (href) return `<a class="tcard ${cls || ''}" href="${href}">${inner}</a>`
-  return `<div class="tcard ${cls || ''}" id="${id}" role="button">${inner}</div>`
+  return `<button type="button" class="tcard ${cls || ''}" id="${id}">${inner}</button>`
 }
 // icon for each custom-list file on the Home "Your lists" card
 const LIST_ICON = {
@@ -500,7 +500,7 @@ function renderSuggestions() {
       return `<label class="sug_row"><input type="checkbox" data-sug="${i.key}"><span class="box"></span>` +
         `<span class="sug_body"><span class="sug_rt">${esc(title)}</span><span class="sug_rd">${esc(desc)}</span></span></label>`
     }).join('') +
-    `<div class="sug_btns"><div class="btn small" id="sug_apply"></div><div class="btn small ghost" id="sug_later">${esc(t('sug.later'))}</div></div></div>`
+    `<div class="sug_btns"><button type="button" class="btn small" id="sug_apply"></button><button type="button" class="btn small ghost" id="sug_later">${esc(t('sug.later'))}</button></div></div>`
   const apply = $('sug_apply')
   const update = () => {
     const n = box.querySelectorAll('input[data-sug]:checked').length
@@ -546,7 +546,7 @@ function switchRow(key, title, desc, warn, isNew) {
   return `<div class="row"><div class="row_body"><div class="row_title">${esc(title)}${isNew ? ` <span class="chip newc">${esc(t('new'))}</span>` : ''}</div>` +
     (desc ? `<div class="row_sub">${esc(desc)}</div>` : '') +
     (warn ? `<div class="row_warn">${esc(warn)}</div>` : '') + '</div>' +
-    `<label class="switch"><input type="checkbox" data-key="${key}" ${isOn(key) ? 'checked' : ''}><span class="slider"></span></label></div>`
+    `<label class="switch"><input type="checkbox" aria-label="${esc(title)}" data-key="${key}" ${isOn(key) ? 'checked' : ''}><span class="slider"></span></label></div>`
 }
 function bindSwitches(root) {
   root.querySelectorAll('input[data-key]').forEach((input) => {
@@ -566,14 +566,14 @@ function renderConfigPage(page) {
     if (!item.type) return switchRow(item.key, title, desc, warn, item.isNew)
     const val = cfg[item.key] ?? item.dflt
     return `<div class="row col"><div class="row_body"><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div></div>` +
-      `<div class="field"><input class="input" dir="ltr" spellcheck="false" autocomplete="off" data-text="${item.key}" value="${esc(val)}" placeholder="${esc(item.dflt)}">` +
-      `<div class="btn small" data-save="${item.key}">${t('text.save')}</div></div></div>`
+      `<div class="field"><input class="input" dir="ltr" spellcheck="false" autocomplete="off" aria-label="${esc(title)}" data-text="${item.key}" value="${esc(val)}" placeholder="${esc(item.dflt)}">` +
+      `<button type="button" class="btn small" data-save="${item.key}">${t('text.save')}</button></div></div>`
   }).join('') + '</div>'
   // Properties page: a button that puts spoofed properties back to their real values now.
   if (page.id === 'props') {
     html += `<div class="card"><div class="row col"><div class="row_body"><div class="row_title">${esc(t('props.restore'))}</div>` +
       `<div class="row_sub">${esc(t('props.restoredesc'))}</div></div>` +
-      `<div class="btn small" id="prop_restore">${esc(t('props.restore'))}</div></div></div>`
+      `<button type="button" class="btn small" id="prop_restore">${esc(t('props.restore'))}</button></div></div>`
   }
   body.innerHTML = html
   if (page.id === 'props') {
@@ -617,8 +617,8 @@ async function renderListsPage() {
       return `<div class="card pad"><div class="list_head"><div><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div>` +
         `${hint ? `<div class="row_sub" style="white-space:pre-line;margin-top:6px">${esc(hint)}</div>` : ''}</div>` +
         `<span class="chip" data-count="${i}">${t('list.count').replace('%s', n)}</span></div>` +
-        `<textarea class="area" dir="ltr" spellcheck="false" data-list="${i}" placeholder="${esc(l.placeholder || '/data/adb/example')}">${esc(contents[i])}</textarea>` +
-        `<div class="btn_row"><span class="mono faint">${l.file}</span><div class="btn small" data-savelist="${i}">${t('list.save')}</div></div></div>`
+        `<textarea class="area" dir="ltr" spellcheck="false" autocomplete="off" aria-label="${esc(title)}" data-list="${i}" placeholder="${esc(l.placeholder || '/data/adb/example')}">${esc(contents[i])}</textarea>` +
+        `<div class="btn_row"><span class="mono faint">${l.file}</span><button type="button" class="btn small" data-savelist="${i}">${t('list.save')}</button></div></div>`
     }).join('')
   body.querySelectorAll('[data-savelist]').forEach((btn) => btn.addEventListener('click', async () => {
     const i = Number(btn.getAttribute('data-savelist'))
@@ -644,7 +644,7 @@ async function renderLogsPage() {
   const block = (id, title, text, file) =>
     `<div class="sec">${esc(title)}</div><div class="card pad"><pre class="log" id="${id}">${esc(text || t('logs.empty'))}</pre>` +
     `<div class="btn_row"><span class="mono faint">${file}</span><div class="btns">` +
-    `<div class="btn small ghost" data-copy="${id}">${t('logs.copy')}</div><div class="btn small ghost" data-clear="${file}">${t('logs.clear')}</div></div></div></div>`
+    `<button type="button" class="btn small ghost" data-copy="${id}">${t('logs.copy')}</button><button type="button" class="btn small ghost" data-clear="${file}">${t('logs.clear')}</button></div></div></div>`
   body.innerHTML =
     `<div class="page_head"><div class="page_ic">${icon('logs')}</div><div class="page_d">${esc(t('page.logsd'))}</div></div>` +
     (isOn('config_brene_logs') ? '' : `<div class="note top">${esc(t('logs.off'))}</div>`) +
@@ -667,9 +667,10 @@ function copyText(text) {
 
 async function renderBackupPage() {
   const body = $('page_body')
-  const when = await out(`[ -f ${BACKUP}/config.sh ] && date -r ${BACKUP}/config.sh '+%Y-%m-%d %H:%M'`)
+  const secs = Number(await out(`[ -f ${BACKUP}/config.sh ] && date -r ${BACKUP}/config.sh +%s`))
+  const when = secs ? new Intl.DateTimeFormat(lang === 'ar' ? 'ar-u-nu-latn' : undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(secs * 1000) : ''
   const action = (id, ic, title, desc, cls = '') =>
-    `<div class="row act ${cls}" data-act="${id}"><div class="row_ic">${icon(ic)}</div><div class="row_body"><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div></div><div class="chev">${icon('next')}</div></div>`
+    `<button type="button" class="row act ${cls}" data-act="${id}"${cls.includes('disabled') ? ' disabled' : ''}><div class="row_ic">${icon(ic)}</div><div class="row_body"><div class="row_title">${esc(title)}</div><div class="row_sub">${esc(desc)}</div></div><div class="chev">${icon('next')}</div></button>`
   body.innerHTML =
     `<div class="page_head"><div class="page_ic">${icon('backup')}</div><div class="page_d">${esc(when ? t('backup.last').replace('%s', when) : t('backup.none'))}</div></div>` +
     '<div class="card">' +
@@ -721,7 +722,7 @@ async function renderTools() {
     const st = row.querySelector('.status')
     const installed = (await exec(`pm path ${pkg}`)).errno === 0
     st.innerHTML = installed
-      ? `<div class="btn small ghost" data-open="${pkg}">${t('tools.open')}</div>`
+      ? `<button type="button" class="btn small ghost" data-open="${pkg}">${t('tools.open')}</button>`
       : `<span class="dot neutral"></span>${esc(t('tools.notinstalled'))}`
   }))
   const rows = document.querySelectorAll('#tools-stack .row, #tools-hiding .row, #tools-integrity .row, #tools-conflict .row')
@@ -765,8 +766,8 @@ async function renderSettings() {
   })
   const g = $('settings_general')
   g.innerHTML = switchRow('config_brene_logs', t('settings.logs'), t('settings.logsd')) +
-    `<div class="row act" id="reboot_row"><div class="row_ic">${icon('power')}</div><div class="row_body"><div class="row_title">${esc(t('settings.reboot'))}</div>` +
-    `<div class="row_sub">${esc(t('settings.rebootd'))}</div></div><div class="chev">${icon('next')}</div></div>`
+    `<button type="button" class="row act" id="reboot_row"><div class="row_ic">${icon('power')}</div><div class="row_body"><div class="row_title">${esc(t('settings.reboot'))}</div>` +
+    `<div class="row_sub">${esc(t('settings.rebootd'))}</div></div><div class="chev">${icon('next')}</div></button>`
   bindSwitches(g)
   $('reboot_row').addEventListener('click', reboot)
   $('about-version').textContent =
@@ -864,7 +865,7 @@ async function renderScanPage() {
   body.innerHTML = `<div class="page_head"><div class="page_ic">${icon('scan')}</div><div class="page_d">${esc(t('page.scand'))}</div></div>` +
     `<div class="note top">${esc(t('scan.note'))}</div>` +
     `<div class="scanhero"><div class="scannum">${good}/${coverable.length}</div><div class="scanlbl">${esc(t('scan.coveredn').replace('%a','').replace('/%b','').trim()||'')}</div>` +
-    `<div class="btn small ghost" id="scan_run">${icon('reset')}${t('scan.run')}</div></div>` +
+    `<button type="button" class="btn small ghost" id="scan_run">${icon('reset')}${t('scan.run')}</button></div>` +
     '<div class="card">' + checks.map((c) =>
       `<div class="row"><div class="row_body"><div class="row_title">${esc(c.t)}</div>` +
       `<div class="row_sub mono">${esc(c.detail ? c.detail.slice(0,60) : c.d)}</div>` +

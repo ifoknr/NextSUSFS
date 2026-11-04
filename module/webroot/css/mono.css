@@ -1,0 +1,248 @@
+/* INFO: Design 5, "mono instrument": the NEXT stack look shared with NextWheel and
+           NextZygisk. Loaded after app.css and only restyles it: ink on black, hairline
+           rules instead of cards, square controls, monospace figures and labels, and one
+           colour (the status dot). Light theme is the same in ink on paper. */
+:root {
+  --background: #0b0b0b;
+  --font: #e9e9e6;
+  --desc: #8a8a87;
+  --faint: #5a5a57;
+  --dim: #0b0b0b;
+  --card: transparent;
+  --card-line: #262626;
+  --rule: #1d1d1d;
+  --icon-bc: transparent;
+  --green: #3ddc84;
+  --amber: #f5b84b;
+  --red: #ff6b6b;
+  --blue: #e9e9e6;
+  --button: #4a4a4a;
+  --button-enabled: #e9e9e6;
+  --mono: ui-monospace, 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --background: #f6f6f4;
+  --font: #121212;
+  --desc: #66665f;
+  --faint: #a3a39c;
+  --dim: #f6f6f4;
+  --card-line: #d6d6d1;
+  --rule: #e4e4df;
+  --green: #12a150;
+  --amber: #b7791f;
+  --red: #d33a3a;
+  --blue: #121212;
+  --button: #a3a39c;
+  --button-enabled: #121212;
+  color-scheme: light;
+}
+
+/* ---------- base: real buttons look like the elements they replaced ---------- */
+button {
+  font: inherit; color: inherit; background: none; border: 0; margin: 0; padding: 0;
+  text-align: inherit; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+button:disabled { cursor: default; }
+html, body { touch-action: manipulation; }
+
+/* Visible focus for keyboard and D-pad, never on a tap */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--font); outline-offset: 2px; }
+.switch input:focus-visible + .slider,
+.sug_row input:focus-visible + .box { outline: 2px solid var(--font); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+.brand { font-weight: 600; font-size: 17px; letter-spacing: .2px; }
+.hdr { border-bottom: 1px solid var(--card-line); padding-bottom: 14px; margin-bottom: 0; align-items: center; }
+.updated { font-family: var(--mono); font-size: 11px; color: var(--desc); }
+.refresh, .back {
+  width: 34px; height: 34px; border-radius: 0; background: none; border: 1px solid var(--card-line);
+}
+.refresh svg { width: 16px; height: 16px; stroke: var(--font); }
+.back svg { width: 16px; height: 16px; }
+.logo { width: 30px; height: 30px; }
+
+/* ---------- status: big state word, one coloured dot, a ruled stat trio ---------- */
+.hero, .hero.ok, .hero.warn, .hero.err,
+:root[data-theme="light"] .hero, :root[data-theme="light"] .hero.ok,
+:root[data-theme="light"] .hero.warn, :root[data-theme="light"] .hero.err {
+  background: none; border: 0; border-bottom: 1px solid var(--card-line); border-radius: 0;
+  padding: 22px 0 0; margin-bottom: 0; gap: 0 14px; align-items: flex-start;
+}
+.hero_ring, :root[data-theme="light"] .hero_ring {
+  width: 12px; height: 12px; margin-top: 24px; background: var(--ring, var(--green));
+}
+.hero_ring::after, .hero_ic { display: none; }
+.hero_title { font-size: 52px; font-weight: 300; letter-spacing: -1.5px; line-height: 1.05; }
+.hero_sub { font-size: 13px; margin-top: 6px; color: var(--desc); }
+.chips { margin-top: 12px; }
+.chip, .chip.v, .chip.rom.stock, .chip.rom.custom,
+:root[data-theme="light"] .chip.v {
+  border-radius: 0; background: none; border: 1px solid var(--card-line); color: var(--desc);
+  font-family: var(--mono); font-weight: 400; font-size: 10.5px; padding: 3px 8px;
+}
+.chip.rom.stock { color: var(--green); }
+.chip.rom.custom { color: var(--amber); }
+.chip.newc, :root[data-theme="light"] .chip.newc { border-color: var(--desc); color: var(--font); padding: 1px 6px; }
+.chip.fixc { color: var(--amber); border-color: var(--amber); }
+.hero_stats { border-top: 1px solid var(--card-line); margin-top: 18px; padding-top: 0; }
+.hstat { text-align: start; padding: 14px 0 14px 14px; }
+.hstat:first-child { padding-inline-start: 0; }
+.hstat + .hstat::before { top: 0; height: 100%; }
+.hstat_n { font-family: var(--mono); font-size: 25px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.hstat_l { font-family: var(--mono); font-size: 10.5px; }
+
+/* ---------- section labels ---------- */
+.sec {
+  font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: .6px;
+  color: var(--desc); margin: 22px 0 6px;
+}
+.sechead { margin: 22px 0 6px; }
+.seclink {
+  font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--font);
+}
+
+/* ---------- rows instead of cards ---------- */
+.card, .card.pad, .scanhero {
+  background: none; border: 0; border-radius: 0; border-bottom: 1px solid var(--rule); overflow: visible;
+}
+.card.pad { padding: 14px 0; }
+.row { padding: 13px 0; }
+.row + .row { border-top: 1px solid var(--rule); }
+button.row { width: 100%; }
+.row_title { font-weight: 400; }
+.row_title a.ext { color: var(--font); }
+.row_sub { color: var(--desc); }
+.row_val { font-family: var(--mono); font-weight: 400; font-size: 12.5px; color: var(--desc); }
+.row_ic svg, .row_ic { color: var(--desc); stroke: currentColor; }
+.row.act:active, .tile:active, .tcard:active, a.scard.cat:active, .lists_card:active, .lists_empty:active,
+:root[data-theme="light"] .row.act:active, :root[data-theme="light"] .tile:active,
+:root[data-theme="light"] .tcard:active, :root[data-theme="light"] a.scard.cat:active,
+:root[data-theme="light"] .lists_card:active, :root[data-theme="light"] .lists_empty:active { background: var(--rule); }
+.row.act.danger .row_ic, .row.act.danger .row_title { color: var(--red); }
+.device { padding: 6px 0; gap: 0; }
+.drow { padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.drow:last-child { border-bottom: 0; }
+.drow .v { font-family: var(--mono); font-weight: 400; font-size: 12.5px; color: var(--desc); }
+.note { margin: 10px 0 16px; }
+
+/* ---------- ruled grids: kernel, protection, tools, hub ---------- */
+.statgrid, .grid { gap: 0; border-top: 1px solid var(--card-line); border-inline-start: 1px solid var(--card-line); }
+.scard, .tcard, .tile {
+  border-radius: 0; background: none; border: 0;
+  border-bottom: 1px solid var(--card-line); border-inline-end: 1px solid var(--card-line);
+  min-height: 92px; padding: 14px; text-align: start; width: 100%;
+}
+.scard_top { font-weight: 400; }
+.scard_val { font-family: var(--mono); font-weight: 400; font-size: 20px; font-variant-numeric: tabular-nums; }
+.scard_val .tot { font-weight: 400; }
+.tcard_ic, .tile_ic, .page_ic, .lrow_ic, .tcard.danger .tcard_ic {
+  width: auto; height: auto; border-radius: 0; background: none; color: var(--font); place-items: start;
+}
+.tcard.danger .tcard_ic, .tcard.danger .tcard_t { color: var(--red); }
+.tcard_t, .tile_t { font-weight: 500; }
+.lists_empty { padding: 14px 0; min-height: 0; }
+.lrow { padding: 12px 0; }
+.lrow + .lrow { border-top-color: var(--rule); }
+
+/* ---------- dots: flat, no halo ---------- */
+.dot.on, .dot.off, .dot.warn { box-shadow: none; }
+.dot.warn { background: var(--amber); }
+.st_on { color: var(--green); }
+
+/* ---------- square switch ---------- */
+.switch { width: 40px; height: 22px; }
+.slider, :root[data-theme="light"] .slider {
+  border-radius: 0; background: none; border: 1px solid var(--button);
+  transition: background-color .2s, border-color .2s;
+}
+.slider:before {
+  width: 14px; height: 14px; left: 3px; bottom: 3px; border-radius: 0; background: var(--button);
+  transition: transform .2s, background-color .2s;
+}
+input:checked + .slider { background: var(--button-enabled); border-color: var(--button-enabled); }
+input:checked + .slider:before { background: var(--background); transform: translateX(18px); }
+html[dir="rtl"] .slider:before { right: 3px; left: auto; }
+
+/* ---------- buttons, segments, inputs ---------- */
+.btn, .btn.ghost {
+  border-radius: 0; font-family: var(--mono); font-weight: 400; font-size: 11.5px;
+  letter-spacing: .4px; text-transform: uppercase; padding: 9px 14px; gap: 6px;
+}
+.btn { background: var(--font); color: var(--background); border: 1px solid var(--font); }
+.btn.ghost { background: none; color: var(--font); border: 1px solid var(--font); }
+.btn.small { padding: 7px 12px; font-size: 11px; }
+.btn:active { transform: none; opacity: .8; }
+.seg { border-radius: 0; background: none; border: 1px solid var(--card-line); padding: 0; gap: 0; }
+.seg_btn { border-radius: 0; font-family: var(--mono); font-weight: 400; font-size: 12px; text-transform: uppercase; }
+.seg_btn.active { background: var(--font); color: var(--background); }
+.input, .area { border-radius: 0; background: var(--background); border-color: var(--card-line); }
+.input:focus, .area:focus { border-color: var(--font); }
+
+/* ---------- banners, dialog ---------- */
+.pending, :root[data-theme="light"] .pending {
+  border-radius: 0; background: none; border: 1px solid var(--font);
+}
+.pending_t, :root[data-theme="light"] .pending_t {
+  color: var(--font); font-family: var(--mono); font-weight: 400; font-size: 12px; text-transform: uppercase;
+}
+.alert, .alert.warn, .alert.err, :root[data-theme="light"] .alert.warn, :root[data-theme="light"] .alert.err {
+  border-radius: 0; background: none;
+}
+.alert.warn, :root[data-theme="light"] .alert.warn { border-color: var(--amber); }
+.alert.err, :root[data-theme="light"] .alert.err { border-color: var(--red); }
+.sug, :root[data-theme="light"] .sug { border-radius: 0; background: none; border-color: var(--amber); }
+.sug_row .box { border-radius: 0; }
+/* the suggestion checkbox stays focusable instead of display: none */
+.sug_row { position: relative; }
+.sug_row input { display: block; position: absolute; opacity: 0; width: 1px; height: 1px; }
+.dlg { background: rgba(0, 0, 0, .74); overscroll-behavior: contain; }
+.dlg_box { border-radius: 0; background: var(--background); border: 1px solid var(--font); }
+.dlg_t { font-weight: 400; }
+
+/* ---------- page header, logs, trace check ---------- */
+.page_head { margin: 16px 0 6px; }
+.page_ic svg { width: 18px; height: 18px; }
+.log { color: var(--font); }
+.scanhero { padding: 14px 0; }
+.scannum { font-family: var(--mono); font-weight: 400; color: var(--green); }
+.spin { border-radius: 0; border-color: var(--card-line); border-top-color: var(--font); }
+
+/* ---------- navbar: full-width ruled bar, underline under the active tab ---------- */
+#navbar_support { padding: 0 0 var(--window-inset-bottom, 0px); }
+#navbar, :root[data-theme="light"] #navbar {
+  width: 100%; border-radius: 0; padding: 8px 12px 10px; background: var(--background);
+  border: 0; border-top: 1px solid var(--card-line); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.nav_cap { width: 40px; height: 26px; border-radius: 0; }
+.nav_btn:active .nav_cap { transform: none; }
+.nav_lb { font-family: var(--mono); font-size: 10px; letter-spacing: .4px; text-transform: uppercase; }
+.nav_btn.active .nav_lb, .nav_btn.near .nav_lb { font-weight: 400; }
+/* The sliding pill is sized by app.js to the icon cap; a short rule under the active
+   (or dragged-over) tab replaces it. */
+#nav_pill { display: none; }
+.nav_btn::after { content: ""; width: 16px; height: 2px; margin-top: 1px; background: transparent; }
+.nav_btn.active::after, .nav_btn.near::after { background: var(--font); }
+.nav_btn.pop .nav_ic { animation: none; }
+.nav_ic { opacity: .55; }
+.nav_btn.active .nav_ic { opacity: 1; }
+
+/* ---------- motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .panel, .spin { animation: none; }
+  .slider, .slider:before, #nav_pill, #navbar_support { transition: none; }
+}
+
+/* ---------- tablets ---------- */
+@media (min-width: 720px) {
+  .hero, .hero.ok, .hero.warn, .hero.err { padding: 28px 0 0; }
+  .hero_ring, :root[data-theme="light"] .hero_ring { width: 14px; height: 14px; margin-top: 30px; }
+  .hero_title { font-size: 64px; }
+  .hero_stats { margin-inline-start: 0; width: 100%; border-top: 1px solid var(--card-line); margin-top: 22px; }
+  .hstat { flex: 1; padding: 16px 0 16px 18px; }
+  #navbar { width: 100%; }
+  .nav_cap { width: 48px; height: 30px; }
+}

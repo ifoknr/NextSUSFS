@@ -133,8 +133,8 @@ a { color: var(--blue); text-decoration: none; }
 /* toggle switch */
 .switch { position: relative; display: inline-block; width: 46px; height: 28px; flex: 0 0 auto; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; inset: 0; cursor: pointer; background: var(--button); transition: .25s; border-radius: 34px; }
-.slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 4px; bottom: 4px; background: #fff; transition: .25s; border-radius: 50%; }
+.slider { position: absolute; inset: 0; cursor: pointer; background: var(--button); transition: background-color .25s; border-radius: 34px; }
+.slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 4px; bottom: 4px; background: #fff; transition: transform .25s; border-radius: 50%; }
 input:checked + .slider { background: var(--button-enabled); }
 input:checked + .slider:before { transform: translateX(18px); }
 input:disabled + .slider { opacity: .5; }
