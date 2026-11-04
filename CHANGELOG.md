@@ -2,6 +2,16 @@
 
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
+## v0.0.16
+- شكل جديد (تصميم 5): حالة الأداة بخط كبير ونقطة لون وحدة، خطوط رفيعة بدل الكروت، مفاتيح وأزرار مربّعة، وأرقام بخط mono. داكن وفاتح، ونفس الشكل في أدوات NEXT الثلاث.
+- كل الأزرار صارت أزرار حقيقية تشتغل بالكيبورد وقارئ الشاشة، مع مؤشر تركيز واضح.
+- وقت آخر نسخة احتياطية يظهر بصيغة لغتك.
+
+**English**
+- New look (design 5): the state in large type with one status dot, hairline rules instead of cards, square switches and buttons, monospace figures. Dark and light, the same across all three NEXT tools.
+- Every button is a real button that works with a keyboard and screen readers, with a visible focus ring.
+- The last backup time is shown in your language's format.
+
 ## v0.0.15
 - أمان: الاستعادة من النسخة الاحتياطية ما عادت تنسخ config.sh كما هو — الملف يشتغل كـ root عند الإقلاع، وأي تطبيق بصلاحية التخزين يقدر يعدّله. تُؤخذ الإعدادات المعروفة بقيم صحيحة فقط.
 - جديد: «Integrity Check» في الأدوات ← تطبيقات الكشف، يفتح فاحص Play Integrity API.
