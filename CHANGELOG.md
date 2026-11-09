@@ -3,14 +3,14 @@
 <!-- Each "## vX.Y.Z" section is the release notes and the Telegram post: the Arabic bullets, then a line "**English**" and the same bullets in English. Keep it short (about 760 characters). Commits show IFOKNR only. -->
 
 ## v0.0.17
-- تحديثات من BRENE v0.0.75: عدّاد ميزات SuSFS صار 10 (يشمل فلتر أولوية الـUID)، والوصف يعرض نوع SuSFS (GKI/NON-GKI).
-- إصلاح: «إخفاء مجلدات مدير الروت» ينتظر ثانية قبل المسح لأن مسحه بسرعة كان يطيّح مدير KernelSU.
-- تحسين: نسخة احتياطية من ثنائي SuSFS تُستعاد تلقائياً لو حذفه موديول ثاني. التثبيت الساخن يُطلب من مدير KernelSU لو يدعمه. أمر قائمة التطبيقات صار `cmd package`، وإعداد حجم السجلات ما عاد يُحفظ دائماً.
+- تحديثات من BRENE v0.0.75: عدّاد ميزات SuSFS صار 10، والوصف يعرض نوع SuSFS (GKI/NON-GKI). نسخة احتياطية من ثنائي SuSFS تُستعاد لو حذفه موديول ثاني. التثبيت الساخن يُطلب من مدير KernelSU لو يدعمه.
+- إصلاح: «إخفاء مجلدات مدير الروت» ينتظر ثانية قبل المسح لأن المسح السريع كان يطيّح مدير KernelSU. أوامر `cmd package` و`cmd activity` بدل `pm` و`am`.
+- جديد في الأدوات: قسم «غير متوافقة / لم تُختبر» (لا يمنع شي، للتنبيه فقط)، وReSuSFS ضمن المتعارضة، ومدير ملفات Material Files.
 
 **English**
-- From BRENE v0.0.75: the SuSFS feature counter is now 10 (includes the priority-UID filter) and the description shows the SuSFS variant (GKI/NON-GKI).
-- Fix: "Hide root manager folders" waits a second before clearing, since clearing too fast crashed the KernelSU manager.
-- Improved: the SuSFS binary is backed up and restored if another module removes it. Hot install is requested from the KernelSU manager when supported. The app-list command is now `cmd package`, and the log-buffer setting is no longer written as persistent.
+- From BRENE v0.0.75: SuSFS feature counter is now 10, the description shows the variant (GKI/NON-GKI). The SuSFS binary is backed up and restored if another module removes it. Hot install is requested from the KernelSU manager when supported.
+- Fix: "Hide root manager folders" waits a second before clearing, since clearing too fast crashed the KernelSU manager. `cmd package` and `cmd activity` replace `pm` and `am`.
+- New in Tools: an "Incompatible / untested" section (informational, blocks nothing), ReSuSFS under conflicting modules, and the Material Files manager.
 
 ## v0.0.16
 - شكل جديد (تصميم 5): حالة الأداة بخط كبير ونقطة لون وحدة، خطوط رفيعة بدل الكروت، مفاتيح وأزرار مربّعة، وأرقام بخط mono. داكن وفاتح، ونفس الشكل في أدوات NEXT الثلاث.

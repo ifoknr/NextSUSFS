@@ -13,8 +13,6 @@ CUSTOM_ROM_NAMES="lineage|infinity|evolution|crdroid|mistos|axion|pixelos|rising
 # Load config
 [[ -e "${PERSISTENT_DIR}/config.sh" ]] && source "${PERSISTENT_DIR}/config.sh"
 
-update_config_date
-
 # INFO: Boot-loop protection (Safe Mode). Reaching boot-completed means this boot
 #         succeeded. If post-fs-data had hit the attempt limit it skipped all hiding this
 #         boot; detect that here (counter still at/above the limit), write the status the
@@ -25,6 +23,7 @@ boot_attempts=$(cat "${PERSISTENT_DIR}/boot_attempts" 2>/dev/null)
 case "${boot_attempts}" in '' | *[!0-9]*) boot_attempts=0 ;; esac
 if [[ "${boot_attempts}" -ge "${SAFE_MODE_LIMIT}" ]]; then
 	echo 0 > "${PERSISTENT_DIR}/boot_attempts"
+	update_config_date
 	susfs_version=$(${SUSFS_BIN} show version 2>/dev/null)
 	kernel_version=$(cat /proc/version | awk '{print $3}' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
 	${KSU_BIN} module config set override.description "[Status: Safe Mode ⚠️ hiding skipped | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none}] NextSUSFS" 2>/dev/null
@@ -561,6 +560,9 @@ if [[ "${config_fix_data_local_tmp_inconsistencies}" == "1" ]]; then
 fi
 
 resetprop -c --force
+# INFO: Refresh the date used by the security-patch spoof only after boot has settled
+#         (BRENE ef9f963). The Safe Mode path above refreshes it itself before exiting.
+update_config_date
 
 # Hide third-party apps from UID enumeration via the priority/ioprio syscalls (getpriority,
 # setpriority, ioprio_get, ioprio_set), which some apps abuse to list the installed/running
