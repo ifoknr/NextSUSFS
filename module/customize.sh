@@ -68,11 +68,15 @@ ui_print "[✅] Preparing data directory (${PERSISTENT_DIR})"
 mkdir -p "${PERSISTENT_DIR}"
 echo "${kernel_state}" > "${PERSISTENT_DIR}/kernel_state"
 
+# INFO: Keep a copy of the SuSFS binary; another SuSFS module removing it on uninstall would
+#         otherwise leave this one without a driver (restored in post-fs-data.sh).
+cp -pf "${DEST_BIN_DIR}/susfs" "${PERSISTENT_DIR}/susfs" 2>/dev/null
+
 # Reset module description
 susfs_features_number=$(${SUSFS_BIN} show enabled_features 2>/dev/null | wc -l)
 kernel_version=$(cat /proc/version | awk '{print $3}' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
 status="Waiting for reboot ⏱️"
-${KSU_BIN} module config set override.description "[Status: ${status} | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none} | Features: ${susfs_features_number}/9] NextSUSFS" 2>/dev/null
+${KSU_BIN} module config set override.description "[Status: ${status} | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none} | Features: ${susfs_features_number}/10] NextSUSFS" 2>/dev/null
 
 # INFO: Only one SuSFS driver may own the kernel at a time, so turn off any other,
 #         including the module this is forked from, to avoid two of them fighting.
@@ -122,5 +126,10 @@ rm -f "${PERSISTENT_DIR}/boot_attempts" "${PERSISTENT_DIR}/safe_mode"
 #         left only a few files on some managers: no webroot (WebUI hangs) and no
 #         boot-completed.sh (status stuck on "Waiting for reboot"). The manager moves the
 #         module into place on the next boot.
+#         KernelSU's own hot install (when the manager supports it) is safe, so ask for it
+#         instead; hiding itself still only applies after the reboot.
+if [[ "${KSU_HAS_HOT_INSTALL}" == true ]]; then
+	export MODULE_HOT_INSTALL_REQUEST=true
+fi
 
 ui_print '[✅] NextSUSFS installed. Reboot to apply.'

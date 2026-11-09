@@ -5,6 +5,10 @@
 # Android/{data,media,obb}/<package> on internal storage; an app with
 # MANAGE_EXTERNAL_STORAGE that lists them learns the device is rooted. Called once at boot
 # and kept clean by inotifyd watchers (see config_hide_ksu_directories in boot-completed.sh).
+# INFO: Give the manager a moment to finish creating its folder; removing it while the
+#         manager app is still starting up makes the KernelSU manager crash (BRENE 70a57e2).
+sleep 1
+
 remove_directory() {
 	[[ -z "$1" ]] && return 1
 	rm -rf "/storage/emulated/0/Android/data/$1" \
