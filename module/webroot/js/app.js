@@ -48,6 +48,9 @@ const STR = {
     'tools.help': 'Need help, or have an idea or a fix? Write in the group or contact me on GitHub.',
     'tools.other': 'Another module uses this ID',
     'tools.conflictsub': 'Another SuSFS driver — only one may run',
+    'tools.untested': 'Incompatible / untested', 'tools.untestedsub': 'Incompatible or untested with NextSUSFS',
+    'tools.untestednote': 'Not blocked: shown so you know what to disable if something misbehaves.',
+    'tools.materialfiles': 'File manager with root access, to see what is really in a folder',
     'tools.checking': '…', 'tools.installed': 'Installed', 'tools.notinstalled': 'Not installed', 'tools.disabled': 'Disabled',
     'settings.language': 'Language', 'settings.system': 'System', 'settings.general': 'General',
     'settings.logs': 'Detailed logs', 'settings.logsd': 'Record every hidden path and spoofed value. Read them in Hiding → Logs.',
@@ -139,6 +142,9 @@ const STR = {
     'tools.help': 'تحتاج مساعدة، أو عندك فكرة أو تعديل؟ اكتب في القروب أو تواصل معي على GitHub.',
     'tools.other': 'وحدة أخرى تستخدم نفس المعرّف',
     'tools.conflictsub': 'مشغّل SuSFS آخر — واحد فقط يعمل',
+    'tools.untested': 'غير متوافقة / لم تُختبر', 'tools.untestedsub': 'غير متوافقة أو لم تُختبر مع NextSUSFS',
+    'tools.untestednote': 'غير ممنوعة: تظهر عشان تعرف وش تعطّل لو صار خلل.',
+    'tools.materialfiles': 'مدير ملفات بصلاحية الروت، يوريك وش الموجود فعلاً في المجلد',
     'tools.checking': '…', 'tools.installed': 'مثبّت', 'tools.notinstalled': 'غير مثبّت', 'tools.disabled': 'معطّل',
     'settings.language': 'اللغة', 'settings.system': 'لغة الجهاز', 'settings.general': 'عام',
     'settings.theme': 'الثيم', 'settings.themesys': 'النظام', 'settings.dark': 'داكن', 'settings.light': 'فاتح',
@@ -725,13 +731,13 @@ async function renderTools() {
       ? `<button type="button" class="btn small ghost" data-open="${pkg}">${t('tools.open')}</button>`
       : `<span class="dot neutral"></span>${esc(t('tools.notinstalled'))}`
   }))
-  const rows = document.querySelectorAll('#tools-stack .row, #tools-hiding .row, #tools-integrity .row, #tools-conflict .row')
+  const rows = document.querySelectorAll('#tools-stack .row, #tools-hiding .row, #tools-integrity .row, #tools-conflict .row, #tools-untested .row')
   await Promise.all([...rows].map(async (row) => {
     const id = row.getAttribute('data-module')
     const st = row.querySelector('.status')
     const installed = await exists(`/data/adb/modules/${id}`)
     const disabled = installed && await exists(`/data/adb/modules/${id}/disable`)
-    const conflict = row.closest('#tools-conflict')
+    const conflict = row.closest('#tools-conflict, #tools-untested')
     // some modules share an id (AlwaysStrong uses tricky_store), so check the name too
     const wantName = row.getAttribute('data-name')
     const name = installed && wantName
@@ -780,7 +786,9 @@ document.addEventListener('click', (e) => {
   if (!b) return
   const pkg = b.getAttribute('data-open')
   if (!/^[a-z0-9_.]+$/i.test(pkg)) return
-  exec(`am start -n "$(cmd package resolve-activity --brief ${pkg} | tail -n 1)"`)
+  // force-stop first so a stale instance of the Play Integrity checker starts clean (BRENE e66af9e)
+  const stop = pkg === 'gr.nikolasspyr.integritycheck' ? `cmd activity force-stop ${pkg}; ` : ''
+  exec(`${stop}cmd activity start -n "$(cmd package resolve-activity --brief ${pkg} | tail -n 1)"`)
 })
 
 /* ---------- links ---------- */
@@ -792,7 +800,7 @@ document.addEventListener('click', (e) => {
   e.preventDefault()
   const url = a.href.replace(/'/g, '')
   if (typeof ksu === 'undefined') { window.open(url, '_blank'); return }
-  exec(`am start -a android.intent.action.VIEW -d '${url}'`)
+  exec(`cmd activity start -a android.intent.action.VIEW -d '${url}'`)
 })
 
 /* ---------- router ---------- */
