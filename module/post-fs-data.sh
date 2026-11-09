@@ -7,6 +7,12 @@ SUSFS_BIN=/data/adb/ksu/bin/susfs
 PERSISTENT_DIR=/data/adb/nextsusfs
 DEST_BIN_DIR=/data/adb/ksu/bin
 CUSTOM_ROM_NAMES="lineage|infinity|evolution|crdroid|mistos|axion|pixelos|rising|lunaris|halcyon|havoc|alphadroid|bliss|calyx|derpfest|graphene|lmodroid|lumine|matrixx|clover|yaap|aospa"
+# Restore the SuSFS binary if another module removed it (backup made at install time).
+if [[ ! -x "${SUSFS_BIN}" && -f "${PERSISTENT_DIR}/susfs" ]]; then
+	cp -pf "${PERSISTENT_DIR}/susfs" "${DEST_BIN_DIR}/susfs" && chmod 755 "${DEST_BIN_DIR}/susfs"
+	ln -sf "${DEST_BIN_DIR}/susfs" "${DEST_BIN_DIR}/sus"       # For development
+	ln -sf "${DEST_BIN_DIR}/susfs" "${DEST_BIN_DIR}/ksu_susfs" # For compatibility
+fi
 SUSFS_VARIANT=$(${SUSFS_BIN} show variant)
 
 # Load utils

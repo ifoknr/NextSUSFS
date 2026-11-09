@@ -39,7 +39,8 @@ if [[ "${boot_attempts}" -ge "${SAFE_MODE_LIMIT}" ]]; then
 fi
 
 # Update Description
-susfs_total_features=9
+susfs_total_features=10
+susfs_variant=$(${SUSFS_BIN} show variant 2>/dev/null)
 susfs_version=$(${SUSFS_BIN} show version)
 susfs_features_number=$(${SUSFS_BIN} show enabled_features | wc -l)
 kernel_version=$(cat /proc/version | awk '{print $3}' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
@@ -50,7 +51,7 @@ elif [[ "${susfs_version}" == "v1"* ]]; then
 else
 	status="No SuSFS in kernel ❌"
 fi
-${KSU_BIN} module config set override.description "[Status: ${status} | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none} | Features: ${susfs_features_number}/${susfs_total_features}] NextSUSFS"
+${KSU_BIN} module config set override.description "[Status: ${status} | Kernel: ${kernel_version} | SuSFS: ${susfs_version:-none}${susfs_variant:+ (${susfs_variant})} | Features: ${susfs_features_number}/${susfs_total_features}] NextSUSFS"
 
 # SU Compat
 if [[ "${config_su_compat}" == "1" ]]; then
@@ -119,7 +120,7 @@ fi
 # Shrink logcat and logd buffers to save CPU and battery (from BRENE v0.0.71)
 if [[ "${config_shrink_buffer_size}" == "1" ]]; then
 	logcat -G 64K
-	resetprop -n -p persist.logd.size 65536
+	resetprop -n persist.logd.size 65536
 fi
 
 # SELinux Enforcing
@@ -566,7 +567,7 @@ resetprop -c --force
 # apps. Needs a SuSFS kernel that supports the priority UID filter; on older kernels the
 # command is simply ignored, so nothing breaks. HMA-OSS covers the userspace side. Off by default.
 if [[ "${config_hide_third_party_apps}" == "1" ]]; then
-	packages=$(pm list packages -3 2>/dev/null | awk -F: '{out = out (out ? "," : "") $2} END {print out}')
+	packages=$(cmd package list packages -3 2>/dev/null | awk -F: '{out = out (out ? "," : "") $2} END {print out}')
 	[[ -n "${packages}" ]] && ${SUSFS_BIN} set_priority_uid_filter "${packages}"
 fi
 
